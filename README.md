@@ -4,6 +4,8 @@
 
 ### Execute functions in a configurable order, modifying a shared data structure.
 
+[Annotated Source](http://rjrodger.github.io/ordu/doc/ordu.html)
+
 This module is used by the [Seneca](http://senecajs.org) framework to
 provide configurable extension hooks.
 
