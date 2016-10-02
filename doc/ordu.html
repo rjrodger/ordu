@@ -59,13 +59,16 @@
   self.add = api_add
   self.process = api_process
   self.tasknames = api_tasknames
+  self.taskdetails = api_taskdetails
   self.toString = api_toString
 
 
   <span class="hljs-keyword">var</span> tasks = []
 
 
-  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">api_add</span> (<span class="hljs-params">task</span>) </span>{
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">api_add</span> (<span class="hljs-params">spec, task</span>) </span>{
+    task = task || spec
+
     Assert(<span class="hljs-string">'function'</span> === <span class="hljs-keyword">typeof</span> task)
 
     <span class="hljs-keyword">if</span> (!task.name) {
@@ -74,19 +77,56 @@
       })
     }
 
+    task.tags = spec.tags || []
+
     tasks.push(task)
-  }
+  }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>Valid calls:</p>
+<ul>
+<li>process(spec, ctxt, data)</li>
+<li>process(ctxt, data)</li>
+<li>process(data)</li>
+<li>process()</li>
+</ul>
 
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">api_process</span> (<span class="hljs-params"></span>) </span>{
+    <span class="hljs-keyword">var</span> i = <span class="hljs-built_in">arguments</span>.length
+    <span class="hljs-keyword">var</span> data = <span class="hljs-number">0</span> &lt; i &amp;&amp; <span class="hljs-built_in">arguments</span>[--i]
+    <span class="hljs-keyword">var</span> ctxt = <span class="hljs-number">0</span> &lt; i &amp;&amp; <span class="hljs-built_in">arguments</span>[--i]
+    <span class="hljs-keyword">var</span> spec = <span class="hljs-number">0</span> &lt; i &amp;&amp; <span class="hljs-built_in">arguments</span>[--i]
 
-  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">api_process</span> (<span class="hljs-params">ctxt, data</span>) </span>{
+    data = data || {}
+    ctxt = ctxt || {}
+    spec = spec || {}
+
+    spec.tags = spec.tags || []
+
     <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> tI = <span class="hljs-number">0</span>; tI &lt; tasks.length; ++tI) {
+      <span class="hljs-keyword">var</span> task = tasks[tI]
+
+      <span class="hljs-keyword">if</span> (<span class="hljs-number">0</span> &lt; spec.tags.length &amp;&amp; !contains(task.tags, spec.tags)) {
+        <span class="hljs-keyword">continue</span>
+      }
+
       <span class="hljs-keyword">var</span> index$ = tI
-      <span class="hljs-keyword">var</span> taskname$ = tasks[tI].name
+      <span class="hljs-keyword">var</span> taskname$ = task.name
 
       ctxt.index$ = index$
       ctxt.taskname$ = taskname$
 
-      <span class="hljs-keyword">var</span> res = tasks[tI].call(<span class="hljs-literal">null</span>, ctxt, data)
+      <span class="hljs-keyword">var</span> res = task(ctxt, data)
 
       <span class="hljs-keyword">if</span> (res) {
         res.index$ = index$
@@ -96,6 +136,8 @@
         <span class="hljs-keyword">return</span> res
       }
     }
+
+    <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>
   }
 
 
@@ -106,11 +148,29 @@
   }
 
 
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">api_taskdetails</span> (<span class="hljs-params"></span>) </span>{
+    <span class="hljs-keyword">return</span> tasks.map(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">v</span>) </span>{
+      <span class="hljs-keyword">return</span> v.name + <span class="hljs-string">':{tags:'</span> + v.tags + <span class="hljs-string">'}'</span>
+    })
+  }
+
+
   <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">api_toString</span> (<span class="hljs-params"></span>) </span>{
     <span class="hljs-keyword">return</span> opts.name + <span class="hljs-string">':['</span> + self.tasknames() + <span class="hljs-string">']'</span>
   }
 
   <span class="hljs-keyword">return</span> self
+}
+
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">contains</span> (<span class="hljs-params">all, some</span>) </span>{
+  <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>; i &lt; some.length; ++i) {
+    <span class="hljs-keyword">if</span> (<span class="hljs-number">-1</span> === all.indexOf(some[i])) {
+      <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>
+    }
+  }
+
+  <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>
 }</pre></div></div>
             
         </li>

@@ -22,6 +22,40 @@ describe('ordu', function () {
     fin()
   })
 
+
+  it('readme-example', function (fin) {
+    var w = Ordu()
+
+    w.add(function first (ctxt, data) {
+      if (null == data.foo) {
+        return {kind: 'error', why: 'no foo'}
+      }
+
+      data.foo = data.foo.substring(0, ctxt.len)
+    })
+
+    w.add({tags: ['upper']}, function second (ctxt, data) {
+      data.foo = data.foo.toUpperCase()
+    })
+
+    var ctxt = {len: 3}
+    var data = {foo: 'green'}
+
+    w.process(ctxt, data)
+    console.log(data.foo) // prints 'GRE' (first, second)
+
+    data = {foo: 'blue'}
+    w.process({tags: ['upper']}, ctxt, data)
+    console.log(data.foo) // prints 'BLUE' (second)
+
+    data = []
+    var res = w.process(ctxt, data)
+    console.log(res) // prints {kind: 'error', why: 'no foo', ... introspection ...}
+
+    fin()
+  })
+
+
   it('happy', function (fin) {
     var w = Ordu()
 
