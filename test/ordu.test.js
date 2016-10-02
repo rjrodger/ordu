@@ -68,7 +68,84 @@ describe('ordu', function () {
     w.add(function two () {})
 
     expect(w.tasknames()).to.equal(['zero', 'foo_task1', 'two'])
+    expect(w.taskdetails()).to.equal(['zero:{tags:}',
+                                      'foo_task1:{tags:}',
+                                      'two:{tags:}'])
     expect('' + w).to.equal('foo:[zero,foo_task1,two]')
+    fin()
+  })
+
+
+  it('process', function (fin) {
+    var w = Ordu({name: 'tags'})
+
+    w.add(function zero (c, d) {
+      d.zero = true
+    })
+
+    var data = {}
+    expect(w.process()).to.equal(null)
+    expect(data.zero).to.not.exist()
+
+    data = {}
+    expect(w.process(data)).to.equal(null)
+    expect(data.zero).to.be.true()
+
+    data = {}
+    expect(w.process({}, data)).to.equal(null)
+    expect(data.zero).to.be.true()
+
+    data = {}
+    expect(w.process({}, {}, data)).to.equal(null)
+    expect(data.zero).to.be.true()
+
+    fin()
+  })
+
+
+  it('tags', function (fin) {
+    var w = Ordu({name: 'tags'})
+
+    w.add({tags: ['red']}, function zero (c, d) {
+      d.push('zero')
+    })
+
+    w.add({tags: []}, function one (c, d) {
+      d.push('one')
+    })
+
+    w.add(function two (c, d) {
+      d.push('two')
+    })
+
+    var data = []
+    expect(w.process({}, data)).to.equal(null)
+    expect(data).to.equal(['zero', 'one', 'two'])
+
+    data = []
+    expect(w.process({tags: ['red']}, {}, data)).to.equal(null)
+    expect(data).to.equal(['zero'])
+
+    w.add({tags: ['red', 'blue']}, function three (c, d) {
+      d.push('three')
+    })
+
+    data = []
+    expect(w.process({tags: ['blue', 'red']}, {}, data)).to.equal(null)
+    expect(data).to.equal(['three'])
+
+    data = []
+    expect(w.process({tags: ['red']}, {}, data)).to.equal(null)
+    expect(data).to.equal(['zero', 'three'])
+
+    data = []
+    expect(w.process({tags: ['blue']}, {}, data)).to.equal(null)
+    expect(data).to.equal(['three'])
+
+    data = []
+    expect(w.process({tags: []}, {}, data)).to.equal(null)
+    expect(data).to.equal(['zero', 'one', 'two', 'three'])
+
     fin()
   })
 })

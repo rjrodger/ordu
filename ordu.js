@@ -27,13 +27,16 @@ function Ordu (opts) {
   self.add = api_add
   self.process = api_process
   self.tasknames = api_tasknames
+  self.taskdetails = api_taskdetails
   self.toString = api_toString
 
 
   var tasks = []
 
 
-  function api_add (task) {
+  function api_add (spec, task) {
+    task = task || spec
+
     Assert('function' === typeof task)
 
     if (!task.name) {
@@ -42,19 +45,43 @@ function Ordu (opts) {
       })
     }
 
+    task.tags = spec.tags || []
+
     tasks.push(task)
   }
 
 
-  function api_process (ctxt, data) {
+  // Valid calls:
+  //   * process(spec, ctxt, data)
+  //   * process(ctxt, data)
+  //   * process(data)
+  //   * process()
+  function api_process () {
+    var i = arguments.length
+    var data = 0 < i && arguments[--i]
+    var ctxt = 0 < i && arguments[--i]
+    var spec = 0 < i && arguments[--i]
+
+    data = data || {}
+    ctxt = ctxt || {}
+    spec = spec || {}
+
+    spec.tags = spec.tags || []
+
     for (var tI = 0; tI < tasks.length; ++tI) {
+      var task = tasks[tI]
+
+      if (0 < spec.tags.length && !contains(task.tags, spec.tags)) {
+        continue
+      }
+
       var index$ = tI
-      var taskname$ = tasks[tI].name
+      var taskname$ = task.name
 
       ctxt.index$ = index$
       ctxt.taskname$ = taskname$
 
-      var res = tasks[tI].call(null, ctxt, data)
+      var res = task(ctxt, data)
 
       if (res) {
         res.index$ = index$
@@ -64,6 +91,8 @@ function Ordu (opts) {
         return res
       }
     }
+
+    return null
   }
 
 
@@ -74,9 +103,27 @@ function Ordu (opts) {
   }
 
 
+  function api_taskdetails () {
+    return tasks.map(function (v) {
+      return v.name + ':{tags:' + v.tags + '}'
+    })
+  }
+
+
   function api_toString () {
     return opts.name + ':[' + self.tasknames() + ']'
   }
 
   return self
+}
+
+
+function contains (all, some) {
+  for (var i = 0; i < some.length; ++i) {
+    if (-1 === all.indexOf(some[i])) {
+      return false
+    }
+  }
+
+  return true
 }
