@@ -97,9 +97,10 @@ describe('ordu', function () {
   it('list', function (fin) {
     var w = Ordu({name: 'foo'})
 
-    w.add(function zero () {})
-    w.add(function () {})
-    w.add(function two () {})
+    w
+      .add(function zero () {})
+      .add(function () {})
+      .add(function two () {})
 
     expect(w.tasknames()).to.equal(['zero', 'foo_task1', 'two'])
     expect(w.taskdetails()).to.equal(['zero:{tags:}',

@@ -48,6 +48,8 @@ function Ordu (opts) {
     task.tags = spec.tags || []
 
     tasks.push(task)
+
+    return self
   }
 
 
