@@ -14,7 +14,7 @@
     "url": "git://github.com/rjrodger/ordu.git"
   },
   "main": "ordu.js",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "scripts": {
     "test": "lab -v -P test -L -t 100",
     "build": "./build.sh"
@@ -26,8 +26,7 @@
     "ordu-min.map",
     "LICENSE"
   ],
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
     "code": "3.0.x",
     "coveralls": "2.11.x",
