@@ -1,10 +1,12 @@
 # ordu
 
-[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/rjrodger/ordu?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![npm version][npm-badge]][npm-url]
+[![Build Status][travis-badge]][travis-url]
+[![Coverage Status][coveralls-badge]][coveralls-url]
+[![Dependency Status][david-badge]][david-url]
+
 
 ### Execute functions in a configurable order, modifying a shared data structure.
-
-[Annotated Source](http://rjrodger.github.io/ordu/doc/ordu.html)
 
 Task functions are executed in order of addition, and passed a shared
 context, and a modifiable data structure. Execution is
@@ -70,3 +72,18 @@ npm install ordu
 
 From the Irish ord&uacute;: [instruction](http://www.focloir.ie/en/dictionary/ei/instruction). Pronounced _or-doo_.
 
+
+## License
+
+Copyright (c) 2014-2016, Seamus D'Arcy and other contributors.
+Licensed under [MIT][].
+
+[MIT]: ./LICENSE
+[travis-badge]: https://travis-ci.org/rjrodger/ordu.svg
+[travis-url]: https://travis-ci.org/rjrodger/ordu
+[npm-badge]: https://img.shields.io/npm/v/@seneca/cache.svg
+[npm-url]: https://npmjs.com/package/@seneca/cache
+[david-badge]: https://david-dm.org/rjrodger/ordu.svg
+[david-url]: https://david-dm.org/rjrodger/ordu
+[coveralls-badge]: https://coveralls.io/repos/github/rjrodger/ordu/badge.svg?branch=master
+[coveralls-url]: https://coveralls.io/github/rjrodger/ordu?branch=master

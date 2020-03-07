@@ -1,11 +1,10 @@
-/* Copyright (c) 2016 Richard Rodger, MIT License */
+/* Copyright (c) 2016-2020 Richard Rodger, MIT License */
 'use strict'
 
-var Lab = require('lab')
-var Code = require('code')
-var Ordu = require('../')
+var Ordu = require('..')
 
-
+var Lab = require('@hapi/lab')
+var Code = require('@hapi/code')
 var lab = exports.lab = Lab.script()
 var describe = lab.describe
 var it = lab.it
@@ -13,17 +12,16 @@ var expect = Code.expect
 
 
 describe('ordu', function () {
-  it('construct', function (fin) {
+  it('construct', async () => {
     var w = Ordu()
     expect(w).to.exist()
 
     var wn = ('' + w).replace(/ordu\d+/g, 'ordu0')
     expect(wn).to.equal('ordu0:[]')
-    fin()
   })
 
 
-  it('readme-example', function (fin) {
+  it('readme-example', async () => {
     var w = Ordu()
 
     w.add(function first (ctxt, data) {
@@ -42,21 +40,33 @@ describe('ordu', function () {
     var data = {foo: 'green'}
 
     w.process(ctxt, data)
-    console.log(data.foo) // prints 'GRE' (first, second)
+    expect(data.foo).equal('GRE')
+    // console.log(data.foo) // prints 'GRE' (first, second)
 
     data = {foo: 'blue'}
     w.process({tags: ['upper']}, ctxt, data)
-    console.log(data.foo) // prints 'BLUE' (second)
-
+    // console.log(data.foo) // prints 'BLUE' (second)
+    expect(data.foo).equals('BLUE')
+    
     data = []
     var res = w.process(ctxt, data)
-    console.log(res) // prints {kind: 'error', why: 'no foo', ... introspection ...}
-
-    fin()
+    // console.log(res) // prints {kind: 'error', why: 'no foo', ... introspection ...}
+    expect(res).equals({
+      'ctxt$': {
+        'index$': 0,
+        'taskname$': 'first',
+        len: 3
+      },
+      'data$': [],
+      'index$': 0,
+      'taskname$': 'first',
+      kind: 'error',
+      why: 'no foo'
+    })
   })
 
 
-  it('happy', function (fin) {
+  it('happy', async () => {
     var w = Ordu()
 
     w.add(function (ctxt, data) {
@@ -89,12 +99,10 @@ describe('ordu', function () {
 
     var wn = ('' + w).replace(/ordu\d+/g, 'ordu1')
     expect(wn).to.equal('ordu1:[ordu1_task0,failer]')
-
-    fin()
   })
 
 
-  it('list', function (fin) {
+  it('list', async () => {
     var w = Ordu({name: 'foo'})
 
     w
@@ -107,11 +115,10 @@ describe('ordu', function () {
                                       'foo_task1:{tags:}',
                                       'two:{tags:}'])
     expect('' + w).to.equal('foo:[zero,foo_task1,two]')
-    fin()
   })
 
 
-  it('process', function (fin) {
+  it('process', async () => {
     var w = Ordu({name: 'tags'})
 
     w.add(function zero (c, d) {
@@ -133,12 +140,10 @@ describe('ordu', function () {
     data = {}
     expect(w.process({}, {}, data)).to.equal(null)
     expect(data.zero).to.be.true()
-
-    fin()
   })
 
 
-  it('tags', function (fin) {
+  it('tags', async () => {
     var w = Ordu({name: 'tags'})
 
     w.add({tags: ['red']}, function zero (c, d) {
@@ -180,7 +185,5 @@ describe('ordu', function () {
     data = []
     expect(w.process({tags: []}, {}, data)).to.equal(null)
     expect(data).to.equal(['zero', 'one', 'two', 'three'])
-
-    fin()
   })
 })
