@@ -58,7 +58,7 @@ function Ordu (opts) {
   //   * process(ctxt, data)
   //   * process(data)
   //   * process()
-  function api_process () {
+  async function api_process () {
     var i = arguments.length
     var data = 0 < i && arguments[--i]
     var ctxt = 0 < i && arguments[--i]
@@ -83,7 +83,7 @@ function Ordu (opts) {
       ctxt.index$ = index$
       ctxt.taskname$ = taskname$
 
-      var res = task(ctxt, data)
+      var res = await task(ctxt, data)
 
       if (res) {
         res.index$ = index$

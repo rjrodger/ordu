@@ -39,17 +39,17 @@ describe('ordu', function () {
     var ctxt = {len: 3}
     var data = {foo: 'green'}
 
-    w.process(ctxt, data)
+    await w.process(ctxt, data)
     expect(data.foo).equal('GRE')
     // console.log(data.foo) // prints 'GRE' (first, second)
 
     data = {foo: 'blue'}
-    w.process({tags: ['upper']}, ctxt, data)
+    await w.process({tags: ['upper']}, ctxt, data)
     // console.log(data.foo) // prints 'BLUE' (second)
     expect(data.foo).equals('BLUE')
     
     data = []
-    var res = w.process(ctxt, data)
+    var res = await w.process(ctxt, data)
     // console.log(res) // prints {kind: 'error', why: 'no foo', ... introspection ...}
     expect(res).equals({
       'ctxt$': {
@@ -78,7 +78,7 @@ describe('ordu', function () {
 
     expect(data.x).to.not.exist()
 
-    var res = w.process(ctxt, data)
+    var res = await w.process(ctxt, data)
 
     expect(res).to.not.exist()
     expect(data.x).to.equal(1)
@@ -88,7 +88,7 @@ describe('ordu', function () {
     })
 
     data = {}
-    res = w.process(ctxt, data)
+    res = await w.process(ctxt, data)
 
     expect(data.x).to.equal(1)
     expect(res.kind).to.equal('error')
@@ -126,19 +126,19 @@ describe('ordu', function () {
     })
 
     var data = {}
-    expect(w.process()).to.equal(null)
+    expect(await w.process()).to.equal(null)
     expect(data.zero).to.not.exist()
 
     data = {}
-    expect(w.process(data)).to.equal(null)
+    expect(await w.process(data)).to.equal(null)
     expect(data.zero).to.be.true()
 
     data = {}
-    expect(w.process({}, data)).to.equal(null)
+    expect(await w.process({}, data)).to.equal(null)
     expect(data.zero).to.be.true()
 
     data = {}
-    expect(w.process({}, {}, data)).to.equal(null)
+    expect(await w.process({}, {}, data)).to.equal(null)
     expect(data.zero).to.be.true()
   })
 
@@ -159,11 +159,11 @@ describe('ordu', function () {
     })
 
     var data = []
-    expect(w.process({}, data)).to.equal(null)
+    expect(await w.process({}, data)).to.equal(null)
     expect(data).to.equal(['zero', 'one', 'two'])
 
     data = []
-    expect(w.process({tags: ['red']}, {}, data)).to.equal(null)
+    expect(await w.process({tags: ['red']}, {}, data)).to.equal(null)
     expect(data).to.equal(['zero'])
 
     w.add({tags: ['red', 'blue']}, function three (c, d) {
@@ -171,19 +171,19 @@ describe('ordu', function () {
     })
 
     data = []
-    expect(w.process({tags: ['blue', 'red']}, {}, data)).to.equal(null)
+    expect(await w.process({tags: ['blue', 'red']}, {}, data)).to.equal(null)
     expect(data).to.equal(['three'])
 
     data = []
-    expect(w.process({tags: ['red']}, {}, data)).to.equal(null)
+    expect(await w.process({tags: ['red']}, {}, data)).to.equal(null)
     expect(data).to.equal(['zero', 'three'])
 
     data = []
-    expect(w.process({tags: ['blue']}, {}, data)).to.equal(null)
+    expect(await w.process({tags: ['blue']}, {}, data)).to.equal(null)
     expect(data).to.equal(['three'])
 
     data = []
-    expect(w.process({tags: []}, {}, data)).to.equal(null)
+    expect(await w.process({tags: []}, {}, data)).to.equal(null)
     expect(data).to.equal(['zero', 'one', 'two', 'three'])
   })
 })
