@@ -81,8 +81,8 @@ Licensed under [MIT][].
 [MIT]: ./LICENSE
 [travis-badge]: https://travis-ci.org/rjrodger/ordu.svg
 [travis-url]: https://travis-ci.org/rjrodger/ordu
-[npm-badge]: https://img.shields.io/npm/v/@seneca/cache.svg
-[npm-url]: https://npmjs.com/package/@seneca/cache
+[npm-badge]: https://img.shields.io/npm/v/ordu.svg
+[npm-url]: https://npmjs.com/package/ordu
 [david-badge]: https://david-dm.org/rjrodger/ordu.svg
 [david-url]: https://david-dm.org/rjrodger/ordu
 [coveralls-badge]: https://coveralls.io/repos/github/rjrodger/ordu/badge.svg?branch=master
