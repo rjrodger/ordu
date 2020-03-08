@@ -1,28 +1,22 @@
 /* Copyright (c) 2016 Richard Rodger and other contributors, MIT License */
 'use strict'
 
-
 var Assert = require('assert')
 
-
-module.exports = function (opts) {
+module.exports = function(opts) {
   return new Ordu(opts)
 }
 
-
 var orduI = -1
 
-
-function Ordu (opts) {
+function Ordu(opts) {
   var self = this
   ++orduI
-
 
   opts = opts || {}
   Assert('object' === typeof opts)
 
   opts.name = opts.name || 'ordu' + orduI
-
 
   self.add = api_add
   self.process = api_process
@@ -30,11 +24,9 @@ function Ordu (opts) {
   self.taskdetails = api_taskdetails
   self.toString = api_toString
 
-
   var tasks = []
 
-
-  function api_add (spec, task) {
+  function api_add(spec, task) {
     task = task || spec
 
     Assert('function' === typeof task)
@@ -52,13 +44,12 @@ function Ordu (opts) {
     return self
   }
 
-
   // Valid calls:
   //   * process(spec, ctxt, data)
   //   * process(ctxt, data)
   //   * process(data)
   //   * process()
-  async function api_process () {
+  function api_process() {
     var i = arguments.length
     var data = 0 < i && arguments[--i]
     var ctxt = 0 < i && arguments[--i]
@@ -83,7 +74,7 @@ function Ordu (opts) {
       ctxt.index$ = index$
       ctxt.taskname$ = taskname$
 
-      var res = await task(ctxt, data)
+      var res = task(ctxt, data)
 
       if (res) {
         res.index$ = index$
@@ -97,30 +88,26 @@ function Ordu (opts) {
     return null
   }
 
-
-  function api_tasknames () {
-    return tasks.map(function (v) {
+  function api_tasknames() {
+    return tasks.map(function(v) {
       return v.name
     })
   }
 
-
-  function api_taskdetails () {
-    return tasks.map(function (v) {
+  function api_taskdetails() {
+    return tasks.map(function(v) {
       return v.name + ':{tags:' + v.tags + '}'
     })
   }
 
-
-  function api_toString () {
+  function api_toString() {
     return opts.name + ':[' + self.tasknames() + ']'
   }
 
   return self
 }
 
-
-function contains (all, some) {
+function contains(all, some) {
   for (var i = 0; i < some.length; ++i) {
     if (-1 === all.indexOf(some[i])) {
       return false

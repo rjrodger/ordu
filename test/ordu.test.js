@@ -5,13 +5,12 @@ var Ordu = require('..')
 
 var Lab = require('@hapi/lab')
 var Code = require('@hapi/code')
-var lab = exports.lab = Lab.script()
+var lab = (exports.lab = Lab.script())
 var describe = lab.describe
 var it = lab.it
 var expect = Code.expect
 
-
-describe('ordu', function () {
+describe('ordu', function() {
   it('construct', async () => {
     var w = Ordu()
     expect(w).to.exist()
@@ -20,56 +19,54 @@ describe('ordu', function () {
     expect(wn).to.equal('ordu0:[]')
   })
 
-
   it('readme-example', async () => {
     var w = Ordu()
 
-    w.add(function first (ctxt, data) {
+    w.add(function first(ctxt, data) {
       if (null == data.foo) {
-        return {kind: 'error', why: 'no foo'}
+        return { kind: 'error', why: 'no foo' }
       }
 
       data.foo = data.foo.substring(0, ctxt.len)
     })
 
-    w.add({tags: ['upper']}, function second (ctxt, data) {
+    w.add({ tags: ['upper'] }, function second(ctxt, data) {
       data.foo = data.foo.toUpperCase()
     })
 
-    var ctxt = {len: 3}
-    var data = {foo: 'green'}
+    var ctxt = { len: 3 }
+    var data = { foo: 'green' }
 
-    await w.process(ctxt, data)
+    w.process(ctxt, data)
     expect(data.foo).equal('GRE')
     // console.log(data.foo) // prints 'GRE' (first, second)
 
-    data = {foo: 'blue'}
-    await w.process({tags: ['upper']}, ctxt, data)
+    data = { foo: 'blue' }
+    w.process({ tags: ['upper'] }, ctxt, data)
     // console.log(data.foo) // prints 'BLUE' (second)
     expect(data.foo).equals('BLUE')
-    
+
     data = []
-    var res = await w.process(ctxt, data)
+    var res = w.process(ctxt, data)
     // console.log(res) // prints {kind: 'error', why: 'no foo', ... introspection ...}
     expect(res).equals({
-      'ctxt$': {
-        'index$': 0,
-        'taskname$': 'first',
+      ctxt$: {
+        index$: 0,
+        taskname$: 'first',
         len: 3
       },
-      'data$': [],
-      'index$': 0,
-      'taskname$': 'first',
+      data$: [],
+      index$: 0,
+      taskname$: 'first',
       kind: 'error',
       why: 'no foo'
     })
   })
 
-
   it('happy', async () => {
     var w = Ordu()
 
-    w.add(function (ctxt, data) {
+    w.add(function(ctxt, data) {
       data.x = 1
     })
 
@@ -78,17 +75,17 @@ describe('ordu', function () {
 
     expect(data.x).to.not.exist()
 
-    var res = await w.process(ctxt, data)
+    var res = w.process(ctxt, data)
 
     expect(res).to.not.exist()
     expect(data.x).to.equal(1)
 
-    w.add(function failer (ctxt, data) {
-      return {kind: 'error'}
+    w.add(function failer(ctxt, data) {
+      return { kind: 'error' }
     })
 
     data = {}
-    res = await w.process(ctxt, data)
+    res = w.process(ctxt, data)
 
     expect(data.x).to.equal(1)
     expect(res.kind).to.equal('error')
@@ -101,89 +98,87 @@ describe('ordu', function () {
     expect(wn).to.equal('ordu1:[ordu1_task0,failer]')
   })
 
-
   it('list', async () => {
-    var w = Ordu({name: 'foo'})
+    var w = Ordu({ name: 'foo' })
 
-    w
-      .add(function zero () {})
-      .add(function () {})
-      .add(function two () {})
+    w.add(function zero() {})
+      .add(function() {})
+      .add(function two() {})
 
     expect(w.tasknames()).to.equal(['zero', 'foo_task1', 'two'])
-    expect(w.taskdetails()).to.equal(['zero:{tags:}',
-                                      'foo_task1:{tags:}',
-                                      'two:{tags:}'])
+    expect(w.taskdetails()).to.equal([
+      'zero:{tags:}',
+      'foo_task1:{tags:}',
+      'two:{tags:}'
+    ])
     expect('' + w).to.equal('foo:[zero,foo_task1,two]')
   })
 
-
   it('process', async () => {
-    var w = Ordu({name: 'tags'})
+    var w = Ordu({ name: 'tags' })
 
-    w.add(function zero (c, d) {
+    w.add(function zero(c, d) {
       d.zero = true
     })
 
     var data = {}
-    expect(await w.process()).to.equal(null)
+    expect(w.process()).to.equal(null)
     expect(data.zero).to.not.exist()
 
     data = {}
-    expect(await w.process(data)).to.equal(null)
+    expect(w.process(data)).to.equal(null)
     expect(data.zero).to.be.true()
 
     data = {}
-    expect(await w.process({}, data)).to.equal(null)
+    expect(w.process({}, data)).to.equal(null)
     expect(data.zero).to.be.true()
 
     data = {}
-    expect(await w.process({}, {}, data)).to.equal(null)
+    expect(w.process({}, {}, data)).to.equal(null)
     expect(data.zero).to.be.true()
   })
 
-
   it('tags', async () => {
-    var w = Ordu({name: 'tags'})
+    var w = Ordu({ name: 'tags' })
 
-    w.add({tags: ['red']}, function zero (c, d) {
+    w.add({ tags: ['red'] }, function zero(c, d) {
       d.push('zero')
     })
 
-    w.add({tags: []}, function one (c, d) {
+    w.add({ tags: [] }, function one(c, d) {
       d.push('one')
     })
 
-    w.add(function two (c, d) {
+    w.add(function two(c, d) {
       d.push('two')
     })
 
     var data = []
-    expect(await w.process({}, data)).to.equal(null)
+    expect(w.process({}, data)).to.equal(null)
     expect(data).to.equal(['zero', 'one', 'two'])
 
     data = []
-    expect(await w.process({tags: ['red']}, {}, data)).to.equal(null)
+    expect(w.process({ tags: ['red'] }, {}, data)).to.equal(null)
     expect(data).to.equal(['zero'])
 
-    w.add({tags: ['red', 'blue']}, function three (c, d) {
+    w.add({ tags: ['red', 'blue'] }, function three(c, d) {
       d.push('three')
     })
 
     data = []
-    expect(await w.process({tags: ['blue', 'red']}, {}, data)).to.equal(null)
+    expect(w.process({ tags: ['blue', 'red'] }, {}, data)).to.equal(null)
     expect(data).to.equal(['three'])
 
     data = []
-    expect(await w.process({tags: ['red']}, {}, data)).to.equal(null)
+    expect(w.process({ tags: ['red'] }, {}, data)).to.equal(null)
     expect(data).to.equal(['zero', 'three'])
 
     data = []
-    expect(await w.process({tags: ['blue']}, {}, data)).to.equal(null)
+    expect(w.process({ tags: ['blue'] }, {}, data)).to.equal(null)
     expect(data).to.equal(['three'])
 
     data = []
-    expect(await w.process({tags: []}, {}, data)).to.equal(null)
+    expect(w.process({ tags: [] }, {}, data)).to.equal(null)
     expect(data).to.equal(['zero', 'one', 'two', 'three'])
   })
 })
