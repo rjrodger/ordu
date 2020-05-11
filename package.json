@@ -16,9 +16,11 @@
   },
   "main": "ordu.js",
   "scripts": {
+    "watch": "tsc -w -d",
+    "build": "tsc -d",
     "test": "lab -L -v -P test -t 100 -r console -o stdout -r html -o test/coverage.html",
     "coveralls": "lab -s -P test -r lcov | coveralls",
-    "prettier": "prettier --write *.js lib/*.js test/*.js",
+    "prettier": "prettier --write *.ts",
     "clean": "rm -rf node_modules package-lock.json yarn.lock",
     "reset": "npm run clean && npm i && npm test",
     "repo-tag": "REPO_VERSION=`node -e \"console.log(require('./package').version)\"` && echo TAG: v$REPO_VERSION && git commit -a -m v$REPO_VERSION && git push && git tag v$REPO_VERSION && git push --tags;",
@@ -27,7 +29,8 @@
   },
   "license": "MIT",
   "files": [
-    "ordu.js",
+    "ordu.*",
+    "*.json",
     "LICENSE",
     "README.md"
   ],
@@ -36,6 +39,8 @@
     "@hapi/code": "^8.0.1",
     "@hapi/lab": "^22.0.4",
     "coveralls": "^3.1.0",
-    "prettier": "^2.0.5"
+    "prettier": "^2.0.5",
+    "@types/node": "^13.13.5",
+    "typescript": "^3.8.3"
   }
 }
