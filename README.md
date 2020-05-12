@@ -4,6 +4,8 @@
 [![Build Status][travis-badge]][travis-url]
 [![Coverage Status][coveralls-badge]][coveralls-url]
 [![Dependency Status][david-badge]][david-url]
+[![DeepScan grade](https://deepscan.io/api/teams/5016/projects/11434/branches/170370/badge/grade.svg)](https://deepscan.io/dashboard#view=project&tid=5016&pid=11434&bid=170370)
+[![Maintainability](https://api.codeclimate.com/v1/badges/47fe47f0b317507cb120/maintainability)](https://codeclimate.com/github/rjrodger/ordu/maintainability)
 
 
 ### Execute functions in a configurable order, modifying a shared data structure.
