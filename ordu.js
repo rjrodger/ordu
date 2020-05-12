@@ -1,10 +1,160 @@
 /* Copyright (c) 2016-2020 Richard Rodger and other contributors, MIT License */
 'use strict';
-module.exports = function (opts) {
-    return Ordu(opts);
-};
-var orduI = -1;
-function Ordu(opts) {
+Object.defineProperty(exports, "__esModule", { value: true });
+const Hoek = require("@hapi/hoek");
+const Topo = require("@hapi/topo");
+class Task {
+    constructor(taskdef) {
+        this.id = null == taskdef.id ? ('' + Math.random()).substring(2) : taskdef.id;
+        this.name = taskdef.name || 'task' + Task.count;
+        this.before = strarr(taskdef.before);
+        this.after = strarr(taskdef.after);
+        this.exec = taskdef.exec || ((_) => { });
+        this.if = taskdef.if || void 0;
+        this.meta = {
+            order: Task.count++,
+            when: Date.now(),
+            // TODO: auto generate call point stacktrace?
+            from: taskdef.from || {},
+        };
+    }
+}
+Task.count = 0;
+// Use the constructor to normalize task result
+class TaskResult {
+    constructor(log, raw) {
+        raw = null == raw ? {} : raw;
+        this.log = log;
+        this.out = null == raw.out ? {} : raw.out;
+        this.err = raw instanceof Error ? raw : void 0;
+        this.op =
+            null != this.err ? 'stop' :
+                'string' === typeof raw.op ? raw.op :
+                    'next';
+    }
+}
+class Self {
+    constructor() {
+        this.topo = new Topo.Sorter();
+        this.operator_map = {
+            next: () => ({ stop: false }),
+            skip: () => ({ stop: false }),
+            stop: (tr) => ({ stop: true, err: tr.err }),
+            merge: (tr, _, data) => {
+                Hoek.merge(data, tr.out);
+                return { stop: false };
+            }
+        };
+    }
+    operator(name, opr) {
+        this.operator_map[name] = opr;
+    }
+    operators() { return this.operator_map; }
+    add(taskdef) {
+        let t = new Task(taskdef);
+        this.topo.add(t, {
+            group: t.name,
+            before: t.before,
+            after: t.after
+        });
+    }
+    async exec(ctx, data) {
+        let start = Date.now();
+        let tasks = this.topo.nodes;
+        let spec = {
+            ctx: ctx || {},
+            data: data || {}
+        };
+        let operate = { stop: false, err: void 0 };
+        let tasklog = [];
+        let task_count = 0;
+        let taskI = 0;
+        for (; taskI < tasks.length; taskI++) {
+            let task = tasks[taskI];
+            let taskout = null;
+            let tasklogentry = {
+                task,
+                start: Date.now(),
+                end: Number.MAX_SAFE_INTEGER
+            };
+            if (this.task_if(task, spec.data)) {
+                try {
+                    task_count++;
+                    taskout = task.exec(spec);
+                    taskout = taskout instanceof Promise ? await taskout : taskout;
+                }
+                catch (task_ex) {
+                    taskout = task_ex;
+                }
+            }
+            else {
+                taskout = { op: 'skip' };
+            }
+            tasklogentry.end = Date.now();
+            let result = new TaskResult(tasklogentry, taskout);
+            try {
+                operate = this.operate(result, spec.ctx, spec.data);
+                operate = (operate instanceof Promise ? await operate : operate);
+            }
+            catch (operate_ex) {
+                operate = {
+                    stop: true,
+                    err: operate_ex
+                };
+            }
+            tasklog.push({ name: task.name, op: result.op, task, result, operate });
+            if (operate.stop) {
+                break;
+            }
+        }
+        return {
+            tasklog: tasklog,
+            task: operate.err ? tasks[taskI] : void 0,
+            task_count: task_count,
+            task_total: tasks.length,
+            start: start,
+            end: Date.now(),
+            err: operate.err,
+            data: spec.data
+        };
+    }
+    tasks() {
+        return this.topo.nodes;
+    }
+    operate(r, ctx, data) {
+        let operator = this.operator_map[r.op];
+        if (operator) {
+            return operator(r, ctx, data);
+        }
+        else {
+            return {
+                stop: true,
+                err: new Error('Unknown operation: ' + r.op)
+            };
+        }
+    }
+    task_if(task, data) {
+        if (task.if) {
+            let task_if = task.if;
+            return Object
+                .keys(task_if)
+                .reduce((proceed, k) => {
+                let part = Hoek.reach(data, k);
+                return proceed &&
+                    Hoek.contain({ $: part }, { $: task_if[k] }, { deep: true });
+            }, true);
+        }
+        else {
+            return true;
+        }
+    }
+}
+exports.Ordu = Self;
+function strarr(x) {
+    return null == x ? [] : 'string' === typeof x ? [x] : x;
+}
+function LegacyOrdu(opts) {
+    var orduI = -1;
     var self = {};
     ++orduI;
     opts = opts || {};
@@ -75,6 +225,7 @@ function Ordu(opts) {
     }
     return self;
 }
+exports.LegacyOrdu = LegacyOrdu;
 function contains(all, some) {
     for (var i = 0; i < some.length; ++i) {
         if (-1 === all.indexOf(some[i])) {

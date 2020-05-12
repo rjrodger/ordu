@@ -1,7 +1,7 @@
 /* Copyright (c) 2016-2020 Richard Rodger, MIT License */
 'use strict'
 
-var Ordu = require('..')
+var { Ordu } = require('..')
 
 var Lab = require('@hapi/lab')
 var Code = require('@hapi/code')
@@ -11,174 +11,143 @@ var it = lab.it
 var expect = Code.expect
 
 describe('ordu', function() {
-  it('construct', async () => {
-    var w = Ordu()
-    expect(w).to.exist()
-
-    var wn = ('' + w).replace(/ordu\d+/g, 'ordu0')
-    expect(wn).to.equal('ordu0:[]')
-  })
-
-  it('readme-example', async () => {
-    var w = Ordu()
-
-    w.add(function first(ctxt, data) {
-      if (null == data.foo) {
-        return { kind: 'error', why: 'no foo' }
-      }
-
-      data.foo = data.foo.substring(0, ctxt.len)
-    })
-
-    w.add({ tags: ['upper'] }, function second(ctxt, data) {
-      data.foo = data.foo.toUpperCase()
-    })
-
-    var ctxt = { len: 3 }
-    var data = { foo: 'green' }
-
-    w.process(ctxt, data)
-    expect(data.foo).equal('GRE')
-    // console.log(data.foo) // prints 'GRE' (first, second)
-
-    data = { foo: 'blue' }
-    w.process({ tags: ['upper'] }, ctxt, data)
-    // console.log(data.foo) // prints 'BLUE' (second)
-    expect(data.foo).equals('BLUE')
-
-    data = []
-    var res = w.process(ctxt, data)
-    // console.log(res) // prints {kind: 'error', why: 'no foo', ... introspection ...}
-    expect(res).equals({
-      ctxt$: {
-        index$: 0,
-        taskname$: 'first',
-        len: 3
-      },
-      data$: [],
-      index$: 0,
-      taskname$: 'first',
-      kind: 'error',
-      why: 'no foo'
-    })
-  })
-
   it('happy', async () => {
-    var w = Ordu()
 
-    w.add(function(ctxt, data) {
-      data.x = 1
+
+    var h0 = new Ordu()
+    expect(h0).exists()
+
+    h0.add({
+      name: 'a',
+      from: 'my-ref-01'
     })
 
-    var ctxt = {}
-    var data = {}
-
-    expect(data.x).to.not.exist()
-
-    var res = w.process(ctxt, data)
-
-    expect(res).to.not.exist()
-    expect(data.x).to.equal(1)
-
-    w.add(function failer(ctxt, data) {
-      return { kind: 'error' }
+    h0.add({
+      exec: (spec) => {
+        if(spec.ctx.err0) {
+          throw new Error('err0')
+        }
+        if(spec.ctx.err2) {
+          return {op:'not-an-op'}
+        }
+        return null
+      }
     })
 
-    data = {}
-    res = w.process(ctxt, data)
+    
+    h0.add({
+      id: '0',
+      exec: () => ({
+        op: 'merge',
+        out: {
+          x:2
+        }
+      })
+    })
 
-    expect(data.x).to.equal(1)
-    expect(res.kind).to.equal('error')
-    expect(res.index$).to.equal(1)
-    expect(res.taskname$).to.equal('failer')
-    expect(res.ctxt$).to.equal(ctxt)
-    expect(res.data$).to.equal(data)
+    h0.add({
+      if: {
+        x: 4,
+        xx: 40
+      },
+      exec: () => ({
+        op: 'merge',
+        out: {
+          q: 1
+        }
+      })
+    })
 
-    var wn = ('' + w).replace(/ordu\d+/g, 'ordu1')
-    expect(wn).to.equal('ordu1:[ordu1_task0,failer]')
-  })
+    
+    h0.add({
+      name: 'a',
+      before: 'b',
+      exec: async() => {
+        return new Promise((r)=>setTimeout(()=>{r({
+          op: 'merge'
+          // out missing!
+        })},10))
+      }
+    })
 
-  it('list', async () => {
-    var w = Ordu({ name: 'foo' })
+    h0.add({
+      name:'b',
+      after:['c'],
+      exec: () => ({
+        op: 'merge',
+        out: {
+          x:4
+        }
+      })
+    })
 
-    w.add(function zero() {})
-      .add(function() {})
-      .add(function two() {})
+    h0.add({
+      name:'c',
+      exec: () => ({
+        op: 'lookup',
+        out: {
+          id:'001'
+        }
+      })
+    })
 
-    expect(w.tasknames()).to.equal(['zero', 'foo_task1', 'two'])
-    expect(w.taskdetails()).to.equal([
-      'zero:{tags:}',
-      'foo_task1:{tags:}',
-      'two:{tags:}'
+
+    h0.add({
+      if: {
+        'x': 4
+      },
+      exec: () => ({
+        op: 'merge',
+        out: {
+          qq: 2
+        }
+      })
+    })
+
+    
+    h0.operator('lookup', async (tr, ctx, data) => {
+      if(ctx.err1) throw new Error('err1')
+
+      return new Promise((r)=>{
+        setTimeout(()=>{
+          data.y = tr.out
+          r({stop:false})
+        },10)
+      })
+    })
+    
+    //console.log(h0.tasks())
+    expect(h0.tasks().length).equal(8)
+    
+    var out = await h0.exec()
+    expect(out.data).equal({ x: 4, y: { id: '001' }, qq: 2 })
+    expect(out.task_count).equal(7)
+    expect(out.task_total).equal(8)
+
+
+    out = await h0.exec({},{z:1})
+    expect(out.data).equal({ z: 1, x: 4, y: { id: '001' }, qq: 2 })
+    expect(out.task_count).equal(7)
+    expect(out.task_total).equal(8)
+
+    out = await h0.exec({err0:true},{z:2})
+    //console.log(out)
+    expect(out.err.message).equal('err0')
+
+    
+    var operators = h0.operators()
+    expect(Object.keys(operators)).equal([
+      'next','skip','stop','merge','lookup'
     ])
-    expect('' + w).to.equal('foo:[zero,foo_task1,two]')
-  })
 
-  it('process', async () => {
-    var w = Ordu({ name: 'tags' })
 
-    w.add(function zero(c, d) {
-      d.zero = true
-    })
+    out = await h0.exec({err1:true})
+    //console.log(out)
+    expect(out.err.message).equal('err1')
 
-    var data = {}
-    expect(w.process()).to.equal(null)
-    expect(data.zero).to.not.exist()
+    
+    out = await h0.exec({err2:true})
+    expect(out.err.message).equal('Unknown operation: not-an-op')
 
-    data = {}
-    expect(w.process(data)).to.equal(null)
-    expect(data.zero).to.be.true()
-
-    data = {}
-    expect(w.process({}, data)).to.equal(null)
-    expect(data.zero).to.be.true()
-
-    data = {}
-    expect(w.process({}, {}, data)).to.equal(null)
-    expect(data.zero).to.be.true()
-  })
-
-  it('tags', async () => {
-    var w = Ordu({ name: 'tags' })
-
-    w.add({ tags: ['red'] }, function zero(c, d) {
-      d.push('zero')
-    })
-
-    w.add({ tags: [] }, function one(c, d) {
-      d.push('one')
-    })
-
-    w.add(function two(c, d) {
-      d.push('two')
-    })
-
-    var data = []
-    expect(w.process({}, data)).to.equal(null)
-    expect(data).to.equal(['zero', 'one', 'two'])
-
-    data = []
-    expect(w.process({ tags: ['red'] }, {}, data)).to.equal(null)
-    expect(data).to.equal(['zero'])
-
-    w.add({ tags: ['red', 'blue'] }, function three(c, d) {
-      d.push('three')
-    })
-
-    data = []
-    expect(w.process({ tags: ['blue', 'red'] }, {}, data)).to.equal(null)
-    expect(data).to.equal(['three'])
-
-    data = []
-    expect(w.process({ tags: ['red'] }, {}, data)).to.equal(null)
-    expect(data).to.equal(['zero', 'three'])
-
-    data = []
-    expect(w.process({ tags: ['blue'] }, {}, data)).to.equal(null)
-    expect(data).to.equal(['three'])
-
-    data = []
-    expect(w.process({ tags: [] }, {}, data)).to.equal(null)
-    expect(data).to.equal(['zero', 'one', 'two', 'three'])
   })
 })
