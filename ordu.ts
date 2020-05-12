@@ -4,17 +4,12 @@
 import * as Hoek from '@hapi/hoek'
 import * as Topo from '@hapi/topo'
 
-
-
 export { Self as Ordu, LegacyOrdu }
-
-
 
 interface Ordu {
   add(t: TaskDef): void
   tasks(): Task[]
 }
-
 
 interface TaskDef {
   id?: string
@@ -30,7 +25,6 @@ interface Spec {
   ctx: object
   data: object
 }
-
 
 class Task {
   static count: number = 0
@@ -48,11 +42,12 @@ class Task {
   }
 
   constructor(taskdef: TaskDef) {
-    this.id = null == taskdef.id ? ('' + Math.random()).substring(2) : taskdef.id
+    this.id =
+      null == taskdef.id ? ('' + Math.random()).substring(2) : taskdef.id
     this.name = taskdef.name || 'task' + Task.count
     this.before = strarr(taskdef.before)
     this.after = strarr(taskdef.after)
-    this.exec = taskdef.exec || ((_: Spec) => { })
+    this.exec = taskdef.exec || ((_: Spec) => {})
     this.if = taskdef.if || void 0
     this.meta = {
       order: Task.count++,
@@ -64,13 +59,11 @@ class Task {
   }
 }
 
-
 type TaskLogEntry = {
-  task: Task,
-  start: number,
+  task: Task
+  start: number
   end: number
 }
-
 
 // Use the constructor to normalize task result
 class TaskResult {
@@ -87,9 +80,7 @@ class TaskResult {
     this.err = raw instanceof Error ? raw : void 0
 
     this.op =
-      null != this.err ? 'stop' :
-        'string' === typeof raw.op ? raw.op :
-          'next'
+      null != this.err ? 'stop' : 'string' === typeof raw.op ? raw.op : 'next'
   }
 }
 
@@ -99,18 +90,17 @@ type Operate = {
 }
 
 type ExecResult = {
-  tasklog: any[],
+  tasklog: any[]
   task?: Task
   task_count: number
   task_total: number
   start: number
   end: number
-  err?: Error,
+  err?: Error
   data: object
 }
 
 type Operator = (r: TaskResult, ctx: any, data: object) => Operate
-
 
 class Self implements Ordu {
   topo: {
@@ -132,17 +122,17 @@ class Self implements Ordu {
       merge: (tr, _, data) => {
         Hoek.merge(data, tr.out)
         return { stop: false }
-      }
+      },
     }
   }
-
 
   operator(name: string, opr: Operator) {
     this.operator_map[name] = opr
   }
 
-  operators() { return this.operator_map }
-
+  operators() {
+    return this.operator_map
+  }
 
   add(taskdef: TaskDef) {
     let t = new Task(taskdef)
@@ -150,7 +140,7 @@ class Self implements Ordu {
     this.topo.add(t, {
       group: t.name,
       before: t.before,
-      after: t.after
+      after: t.after,
     })
   }
 
@@ -161,7 +151,7 @@ class Self implements Ordu {
 
     let spec = {
       ctx: ctx || {},
-      data: data || {}
+      data: data || {},
     }
 
     let operate: Operate | Promise<Operate> = { stop: false, err: void 0 }
@@ -175,7 +165,7 @@ class Self implements Ordu {
       let tasklogentry: TaskLogEntry = {
         task,
         start: Date.now(),
-        end: Number.MAX_SAFE_INTEGER
+        end: Number.MAX_SAFE_INTEGER,
       }
 
       if (this.task_if(task, spec.data)) {
@@ -183,12 +173,10 @@ class Self implements Ordu {
           task_count++
           taskout = task.exec(spec)
           taskout = taskout instanceof Promise ? await taskout : taskout
-        }
-        catch (task_ex) {
+        } catch (task_ex) {
           taskout = task_ex
         }
-      }
-      else {
+      } else {
         taskout = { op: 'skip' }
       }
 
@@ -197,12 +185,13 @@ class Self implements Ordu {
 
       try {
         operate = this.operate(result, spec.ctx, spec.data)
-        operate = (operate instanceof Promise ? await operate : operate) as Operate
-      }
-      catch (operate_ex) {
+        operate = (operate instanceof Promise
+          ? await operate
+          : operate) as Operate
+      } catch (operate_ex) {
         operate = {
           stop: true,
-          err: operate_ex
+          err: operate_ex,
         }
       }
 
@@ -221,7 +210,7 @@ class Self implements Ordu {
       start: start,
       end: Date.now(),
       err: operate.err,
-      data: spec.data
+      data: spec.data,
     }
   }
 
@@ -234,11 +223,10 @@ class Self implements Ordu {
 
     if (operator) {
       return operator(r, ctx, data)
-    }
-    else {
+    } else {
       return {
         stop: true,
-        err: new Error('Unknown operation: ' + r.op)
+        err: new Error('Unknown operation: ' + r.op),
       }
     }
   }
@@ -246,29 +234,23 @@ class Self implements Ordu {
   private task_if(task: Task, data: object): boolean {
     if (task.if) {
       let task_if: { [k: string]: any } = task.if
-      return Object
-        .keys(task_if)
-        .reduce((proceed, k) => {
-          let part: any = Hoek.reach(data, k)
+      return Object.keys(task_if).reduce((proceed, k) => {
+        let part: any = Hoek.reach(data, k)
 
-          return proceed &&
-            Hoek.contain({ $: part }, { $: task_if[k] }, { deep: true })
-        }, true)
-    }
-    else {
+        return (
+          proceed &&
+          Hoek.contain({ $: part }, { $: task_if[k] }, { deep: true })
+        )
+      }, true)
+    } else {
       return true
     }
   }
 }
 
-
 function strarr(x?: string | string[]) {
   return null == x ? [] : 'string' === typeof x ? [x] : x
 }
-
-
-
-
 
 function LegacyOrdu(opts?: any): any {
   var orduI = -1
@@ -292,7 +274,7 @@ function LegacyOrdu(opts?: any): any {
 
     if (!task.name) {
       Object.defineProperty(task, 'name', {
-        value: opts.name + '_task' + tasks.length
+        value: opts.name + '_task' + tasks.length,
       })
     }
 
@@ -348,13 +330,13 @@ function LegacyOrdu(opts?: any): any {
   }
 
   function api_tasknames() {
-    return tasks.map(function(v) {
+    return tasks.map(function (v) {
       return v.name
     })
   }
 
   function api_taskdetails() {
-    return tasks.map(function(v) {
+    return tasks.map(function (v) {
       return v.name + ':{tags:' + v.tags + '}'
     })
   }

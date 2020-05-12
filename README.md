@@ -56,12 +56,6 @@ var res = w.process(ctxt, data)
 console.log(res) // prints {kind: 'error', why: 'no foo', ... introspection ...}
 ```
 
-### Support
-
-If you're using this library, feel free to contact me on twitter if
-you have any questions! :) [@rjrodger](http://twitter.com/rjrodger)
-
-[![Build Status](https://travis-ci.org/rjrodger/ordu.png?branch=master)](https://travis-ci.org/rjrodger/ordu)
 
 
 ## Install

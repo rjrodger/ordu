@@ -540,10 +540,6 @@
             <a href="#ordu.js"><span class="basename">ordu.js</span></a>
         </li>
         <li><a href="#linting">Linting Report</a></li>
-        <li>
-            <span class="lint"><span class="high">0</span> || <span class="low">1</span></span>
-            <a href="#lint-test/ordu.test.js">test/ordu.test.js</a>
-        </li>
     </div>
     <div id="tests">
       <h1>Test Report</h1>
@@ -551,7 +547,7 @@
           <div class="failures">0</div>
           <div class="skipped">0</div>
           <div class="test-count">7</div>
-          <div class="duration">94</div>
+          <div class="duration">139</div>
       </div>
       <div id="filters">
           <input type="checkbox" checked="" onchange="filter(this)" value="success" id="show-success">
@@ -578,49 +574,49 @@
               <td class="test-title">ordu-legacy construct
                   
               </td>
-              <td class="test-duration">5</td>
+              <td class="test-duration">12</td>
           </tr>
           <tr class="show ordu-legacy success">
               <td class="test-id">2</td>
               <td class="test-title">ordu-legacy readme-example
                   
               </td>
-              <td class="test-duration">4</td>
+              <td class="test-duration">5</td>
           </tr>
           <tr class="show ordu-legacy success">
               <td class="test-id">3</td>
               <td class="test-title">ordu-legacy happy
                   
               </td>
-              <td class="test-duration">2</td>
+              <td class="test-duration">5</td>
           </tr>
           <tr class="show ordu-legacy success">
               <td class="test-id">4</td>
               <td class="test-title">ordu-legacy list
                   
               </td>
-              <td class="test-duration">2</td>
+              <td class="test-duration">5</td>
           </tr>
           <tr class="show ordu-legacy success">
               <td class="test-id">5</td>
               <td class="test-title">ordu-legacy process
                   
               </td>
-              <td class="test-duration">2</td>
+              <td class="test-duration">3</td>
           </tr>
           <tr class="show ordu-legacy success">
               <td class="test-id">6</td>
               <td class="test-title">ordu-legacy tags
                   
               </td>
-              <td class="test-duration">3</td>
+              <td class="test-duration">4</td>
           </tr>
           <tr class="show ordu success">
               <td class="test-id">7</td>
               <td class="test-title">ordu happy
                   
               </td>
-              <td class="test-duration">65</td>
+              <td class="test-duration">86</td>
           </tr>
           </tbody>
       </table>
@@ -1021,1060 +1017,1066 @@
                           <td class="line" data-tooltip>61</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip></td>
-                          <td class="source">    async exec(ctx, data) {</td>
+                          <td class="source">    // TODO: execSync version when promises not needed</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__157">157</a></td>
                         </tr>            <tr id="ordu.js__62" class="hit">
                           <td class="line" data-tooltip>62</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip></td>
-                          <td class="source">        let start &#x3D; Date.now();</td>
+                          <td class="source">    async exec(ctx, data) {</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__158">158</a></td>
                         </tr>            <tr id="ordu.js__63" class="hit">
                           <td class="line" data-tooltip>63</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip>5</td>
-                          <td class="source">        let tasks &#x3D; this.topo.nodes;</td>
+                          <td class="hits" data-tooltip></td>
+                          <td class="source">        let start &#x3D; Date.now();</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__159">159</a></td>
                         </tr>            <tr id="ordu.js__64" class="hit">
                           <td class="line" data-tooltip>64</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip>5</td>
-                          <td class="source">        let spec &#x3D; {</td>
-                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__161">161</a></td>
+                          <td class="source">        let tasks &#x3D; this.topo.nodes;</td>
+                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__160">160</a></td>
                         </tr>            <tr id="ordu.js__65" class="hit">
                           <td class="line" data-tooltip>65</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip></td>
-                          <td class="source">            ctx: ctx || {},</td>
+                          <td class="hits" data-tooltip>5</td>
+                          <td class="source">        let spec &#x3D; {</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__162">162</a></td>
                         </tr>            <tr id="ordu.js__66" class="hit">
                           <td class="line" data-tooltip>66</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip></td>
-                          <td class="source">            data: data || {}</td>
+                          <td class="source">            ctx: ctx || {},</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__163">163</a></td>
                         </tr>            <tr id="ordu.js__67" class="hit">
                           <td class="line" data-tooltip>67</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip></td>
-                          <td class="source">        };</td>
+                          <td class="source">            data: data || {}</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__164">164</a></td>
                         </tr>            <tr id="ordu.js__68" class="hit">
                           <td class="line" data-tooltip>68</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip>5</td>
-                          <td class="source">        let operate &#x3D; { stop: false, err: void 0 };</td>
-                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__166">166</a></td>
+                          <td class="hits" data-tooltip></td>
+                          <td class="source">        };</td>
+                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__165">165</a></td>
                         </tr>            <tr id="ordu.js__69" class="hit">
                           <td class="line" data-tooltip>69</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip>5</td>
-                          <td class="source">        let tasklog &#x3D; [];</td>
+                          <td class="source">        let operate &#x3D; { stop: false, err: void 0 };</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__167">167</a></td>
                         </tr>            <tr id="ordu.js__70" class="hit">
                           <td class="line" data-tooltip>70</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip>5</td>
-                          <td class="source">        let task_count &#x3D; 0;</td>
-                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__169">169</a></td>
+                          <td class="source">        let tasklog &#x3D; [];</td>
+                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__168">168</a></td>
                         </tr>            <tr id="ordu.js__71" class="hit">
                           <td class="line" data-tooltip>71</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip>5</td>
-                          <td class="source">        let taskI &#x3D; 0;</td>
+                          <td class="source">        let task_count &#x3D; 0;</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__170">170</a></td>
                         </tr>            <tr id="ordu.js__72" class="hit">
                           <td class="line" data-tooltip>72</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip>5</td>
-                          <td class="source">        for (; taskI &lt; tasks.length; taskI++) {</td>
+                          <td class="source">        let taskI &#x3D; 0;</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__171">171</a></td>
                         </tr>            <tr id="ordu.js__73" class="hit">
                           <td class="line" data-tooltip>73</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip>26</td>
-                          <td class="source">            let task &#x3D; tasks[taskI];</td>
+                          <td class="hits" data-tooltip>5</td>
+                          <td class="source">        for (; taskI &lt; tasks.length; taskI++) {</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__172">172</a></td>
                         </tr>            <tr id="ordu.js__74" class="hit">
                           <td class="line" data-tooltip>74</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip>26</td>
-                          <td class="source">            let taskout &#x3D; null;</td>
+                          <td class="source">            let task &#x3D; tasks[taskI];</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__173">173</a></td>
                         </tr>            <tr id="ordu.js__75" class="hit">
                           <td class="line" data-tooltip>75</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip>26</td>
-                          <td class="source">            let tasklogentry &#x3D; {</td>
+                          <td class="source">            let taskout &#x3D; null;</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__174">174</a></td>
                         </tr>            <tr id="ordu.js__76" class="hit">
                           <td class="line" data-tooltip>76</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip></td>
-                          <td class="source">                task,</td>
+                          <td class="hits" data-tooltip>26</td>
+                          <td class="source">            let tasklogentry &#x3D; {</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__175">175</a></td>
                         </tr>            <tr id="ordu.js__77" class="hit">
                           <td class="line" data-tooltip>77</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip></td>
-                          <td class="source">                start: Date.now(),</td>
+                          <td class="source">                task,</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__176">176</a></td>
                         </tr>            <tr id="ordu.js__78" class="hit">
                           <td class="line" data-tooltip>78</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip></td>
-                          <td class="source">                end: Number.MAX_SAFE_INTEGER</td>
+                          <td class="source">                start: Date.now(),</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__177">177</a></td>
                         </tr>            <tr id="ordu.js__79" class="hit">
                           <td class="line" data-tooltip>79</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip></td>
-                          <td class="source">            };</td>
+                          <td class="source">                end: Number.MAX_SAFE_INTEGER</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__178">178</a></td>
                         </tr>            <tr id="ordu.js__80" class="hit">
                           <td class="line" data-tooltip>80</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip>26</td>
-                          <td class="source">            if (this.task_if(task, spec.data)) {</td>
-                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__180">180</a></td>
+                          <td class="hits" data-tooltip></td>
+                          <td class="source">            };</td>
+                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__179">179</a></td>
                         </tr>            <tr id="ordu.js__81" class="hit">
                           <td class="line" data-tooltip>81</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip>23</td>
-                          <td class="source">                try {</td>
+                          <td class="hits" data-tooltip>26</td>
+                          <td class="source">            if (this.task_if(task, spec.data)) {</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__181">181</a></td>
                         </tr>            <tr id="ordu.js__82" class="hit">
                           <td class="line" data-tooltip>82</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip>23</td>
-                          <td class="source">                    task_count++;</td>
+                          <td class="source">                try {</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__182">182</a></td>
                         </tr>            <tr id="ordu.js__83" class="hit">
                           <td class="line" data-tooltip>83</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip>23</td>
-                          <td class="source">                    taskout &#x3D; task.exec(spec);</td>
+                          <td class="source">                    task_count++;</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__183">183</a></td>
                         </tr>            <tr id="ordu.js__84" class="hit">
                           <td class="line" data-tooltip>84</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip>22</td>
-                          <td class="source">                    taskout &#x3D; taskout instanceof Promise ? await taskout : taskout;</td>
+                          <td class="hits" data-tooltip>23</td>
+                          <td class="source">                    taskout &#x3D; task.exec(spec);</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__184">184</a></td>
                         </tr>            <tr id="ordu.js__85" class="hit">
                           <td class="line" data-tooltip>85</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip></td>
-                          <td class="source">                }</td>
+                          <td class="hits" data-tooltip>22</td>
+                          <td class="source">                    taskout &#x3D; taskout instanceof Promise ? await taskout : taskout;</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__185">185</a></td>
                         </tr>            <tr id="ordu.js__86" class="hit">
                           <td class="line" data-tooltip>86</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip></td>
-                          <td class="source">                catch (task_ex) {</td>
+                          <td class="source">                }</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__186">186</a></td>
                         </tr>            <tr id="ordu.js__87" class="hit">
                           <td class="line" data-tooltip>87</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip>1</td>
-                          <td class="source">                    taskout &#x3D; task_ex;</td>
+                          <td class="hits" data-tooltip></td>
+                          <td class="source">                catch (task_ex) {</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__187">187</a></td>
                         </tr>            <tr id="ordu.js__88" class="hit">
                           <td class="line" data-tooltip>88</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip></td>
-                          <td class="source">                }</td>
+                          <td class="hits" data-tooltip>1</td>
+                          <td class="source">                    taskout &#x3D; task_ex;</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__188">188</a></td>
                         </tr>            <tr id="ordu.js__89" class="hit">
                           <td class="line" data-tooltip>89</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip></td>
-                          <td class="source">            }</td>
+                          <td class="source">                }</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__189">189</a></td>
                         </tr>            <tr id="ordu.js__90" class="hit">
                           <td class="line" data-tooltip>90</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip></td>
-                          <td class="source">            else {</td>
+                          <td class="source">            }</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__190">190</a></td>
                         </tr>            <tr id="ordu.js__91" class="hit">
                           <td class="line" data-tooltip>91</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip>3</td>
-                          <td class="source">                taskout &#x3D; { op: &#x27;skip&#x27; };</td>
+                          <td class="hits" data-tooltip></td>
+                          <td class="source">            else {</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__191">191</a></td>
                         </tr>            <tr id="ordu.js__92" class="hit">
                           <td class="line" data-tooltip>92</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip></td>
-                          <td class="source">            }</td>
+                          <td class="hits" data-tooltip>3</td>
+                          <td class="source">                taskout &#x3D; { op: &#x27;skip&#x27; };</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__192">192</a></td>
                         </tr>            <tr id="ordu.js__93" class="hit">
                           <td class="line" data-tooltip>93</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip>26</td>
-                          <td class="source">            tasklogentry.end &#x3D; Date.now();</td>
-                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__194">194</a></td>
+                          <td class="hits" data-tooltip></td>
+                          <td class="source">            }</td>
+                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__193">193</a></td>
                         </tr>            <tr id="ordu.js__94" class="hit">
                           <td class="line" data-tooltip>94</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip>26</td>
-                          <td class="source">            let result &#x3D; new TaskResult(tasklogentry, taskout);</td>
+                          <td class="source">            tasklogentry.end &#x3D; Date.now();</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__195">195</a></td>
                         </tr>            <tr id="ordu.js__95" class="hit">
                           <td class="line" data-tooltip>95</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip>26</td>
-                          <td class="source">            try {</td>
-                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__197">197</a></td>
+                          <td class="source">            let result &#x3D; new TaskResult(tasklogentry, taskout);</td>
+                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__196">196</a></td>
                         </tr>            <tr id="ordu.js__96" class="hit">
                           <td class="line" data-tooltip>96</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip>26</td>
-                          <td class="source">                operate &#x3D; this.operate(result, spec.ctx, spec.data);</td>
+                          <td class="source">            try {</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__198">198</a></td>
                         </tr>            <tr id="ordu.js__97" class="hit">
                           <td class="line" data-tooltip>97</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip>26</td>
-                          <td class="source">                operate &#x3D; (operate instanceof Promise ? await operate : operate);</td>
+                          <td class="source">                operate &#x3D; this.operate(result, spec.ctx, spec.data);</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__199">199</a></td>
                         </tr>            <tr id="ordu.js__98" class="hit">
                           <td class="line" data-tooltip>98</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip></td>
-                          <td class="source">            }</td>
+                          <td class="hits" data-tooltip>26</td>
+                          <td class="source">                operate &#x3D; (operate instanceof Promise ? await operate : operate);</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__200">200</a></td>
                         </tr>            <tr id="ordu.js__99" class="hit">
                           <td class="line" data-tooltip>99</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip></td>
-                          <td class="source">            catch (operate_ex) {</td>
+                          <td class="source">            }</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__201">201</a></td>
                         </tr>            <tr id="ordu.js__100" class="hit">
                           <td class="line" data-tooltip>100</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip>1</td>
-                          <td class="source">                operate &#x3D; {</td>
+                          <td class="hits" data-tooltip></td>
+                          <td class="source">            catch (operate_ex) {</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__202">202</a></td>
                         </tr>            <tr id="ordu.js__101" class="hit">
                           <td class="line" data-tooltip>101</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip></td>
-                          <td class="source">                    stop: true,</td>
+                          <td class="hits" data-tooltip>1</td>
+                          <td class="source">                operate &#x3D; {</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__203">203</a></td>
                         </tr>            <tr id="ordu.js__102" class="hit">
                           <td class="line" data-tooltip>102</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip></td>
-                          <td class="source">                    err: operate_ex</td>
+                          <td class="source">                    stop: true,</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__204">204</a></td>
                         </tr>            <tr id="ordu.js__103" class="hit">
                           <td class="line" data-tooltip>103</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip></td>
-                          <td class="source">                };</td>
+                          <td class="source">                    err: operate_ex</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__205">205</a></td>
                         </tr>            <tr id="ordu.js__104" class="hit">
                           <td class="line" data-tooltip>104</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip></td>
-                          <td class="source">            }</td>
+                          <td class="source">                };</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__206">206</a></td>
                         </tr>            <tr id="ordu.js__105" class="hit">
                           <td class="line" data-tooltip>105</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip>26</td>
-                          <td class="source">            tasklog.push({ name: task.name, op: result.op, task, result, operate });</td>
-                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__208">208</a></td>
+                          <td class="hits" data-tooltip></td>
+                          <td class="source">            }</td>
+                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__207">207</a></td>
                         </tr>            <tr id="ordu.js__106" class="hit">
                           <td class="line" data-tooltip>106</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip>26</td>
-                          <td class="source">            if (operate.stop) {</td>
-                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__210">210</a></td>
+                          <td class="source">            tasklog.push({ name: task.name, op: result.op, task, result, operate });</td>
+                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__209">209</a></td>
                         </tr>            <tr id="ordu.js__107" class="hit">
                           <td class="line" data-tooltip>107</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip>3</td>
-                          <td class="source">                break;</td>
+                          <td class="hits" data-tooltip>26</td>
+                          <td class="source">            if (operate.stop) {</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__211">211</a></td>
                         </tr>            <tr id="ordu.js__108" class="hit">
                           <td class="line" data-tooltip>108</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip></td>
-                          <td class="source">            }</td>
+                          <td class="hits" data-tooltip>3</td>
+                          <td class="source">                break;</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__212">212</a></td>
                         </tr>            <tr id="ordu.js__109" class="hit">
                           <td class="line" data-tooltip>109</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip></td>
-                          <td class="source">        }</td>
+                          <td class="source">            }</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__213">213</a></td>
                         </tr>            <tr id="ordu.js__110" class="hit">
                           <td class="line" data-tooltip>110</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip>5</td>
-                          <td class="source">        return {</td>
-                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__215">215</a></td>
+                          <td class="hits" data-tooltip></td>
+                          <td class="source">        }</td>
+                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__214">214</a></td>
                         </tr>            <tr id="ordu.js__111" class="hit">
                           <td class="line" data-tooltip>111</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip></td>
-                          <td class="source">            tasklog: tasklog,</td>
+                          <td class="hits" data-tooltip>5</td>
+                          <td class="source">        return {</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__216">216</a></td>
                         </tr>            <tr id="ordu.js__112" class="hit">
                           <td class="line" data-tooltip>112</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip></td>
-                          <td class="source">            task: operate.err ? tasks[taskI] : void 0,</td>
+                          <td class="source">            tasklog: tasklog,</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__217">217</a></td>
                         </tr>            <tr id="ordu.js__113" class="hit">
                           <td class="line" data-tooltip>113</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip></td>
-                          <td class="source">            task_count: task_count,</td>
+                          <td class="source">            task: operate.err ? tasks[taskI] : void 0,</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__218">218</a></td>
                         </tr>            <tr id="ordu.js__114" class="hit">
                           <td class="line" data-tooltip>114</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip></td>
-                          <td class="source">            task_total: tasks.length,</td>
+                          <td class="source">            task_count: task_count,</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__219">219</a></td>
                         </tr>            <tr id="ordu.js__115" class="hit">
                           <td class="line" data-tooltip>115</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip></td>
-                          <td class="source">            start: start,</td>
+                          <td class="source">            task_total: tasks.length,</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__220">220</a></td>
                         </tr>            <tr id="ordu.js__116" class="hit">
                           <td class="line" data-tooltip>116</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip></td>
-                          <td class="source">            end: Date.now(),</td>
+                          <td class="source">            start: start,</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__221">221</a></td>
                         </tr>            <tr id="ordu.js__117" class="hit">
                           <td class="line" data-tooltip>117</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip></td>
-                          <td class="source">            err: operate.err,</td>
+                          <td class="source">            end: Date.now(),</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__222">222</a></td>
                         </tr>            <tr id="ordu.js__118" class="hit">
                           <td class="line" data-tooltip>118</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip></td>
-                          <td class="source">            data: spec.data</td>
+                          <td class="source">            err: operate.err,</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__223">223</a></td>
                         </tr>            <tr id="ordu.js__119" class="hit">
                           <td class="line" data-tooltip>119</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip></td>
-                          <td class="source">        };</td>
+                          <td class="source">            data: spec.data</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__224">224</a></td>
                         </tr>            <tr id="ordu.js__120" class="hit">
                           <td class="line" data-tooltip>120</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip></td>
-                          <td class="source">    }</td>
+                          <td class="source">        };</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__225">225</a></td>
                         </tr>            <tr id="ordu.js__121" class="hit">
                           <td class="line" data-tooltip>121</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip></td>
-                          <td class="source">    tasks() {</td>
-                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__227">227</a></td>
+                          <td class="source">    }</td>
+                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__226">226</a></td>
                         </tr>            <tr id="ordu.js__122" class="hit">
                           <td class="line" data-tooltip>122</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip></td>
-                          <td class="source">        return this.topo.nodes;</td>
+                          <td class="source">    tasks() {</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__228">228</a></td>
                         </tr>            <tr id="ordu.js__123" class="hit">
                           <td class="line" data-tooltip>123</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip></td>
-                          <td class="source">    }</td>
+                          <td class="source">        return this.topo.nodes;</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__229">229</a></td>
                         </tr>            <tr id="ordu.js__124" class="hit">
                           <td class="line" data-tooltip>124</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip></td>
-                          <td class="source">    operate(r, ctx, data) {</td>
-                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__231">231</a></td>
+                          <td class="source">    }</td>
+                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__230">230</a></td>
                         </tr>            <tr id="ordu.js__125" class="hit">
                           <td class="line" data-tooltip>125</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip></td>
-                          <td class="source">        let operator &#x3D; this.operator_map[r.op];</td>
+                          <td class="source">    operate(r, ctx, data) {</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__232">232</a></td>
                         </tr>            <tr id="ordu.js__126" class="hit">
                           <td class="line" data-tooltip>126</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip>26</td>
-                          <td class="source">        if (operator) {</td>
-                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__234">234</a></td>
+                          <td class="hits" data-tooltip></td>
+                          <td class="source">        let operator &#x3D; this.operator_map[r.op];</td>
+                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__233">233</a></td>
                         </tr>            <tr id="ordu.js__127" class="hit">
                           <td class="line" data-tooltip>127</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip>25</td>
-                          <td class="source">            return operator(r, ctx, data);</td>
+                          <td class="hits" data-tooltip>26</td>
+                          <td class="source">        if (operator) {</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__235">235</a></td>
                         </tr>            <tr id="ordu.js__128" class="hit">
                           <td class="line" data-tooltip>128</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip></td>
-                          <td class="source">        }</td>
+                          <td class="hits" data-tooltip>25</td>
+                          <td class="source">            return operator(r, ctx, data);</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__236">236</a></td>
                         </tr>            <tr id="ordu.js__129" class="hit">
                           <td class="line" data-tooltip>129</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip></td>
-                          <td class="source">        else {</td>
+                          <td class="source">        }</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__237">237</a></td>
                         </tr>            <tr id="ordu.js__130" class="hit">
                           <td class="line" data-tooltip>130</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip>1</td>
-                          <td class="source">            return {</td>
+                          <td class="hits" data-tooltip></td>
+                          <td class="source">        else {</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__238">238</a></td>
                         </tr>            <tr id="ordu.js__131" class="hit">
                           <td class="line" data-tooltip>131</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip></td>
-                          <td class="source">                stop: true,</td>
+                          <td class="hits" data-tooltip>1</td>
+                          <td class="source">            return {</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__239">239</a></td>
                         </tr>            <tr id="ordu.js__132" class="hit">
                           <td class="line" data-tooltip>132</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip></td>
-                          <td class="source">                err: new Error(&#x27;Unknown operation: &#x27; + r.op)</td>
+                          <td class="source">                stop: true,</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__240">240</a></td>
                         </tr>            <tr id="ordu.js__133" class="hit">
                           <td class="line" data-tooltip>133</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip></td>
-                          <td class="source">            };</td>
+                          <td class="source">                err: new Error(&#x27;Unknown operation: &#x27; + r.op)</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__241">241</a></td>
                         </tr>            <tr id="ordu.js__134" class="hit">
                           <td class="line" data-tooltip>134</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip></td>
-                          <td class="source">        }</td>
+                          <td class="source">            };</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__242">242</a></td>
                         </tr>            <tr id="ordu.js__135" class="hit">
                           <td class="line" data-tooltip>135</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip></td>
-                          <td class="source">    }</td>
+                          <td class="source">        }</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__243">243</a></td>
                         </tr>            <tr id="ordu.js__136" class="hit">
                           <td class="line" data-tooltip>136</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip></td>
-                          <td class="source">    task_if(task, data) {</td>
-                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__245">245</a></td>
+                          <td class="source">    }</td>
+                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__244">244</a></td>
                         </tr>            <tr id="ordu.js__137" class="hit">
                           <td class="line" data-tooltip>137</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip></td>
-                          <td class="source">        if (task.if) {</td>
+                          <td class="source">    task_if(task, data) {</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__246">246</a></td>
                         </tr>            <tr id="ordu.js__138" class="hit">
                           <td class="line" data-tooltip>138</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip>5</td>
-                          <td class="source">            let task_if &#x3D; task.if;</td>
+                          <td class="hits" data-tooltip></td>
+                          <td class="source">        if (task.if) {</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__247">247</a></td>
                         </tr>            <tr id="ordu.js__139" class="hit">
                           <td class="line" data-tooltip>139</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip>5</td>
-                          <td class="source">            return Object</td>
+                          <td class="source">            let task_if &#x3D; task.if;</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__248">248</a></td>
                         </tr>            <tr id="ordu.js__140" class="hit">
                           <td class="line" data-tooltip>140</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip></td>
-                          <td class="source">                .keys(task_if)</td>
+                          <td class="hits" data-tooltip>5</td>
+                          <td class="source">            return Object</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__249">249</a></td>
                         </tr>            <tr id="ordu.js__141" class="hit">
                           <td class="line" data-tooltip>141</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip></td>
-                          <td class="source">                .reduce((proceed, k) &#x3D;&gt; {</td>
+                          <td class="source">                .keys(task_if)</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__250">250</a></td>
                         </tr>            <tr id="ordu.js__142" class="hit">
                           <td class="line" data-tooltip>142</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip></td>
-                          <td class="source">                let part &#x3D; Hoek.reach(data, k);</td>
+                          <td class="source">                .reduce((proceed, k) &#x3D;&gt; {</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__251">251</a></td>
                         </tr>            <tr id="ordu.js__143" class="hit">
                           <td class="line" data-tooltip>143</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip>8</td>
-                          <td class="source">                return proceed &amp;&amp;</td>
-                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__253">253</a></td>
+                          <td class="hits" data-tooltip></td>
+                          <td class="source">                let part &#x3D; Hoek.reach(data, k);</td>
+                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__252">252</a></td>
                         </tr>            <tr id="ordu.js__144" class="hit">
                           <td class="line" data-tooltip>144</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip></td>
-                          <td class="source">                    Hoek.contain({ $: part }, { $: task_if[k] }, { deep: true });</td>
+                          <td class="hits" data-tooltip>8</td>
+                          <td class="source">                return proceed &amp;&amp;</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__254">254</a></td>
                         </tr>            <tr id="ordu.js__145" class="hit">
                           <td class="line" data-tooltip>145</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip></td>
-                          <td class="source">            }, true);</td>
+                          <td class="source">                    Hoek.contain({ $: part }, { $: task_if[k] }, { deep: true });</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__255">255</a></td>
                         </tr>            <tr id="ordu.js__146" class="hit">
                           <td class="line" data-tooltip>146</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip></td>
-                          <td class="source">        }</td>
+                          <td class="source">            }, true);</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__256">256</a></td>
                         </tr>            <tr id="ordu.js__147" class="hit">
                           <td class="line" data-tooltip>147</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip></td>
-                          <td class="source">        else {</td>
+                          <td class="source">        }</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__257">257</a></td>
                         </tr>            <tr id="ordu.js__148" class="hit">
                           <td class="line" data-tooltip>148</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip>21</td>
-                          <td class="source">            return true;</td>
+                          <td class="hits" data-tooltip></td>
+                          <td class="source">        else {</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__258">258</a></td>
                         </tr>            <tr id="ordu.js__149" class="hit">
                           <td class="line" data-tooltip>149</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip></td>
-                          <td class="source">        }</td>
+                          <td class="hits" data-tooltip>21</td>
+                          <td class="source">            return true;</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__259">259</a></td>
                         </tr>            <tr id="ordu.js__150" class="hit">
                           <td class="line" data-tooltip>150</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip></td>
-                          <td class="source">    }</td>
+                          <td class="source">        }</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__260">260</a></td>
                         </tr>            <tr id="ordu.js__151" class="hit">
                           <td class="line" data-tooltip>151</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip></td>
-                          <td class="source">}</td>
+                          <td class="source">    }</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__261">261</a></td>
                         </tr>            <tr id="ordu.js__152" class="hit">
                           <td class="line" data-tooltip>152</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip>1</td>
-                          <td class="source">exports.Ordu &#x3D; Self;</td>
-                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__9">9</a></td>
+                          <td class="hits" data-tooltip></td>
+                          <td class="source">}</td>
+                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__262">262</a></td>
                         </tr>            <tr id="ordu.js__153" class="hit">
                           <td class="line" data-tooltip>153</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip></td>
-                          <td class="source">function strarr(x) {</td>
-                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__264">264</a></td>
+                          <td class="hits" data-tooltip>1</td>
+                          <td class="source">exports.Ordu &#x3D; Self;</td>
+                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__9">9</a></td>
                         </tr>            <tr id="ordu.js__154" class="hit">
                           <td class="line" data-tooltip>154</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip>16</td>
-                          <td class="source">    return null &#x3D;&#x3D; x ? [] : &#x27;string&#x27; &#x3D;&#x3D;&#x3D; typeof x ? [x] : x;</td>
+                          <td class="hits" data-tooltip></td>
+                          <td class="source">function strarr(x) {</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__265">265</a></td>
                         </tr>            <tr id="ordu.js__155" class="hit">
                           <td class="line" data-tooltip>155</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip></td>
-                          <td class="source">}</td>
+                          <td class="hits" data-tooltip>16</td>
+                          <td class="source">    return null &#x3D;&#x3D; x ? [] : &#x27;string&#x27; &#x3D;&#x3D;&#x3D; typeof x ? [x] : x;</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__266">266</a></td>
                         </tr>            <tr id="ordu.js__156" class="hit">
                           <td class="line" data-tooltip>156</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip></td>
-                          <td class="source">function LegacyOrdu(opts) {</td>
-                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__272">272</a></td>
+                          <td class="source">}</td>
+                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__267">267</a></td>
                         </tr>            <tr id="ordu.js__157" class="hit">
                           <td class="line" data-tooltip>157</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip>6</td>
-                          <td class="source">    var orduI &#x3D; -1;</td>
+                          <td class="hits" data-tooltip></td>
+                          <td class="source">function LegacyOrdu(opts) {</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__273">273</a></td>
                         </tr>            <tr id="ordu.js__158" class="hit">
                           <td class="line" data-tooltip>158</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip>6</td>
-                          <td class="source">    var self &#x3D; {};</td>
-                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__275">275</a></td>
+                          <td class="source">    var orduI &#x3D; -1;</td>
+                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__274">274</a></td>
                         </tr>            <tr id="ordu.js__159" class="hit">
                           <td class="line" data-tooltip>159</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip>6</td>
-                          <td class="source">    ++orduI;</td>
+                          <td class="source">    var self &#x3D; {};</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__276">276</a></td>
                         </tr>            <tr id="ordu.js__160" class="hit">
                           <td class="line" data-tooltip>160</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip>6</td>
-                          <td class="source">    opts &#x3D; opts || {};</td>
-                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__278">278</a></td>
+                          <td class="source">    ++orduI;</td>
+                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__277">277</a></td>
                         </tr>            <tr id="ordu.js__161" class="hit">
                           <td class="line" data-tooltip>161</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip>6</td>
-                          <td class="source">    opts.name &#x3D; opts.name || &#x27;ordu&#x27; + orduI;</td>
+                          <td class="source">    opts &#x3D; opts || {};</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__279">279</a></td>
                         </tr>            <tr id="ordu.js__162" class="hit">
                           <td class="line" data-tooltip>162</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip>6</td>
-                          <td class="source">    self.add &#x3D; api_add;</td>
-                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__281">281</a></td>
+                          <td class="source">    opts.name &#x3D; opts.name || &#x27;ordu&#x27; + orduI;</td>
+                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__280">280</a></td>
                         </tr>            <tr id="ordu.js__163" class="hit">
                           <td class="line" data-tooltip>163</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip>6</td>
-                          <td class="source">    self.process &#x3D; api_process;</td>
+                          <td class="source">    self.add &#x3D; api_add;</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__282">282</a></td>
                         </tr>            <tr id="ordu.js__164" class="hit">
                           <td class="line" data-tooltip>164</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip>6</td>
-                          <td class="source">    self.tasknames &#x3D; api_tasknames;</td>
+                          <td class="source">    self.process &#x3D; api_process;</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__283">283</a></td>
                         </tr>            <tr id="ordu.js__165" class="hit">
                           <td class="line" data-tooltip>165</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip>6</td>
-                          <td class="source">    self.taskdetails &#x3D; api_taskdetails;</td>
+                          <td class="source">    self.tasknames &#x3D; api_tasknames;</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__284">284</a></td>
                         </tr>            <tr id="ordu.js__166" class="hit">
                           <td class="line" data-tooltip>166</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip>6</td>
-                          <td class="source">    self.toString &#x3D; api_toString;</td>
+                          <td class="source">    self.taskdetails &#x3D; api_taskdetails;</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__285">285</a></td>
                         </tr>            <tr id="ordu.js__167" class="hit">
                           <td class="line" data-tooltip>167</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip>6</td>
-                          <td class="source">    var tasks &#x3D; [];</td>
-                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__287">287</a></td>
+                          <td class="source">    self.toString &#x3D; api_toString;</td>
+                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__286">286</a></td>
                         </tr>            <tr id="ordu.js__168" class="hit">
                           <td class="line" data-tooltip>168</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip></td>
-                          <td class="source">    function api_add(spec, task) {</td>
-                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__289">289</a></td>
+                          <td class="hits" data-tooltip>6</td>
+                          <td class="source">    var tasks &#x3D; [];</td>
+                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__288">288</a></td>
                         </tr>            <tr id="ordu.js__169" class="hit">
                           <td class="line" data-tooltip>169</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip>12</td>
-                          <td class="source">        task &#x3D; task || spec;</td>
+                          <td class="hits" data-tooltip></td>
+                          <td class="source">    function api_add(spec, task) {</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__290">290</a></td>
                         </tr>            <tr id="ordu.js__170" class="hit">
                           <td class="line" data-tooltip>170</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip>12</td>
-                          <td class="source">        if (!task.name) {</td>
-                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__292">292</a></td>
+                          <td class="source">        task &#x3D; task || spec;</td>
+                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__291">291</a></td>
                         </tr>            <tr id="ordu.js__171" class="hit">
                           <td class="line" data-tooltip>171</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip>2</td>
-                          <td class="source">            Object.defineProperty(task, &#x27;name&#x27;, {</td>
+                          <td class="hits" data-tooltip>12</td>
+                          <td class="source">        if (!task.name) {</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__293">293</a></td>
                         </tr>            <tr id="ordu.js__172" class="hit">
                           <td class="line" data-tooltip>172</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip></td>
-                          <td class="source">                value: opts.name + &#x27;_task&#x27; + tasks.length</td>
+                          <td class="hits" data-tooltip>2</td>
+                          <td class="source">            Object.defineProperty(task, &#x27;name&#x27;, {</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__294">294</a></td>
                         </tr>            <tr id="ordu.js__173" class="hit">
                           <td class="line" data-tooltip>173</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip></td>
-                          <td class="source">            });</td>
+                          <td class="source">                value: opts.name + &#x27;_task&#x27; + tasks.length</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__295">295</a></td>
                         </tr>            <tr id="ordu.js__174" class="hit">
                           <td class="line" data-tooltip>174</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip></td>
-                          <td class="source">        }</td>
+                          <td class="source">            });</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__296">296</a></td>
                         </tr>            <tr id="ordu.js__175" class="hit">
                           <td class="line" data-tooltip>175</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip>12</td>
-                          <td class="source">        task.tags &#x3D; spec.tags || [];</td>
-                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__298">298</a></td>
+                          <td class="hits" data-tooltip></td>
+                          <td class="source">        }</td>
+                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__297">297</a></td>
                         </tr>            <tr id="ordu.js__176" class="hit">
                           <td class="line" data-tooltip>176</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip>12</td>
-                          <td class="source">        tasks.push(task);</td>
-                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__300">300</a></td>
+                          <td class="source">        task.tags &#x3D; spec.tags || [];</td>
+                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__299">299</a></td>
                         </tr>            <tr id="ordu.js__177" class="hit">
                           <td class="line" data-tooltip>177</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip>12</td>
-                          <td class="source">        return self;</td>
-                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__302">302</a></td>
+                          <td class="source">        tasks.push(task);</td>
+                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__301">301</a></td>
                         </tr>            <tr id="ordu.js__178" class="hit">
                           <td class="line" data-tooltip>178</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip></td>
-                          <td class="source">    }</td>
+                          <td class="hits" data-tooltip>12</td>
+                          <td class="source">        return self;</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__303">303</a></td>
                         </tr>            <tr id="ordu.js__179" class="hit">
                           <td class="line" data-tooltip>179</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip></td>
-                          <td class="source">    // Valid calls:</td>
-                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__305">305</a></td>
+                          <td class="source">    }</td>
+                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__304">304</a></td>
                         </tr>            <tr id="ordu.js__180" class="hit">
                           <td class="line" data-tooltip>180</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip></td>
-                          <td class="source">    //   * process(spec, ctxt, data)</td>
+                          <td class="source">    // Valid calls:</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__306">306</a></td>
                         </tr>            <tr id="ordu.js__181" class="hit">
                           <td class="line" data-tooltip>181</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip></td>
-                          <td class="source">    //   * process(ctxt, data)</td>
+                          <td class="source">    //   * process(spec, ctxt, data)</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__307">307</a></td>
                         </tr>            <tr id="ordu.js__182" class="hit">
                           <td class="line" data-tooltip>182</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip></td>
-                          <td class="source">    //   * process(data)</td>
+                          <td class="source">    //   * process(ctxt, data)</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__308">308</a></td>
                         </tr>            <tr id="ordu.js__183" class="hit">
                           <td class="line" data-tooltip>183</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip></td>
-                          <td class="source">    //   * process()</td>
+                          <td class="source">    //   * process(data)</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__309">309</a></td>
                         </tr>            <tr id="ordu.js__184" class="hit">
                           <td class="line" data-tooltip>184</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip></td>
-                          <td class="source">    function api_process() {</td>
+                          <td class="source">    //   * process()</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__310">310</a></td>
                         </tr>            <tr id="ordu.js__185" class="hit">
                           <td class="line" data-tooltip>185</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip>15</td>
-                          <td class="source">        var i &#x3D; arguments.length;</td>
+                          <td class="hits" data-tooltip></td>
+                          <td class="source">    function api_process() {</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__311">311</a></td>
                         </tr>            <tr id="ordu.js__186" class="hit">
                           <td class="line" data-tooltip>186</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip>15</td>
-                          <td class="source">        var data &#x3D; 0 &lt; i &amp;&amp; arguments[--i];</td>
+                          <td class="source">        var i &#x3D; arguments.length;</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__312">312</a></td>
                         </tr>            <tr id="ordu.js__187" class="hit">
                           <td class="line" data-tooltip>187</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip>15</td>
-                          <td class="source">        var ctxt &#x3D; 0 &lt; i &amp;&amp; arguments[--i];</td>
+                          <td class="source">        var data &#x3D; 0 &lt; i &amp;&amp; arguments[--i];</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__313">313</a></td>
                         </tr>            <tr id="ordu.js__188" class="hit">
                           <td class="line" data-tooltip>188</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip>15</td>
-                          <td class="source">        var spec &#x3D; 0 &lt; i &amp;&amp; arguments[--i];</td>
+                          <td class="source">        var ctxt &#x3D; 0 &lt; i &amp;&amp; arguments[--i];</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__314">314</a></td>
                         </tr>            <tr id="ordu.js__189" class="hit">
                           <td class="line" data-tooltip>189</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip>15</td>
-                          <td class="source">        data &#x3D; data || {};</td>
-                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__316">316</a></td>
+                          <td class="source">        var spec &#x3D; 0 &lt; i &amp;&amp; arguments[--i];</td>
+                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__315">315</a></td>
                         </tr>            <tr id="ordu.js__190" class="hit">
                           <td class="line" data-tooltip>190</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip>15</td>
-                          <td class="source">        ctxt &#x3D; ctxt || {};</td>
+                          <td class="source">        data &#x3D; data || {};</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__317">317</a></td>
                         </tr>            <tr id="ordu.js__191" class="hit">
                           <td class="line" data-tooltip>191</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip>15</td>
-                          <td class="source">        spec &#x3D; spec || {};</td>
+                          <td class="source">        ctxt &#x3D; ctxt || {};</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__318">318</a></td>
                         </tr>            <tr id="ordu.js__192" class="hit">
                           <td class="line" data-tooltip>192</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip>15</td>
-                          <td class="source">        spec.tags &#x3D; spec.tags || [];</td>
-                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__320">320</a></td>
+                          <td class="source">        spec &#x3D; spec || {};</td>
+                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__319">319</a></td>
                         </tr>            <tr id="ordu.js__193" class="hit">
                           <td class="line" data-tooltip>193</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip>15</td>
-                          <td class="source">        for (var tI &#x3D; 0; tI &lt; tasks.length; ++tI) {</td>
-                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__322">322</a></td>
+                          <td class="source">        spec.tags &#x3D; spec.tags || [];</td>
+                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__321">321</a></td>
                         </tr>            <tr id="ordu.js__194" class="hit">
                           <td class="line" data-tooltip>194</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip>34</td>
-                          <td class="source">            var task &#x3D; tasks[tI];</td>
+                          <td class="hits" data-tooltip>15</td>
+                          <td class="source">        for (var tI &#x3D; 0; tI &lt; tasks.length; ++tI) {</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__323">323</a></td>
                         </tr>            <tr id="ordu.js__195" class="hit">
                           <td class="line" data-tooltip>195</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip>34</td>
-                          <td class="source">            if (0 &lt; spec.tags.length &amp;&amp; !contains(task.tags, spec.tags)) {</td>
-                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__325">325</a></td>
+                          <td class="source">            var task &#x3D; tasks[tI];</td>
+                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__324">324</a></td>
                         </tr>            <tr id="ordu.js__196" class="hit">
                           <td class="line" data-tooltip>196</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip>11</td>
-                          <td class="source">                continue;</td>
+                          <td class="hits" data-tooltip>34</td>
+                          <td class="source">            if (0 &lt; spec.tags.length &amp;&amp; !contains(task.tags, spec.tags)) {</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__326">326</a></td>
                         </tr>            <tr id="ordu.js__197" class="hit">
                           <td class="line" data-tooltip>197</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip></td>
-                          <td class="source">            }</td>
+                          <td class="hits" data-tooltip>11</td>
+                          <td class="source">                continue;</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__327">327</a></td>
                         </tr>            <tr id="ordu.js__198" class="hit">
                           <td class="line" data-tooltip>198</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip>23</td>
-                          <td class="source">            var index$ &#x3D; tI;</td>
-                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__329">329</a></td>
+                          <td class="hits" data-tooltip></td>
+                          <td class="source">            }</td>
+                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__328">328</a></td>
                         </tr>            <tr id="ordu.js__199" class="hit">
                           <td class="line" data-tooltip>199</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip>23</td>
-                          <td class="source">            var taskname$ &#x3D; task.name;</td>
+                          <td class="source">            var index$ &#x3D; tI;</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__330">330</a></td>
                         </tr>            <tr id="ordu.js__200" class="hit">
                           <td class="line" data-tooltip>200</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip>23</td>
-                          <td class="source">            ctxt.index$ &#x3D; index$;</td>
-                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__332">332</a></td>
+                          <td class="source">            var taskname$ &#x3D; task.name;</td>
+                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__331">331</a></td>
                         </tr>            <tr id="ordu.js__201" class="hit">
                           <td class="line" data-tooltip>201</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip>23</td>
-                          <td class="source">            ctxt.taskname$ &#x3D; taskname$;</td>
+                          <td class="source">            ctxt.index$ &#x3D; index$;</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__333">333</a></td>
                         </tr>            <tr id="ordu.js__202" class="hit">
                           <td class="line" data-tooltip>202</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip>23</td>
-                          <td class="source">            var res &#x3D; task(ctxt, data);</td>
-                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__335">335</a></td>
+                          <td class="source">            ctxt.taskname$ &#x3D; taskname$;</td>
+                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__334">334</a></td>
                         </tr>            <tr id="ordu.js__203" class="hit">
                           <td class="line" data-tooltip>203</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip>23</td>
-                          <td class="source">            if (res) {</td>
-                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__337">337</a></td>
+                          <td class="source">            var res &#x3D; task(ctxt, data);</td>
+                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__336">336</a></td>
                         </tr>            <tr id="ordu.js__204" class="hit">
                           <td class="line" data-tooltip>204</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip>2</td>
-                          <td class="source">                res.index$ &#x3D; index$;</td>
+                          <td class="hits" data-tooltip>23</td>
+                          <td class="source">            if (res) {</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__338">338</a></td>
                         </tr>            <tr id="ordu.js__205" class="hit">
                           <td class="line" data-tooltip>205</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip>2</td>
-                          <td class="source">                res.taskname$ &#x3D; taskname$;</td>
+                          <td class="source">                res.index$ &#x3D; index$;</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__339">339</a></td>
                         </tr>            <tr id="ordu.js__206" class="hit">
                           <td class="line" data-tooltip>206</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip>2</td>
-                          <td class="source">                res.ctxt$ &#x3D; ctxt;</td>
+                          <td class="source">                res.taskname$ &#x3D; taskname$;</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__340">340</a></td>
                         </tr>            <tr id="ordu.js__207" class="hit">
                           <td class="line" data-tooltip>207</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip>2</td>
-                          <td class="source">                res.data$ &#x3D; data;</td>
+                          <td class="source">                res.ctxt$ &#x3D; ctxt;</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__341">341</a></td>
                         </tr>            <tr id="ordu.js__208" class="hit">
                           <td class="line" data-tooltip>208</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip>2</td>
-                          <td class="source">                return res;</td>
+                          <td class="source">                res.data$ &#x3D; data;</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__342">342</a></td>
                         </tr>            <tr id="ordu.js__209" class="hit">
                           <td class="line" data-tooltip>209</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip></td>
-                          <td class="source">            }</td>
+                          <td class="hits" data-tooltip>2</td>
+                          <td class="source">                return res;</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__343">343</a></td>
                         </tr>            <tr id="ordu.js__210" class="hit">
                           <td class="line" data-tooltip>210</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip></td>
-                          <td class="source">        }</td>
+                          <td class="source">            }</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__344">344</a></td>
                         </tr>            <tr id="ordu.js__211" class="hit">
                           <td class="line" data-tooltip>211</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip>13</td>
-                          <td class="source">        return null;</td>
-                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__346">346</a></td>
+                          <td class="hits" data-tooltip></td>
+                          <td class="source">        }</td>
+                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__345">345</a></td>
                         </tr>            <tr id="ordu.js__212" class="hit">
                           <td class="line" data-tooltip>212</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip></td>
-                          <td class="source">    }</td>
+                          <td class="hits" data-tooltip>13</td>
+                          <td class="source">        return null;</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__347">347</a></td>
                         </tr>            <tr id="ordu.js__213" class="hit">
                           <td class="line" data-tooltip>213</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip></td>
-                          <td class="source">    function api_tasknames() {</td>
-                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__349">349</a></td>
+                          <td class="source">    }</td>
+                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__348">348</a></td>
                         </tr>            <tr id="ordu.js__214" class="hit">
                           <td class="line" data-tooltip>214</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip>4</td>
-                          <td class="source">        return tasks.map(function (v) {</td>
+                          <td class="hits" data-tooltip></td>
+                          <td class="source">    function api_tasknames() {</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__350">350</a></td>
                         </tr>            <tr id="ordu.js__215" class="hit">
                           <td class="line" data-tooltip>215</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip></td>
-                          <td class="source">            return v.name;</td>
+                          <td class="hits" data-tooltip>4</td>
+                          <td class="source">        return tasks.map(function (v) {</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__351">351</a></td>
                         </tr>            <tr id="ordu.js__216" class="hit">
                           <td class="line" data-tooltip>216</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip></td>
-                          <td class="source">        });</td>
+                          <td class="source">            return v.name;</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__352">352</a></td>
                         </tr>            <tr id="ordu.js__217" class="hit">
                           <td class="line" data-tooltip>217</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip></td>
-                          <td class="source">    }</td>
+                          <td class="source">        });</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__353">353</a></td>
                         </tr>            <tr id="ordu.js__218" class="hit">
                           <td class="line" data-tooltip>218</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip></td>
-                          <td class="source">    function api_taskdetails() {</td>
-                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__355">355</a></td>
+                          <td class="source">    }</td>
+                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__354">354</a></td>
                         </tr>            <tr id="ordu.js__219" class="hit">
                           <td class="line" data-tooltip>219</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip>1</td>
-                          <td class="source">        return tasks.map(function (v) {</td>
+                          <td class="hits" data-tooltip></td>
+                          <td class="source">    function api_taskdetails() {</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__356">356</a></td>
                         </tr>            <tr id="ordu.js__220" class="hit">
                           <td class="line" data-tooltip>220</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip></td>
-                          <td class="source">            return v.name + &#x27;:{tags:&#x27; + v.tags + &#x27;}&#x27;;</td>
+                          <td class="hits" data-tooltip>1</td>
+                          <td class="source">        return tasks.map(function (v) {</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__357">357</a></td>
                         </tr>            <tr id="ordu.js__221" class="hit">
                           <td class="line" data-tooltip>221</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip></td>
-                          <td class="source">        });</td>
+                          <td class="source">            return v.name + &#x27;:{tags:&#x27; + v.tags + &#x27;}&#x27;;</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__358">358</a></td>
                         </tr>            <tr id="ordu.js__222" class="hit">
                           <td class="line" data-tooltip>222</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip></td>
-                          <td class="source">    }</td>
+                          <td class="source">        });</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__359">359</a></td>
                         </tr>            <tr id="ordu.js__223" class="hit">
                           <td class="line" data-tooltip>223</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip></td>
-                          <td class="source">    function api_toString() {</td>
-                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__361">361</a></td>
+                          <td class="source">    }</td>
+                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__360">360</a></td>
                         </tr>            <tr id="ordu.js__224" class="hit">
                           <td class="line" data-tooltip>224</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip>3</td>
-                          <td class="source">        return opts.name + &#x27;:[&#x27; + self.tasknames() + &#x27;]&#x27;;</td>
+                          <td class="hits" data-tooltip></td>
+                          <td class="source">    function api_toString() {</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__362">362</a></td>
                         </tr>            <tr id="ordu.js__225" class="hit">
                           <td class="line" data-tooltip>225</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip></td>
-                          <td class="source">    }</td>
+                          <td class="hits" data-tooltip>3</td>
+                          <td class="source">        return opts.name + &#x27;:[&#x27; + self.tasknames() + &#x27;]&#x27;;</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__363">363</a></td>
                         </tr>            <tr id="ordu.js__226" class="hit">
                           <td class="line" data-tooltip>226</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip>6</td>
-                          <td class="source">    return self;</td>
-                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__365">365</a></td>
+                          <td class="hits" data-tooltip></td>
+                          <td class="source">    }</td>
+                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__364">364</a></td>
                         </tr>            <tr id="ordu.js__227" class="hit">
                           <td class="line" data-tooltip>227</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip></td>
-                          <td class="source">}</td>
+                          <td class="hits" data-tooltip>6</td>
+                          <td class="source">    return self;</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__366">366</a></td>
                         </tr>            <tr id="ordu.js__228" class="hit">
                           <td class="line" data-tooltip>228</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip>1</td>
-                          <td class="source">exports.LegacyOrdu &#x3D; LegacyOrdu;</td>
-                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__9">9</a></td>
+                          <td class="hits" data-tooltip></td>
+                          <td class="source">}</td>
+                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__367">367</a></td>
                         </tr>            <tr id="ordu.js__229" class="hit">
                           <td class="line" data-tooltip>229</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip></td>
-                          <td class="source">function contains(all, some) {</td>
-                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__368">368</a></td>
+                          <td class="hits" data-tooltip>1</td>
+                          <td class="source">exports.LegacyOrdu &#x3D; LegacyOrdu;</td>
+                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__9">9</a></td>
                         </tr>            <tr id="ordu.js__230" class="hit">
                           <td class="line" data-tooltip>230</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip>17</td>
-                          <td class="source">    for (var i &#x3D; 0; i &lt; some.length; ++i) {</td>
+                          <td class="hits" data-tooltip></td>
+                          <td class="source">function contains(all, some) {</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__369">369</a></td>
                         </tr>            <tr id="ordu.js__231" class="hit">
                           <td class="line" data-tooltip>231</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip>18</td>
-                          <td class="source">        if (-1 &#x3D;&#x3D;&#x3D; all.indexOf(some[i])) {</td>
+                          <td class="hits" data-tooltip>17</td>
+                          <td class="source">    for (var i &#x3D; 0; i &lt; some.length; ++i) {</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__370">370</a></td>
                         </tr>            <tr id="ordu.js__232" class="hit">
                           <td class="line" data-tooltip>232</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip>11</td>
-                          <td class="source">            return false;</td>
+                          <td class="hits" data-tooltip>18</td>
+                          <td class="source">        if (-1 &#x3D;&#x3D;&#x3D; all.indexOf(some[i])) {</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__371">371</a></td>
                         </tr>            <tr id="ordu.js__233" class="hit">
                           <td class="line" data-tooltip>233</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip></td>
-                          <td class="source">        }</td>
+                          <td class="hits" data-tooltip>11</td>
+                          <td class="source">            return false;</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__372">372</a></td>
                         </tr>            <tr id="ordu.js__234" class="hit">
                           <td class="line" data-tooltip>234</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip></td>
-                          <td class="source">    }</td>
+                          <td class="source">        }</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__373">373</a></td>
                         </tr>            <tr id="ordu.js__235" class="hit">
                           <td class="line" data-tooltip>235</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip>6</td>
-                          <td class="source">    return true;</td>
-                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__375">375</a></td>
+                          <td class="hits" data-tooltip></td>
+                          <td class="source">    }</td>
+                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__374">374</a></td>
                         </tr>            <tr id="ordu.js__236" class="hit">
                           <td class="line" data-tooltip>236</td>
                           <td class="lint empty"></td>
-                          <td class="hits" data-tooltip></td>
-                          <td class="source">}</td>
+                          <td class="hits" data-tooltip>6</td>
+                          <td class="source">    return true;</td>
                           <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__376">376</a></td>
                         </tr>            <tr id="ordu.js__237" class="hit">
                           <td class="line" data-tooltip>237</td>
+                          <td class="lint empty"></td>
+                          <td class="hits" data-tooltip></td>
+                          <td class="source">}</td>
+                          <td class="original-line" data-tooltip="ordu.ts"><a href="#ordu.ts__377">377</a></td>
+                        </tr>            <tr id="ordu.js__238" class="hit">
+                          <td class="line" data-tooltip>238</td>
                           <td class="lint empty"></td>
                           <td class="hits" data-tooltip></td>
                           <td class="source">//# sourceMappingURL&#x3D;ordu.js.map</td>
@@ -2087,15 +2089,9 @@
         <h1>Linting Report</h1>
             <div class="lint-stats">
                 <span class="lint-errors high">0</span>
-                <span class="lint-warnings low">1</span>
+                <span class="lint-warnings high">0</span>
             </div>
             <div class="lint-files">
-                <div class="lint-file">
-                </div>            <div class="lint-file">
-                    <h2 id="lint-test/ordu.test.js">test/ordu.test.js</h2>
-                    <ul>
-                        <li class="lint-entry">L126 - <span class="level-WARNING">WARNING</span> - no-console - Unexpected console statement.</li>
-                    </ul>
-                </div>        </div>
+            </div>
     </div>  </body>
 </html>
