@@ -154,6 +154,7 @@ class Self implements Ordu {
     })
   }
 
+  // TODO: execSync version when promises not needed
   async exec(ctx: any, data: any): Promise<ExecResult> {
     let start = Date.now()
     let tasks: Task[] = this.topo.nodes

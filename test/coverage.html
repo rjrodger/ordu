@@ -540,6 +540,10 @@
             <a href="#ordu.js"><span class="basename">ordu.js</span></a>
         </li>
         <li><a href="#linting">Linting Report</a></li>
+        <li>
+            <span class="lint"><span class="high">0</span> || <span class="low">1</span></span>
+            <a href="#lint-test/ordu.test.js">test/ordu.test.js</a>
+        </li>
     </div>
     <div id="tests">
       <h1>Test Report</h1>
@@ -547,7 +551,7 @@
           <div class="failures">0</div>
           <div class="skipped">0</div>
           <div class="test-count">7</div>
-          <div class="duration">95</div>
+          <div class="duration">94</div>
       </div>
       <div id="filters">
           <input type="checkbox" checked="" onchange="filter(this)" value="success" id="show-success">
@@ -602,14 +606,14 @@
               <td class="test-title">ordu-legacy process
                   
               </td>
-              <td class="test-duration">1</td>
+              <td class="test-duration">2</td>
           </tr>
           <tr class="show ordu-legacy success">
               <td class="test-id">6</td>
               <td class="test-title">ordu-legacy tags
                   
               </td>
-              <td class="test-duration">2</td>
+              <td class="test-duration">3</td>
           </tr>
           <tr class="show ordu success">
               <td class="test-id">7</td>
@@ -2083,9 +2087,15 @@
         <h1>Linting Report</h1>
             <div class="lint-stats">
                 <span class="lint-errors high">0</span>
-                <span class="lint-warnings high">0</span>
+                <span class="lint-warnings low">1</span>
             </div>
             <div class="lint-files">
-            </div>
+                <div class="lint-file">
+                </div>            <div class="lint-file">
+                    <h2 id="lint-test/ordu.test.js">test/ordu.test.js</h2>
+                    <ul>
+                        <li class="lint-entry">L126 - <span class="level-WARNING">WARNING</span> - no-console - Unexpected console statement.</li>
+                    </ul>
+                </div>        </div>
     </div>  </body>
 </html>

@@ -58,6 +58,7 @@ class Self {
             after: t.after
         });
     }
+    // TODO: execSync version when promises not needed
     async exec(ctx, data) {
         let start = Date.now();
         let tasks = this.topo.nodes;

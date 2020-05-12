@@ -123,7 +123,7 @@ describe('ordu', function() {
     expect(out.data).equal({ x: 4, y: { id: '001' }, qq: 2 })
     expect(out.task_count).equal(7)
     expect(out.task_total).equal(8)
-
+    console.log(out.end-out.start)
 
     out = await h0.exec({},{z:1})
     expect(out.data).equal({ z: 1, x: 4, y: { id: '001' }, qq: 2 })
