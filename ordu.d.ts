@@ -1,19 +1,23 @@
-export { Self as Ordu, LegacyOrdu };
-interface Ordu {
-    add(t: TaskDef): void;
+export { Ordu, LegacyOrdu };
+interface OrduIF {
+    add(t: TaskDef | TaskExec, te?: TaskDef): void;
     tasks(): Task[];
+    operator(name: string, opr: Operator): void;
+    operators(): object;
+    exec(ctx: any, data: any, opts: any): Promise<ExecResult>;
 }
 interface TaskDef {
     id?: string;
     name?: string;
     before?: string | string[];
     after?: string | string[];
-    exec?: (s: Spec) => any;
+    exec?: TaskExec;
     from?: object;
     if?: {
         [k: string]: any;
     };
 }
+declare type TaskExec = (s: Spec) => any;
 interface Spec {
     ctx: object;
     data: object;
@@ -45,6 +49,7 @@ declare class TaskResult {
     out: object;
     err?: Error;
     log: TaskLogEntry;
+    why: string;
     constructor(log: TaskLogEntry, raw: any);
 }
 declare type Operate = {
@@ -62,23 +67,18 @@ declare type ExecResult = {
     data: object;
 };
 declare type Operator = (r: TaskResult, ctx: any, data: object) => Operate;
-declare class Self implements Ordu {
-    topo: {
-        add(t: Task, _: any): void;
-        nodes: Task[];
-    };
-    operator_map: {
-        [op: string]: Operator;
-    };
+declare class Ordu implements OrduIF {
+    private topo;
+    private operator_map;
     constructor();
     operator(name: string, opr: Operator): void;
     operators(): {
         [op: string]: Operator;
     };
-    add(taskdef: TaskDef): void;
-    exec(ctx: any, data: any): Promise<ExecResult>;
+    add(taskin: TaskDef | TaskExec, taskextra?: TaskDef): void;
+    exec(ctx: any, data: any, opts: any): Promise<ExecResult>;
     tasks(): Task[];
-    operate(r: TaskResult, ctx: any, data: object): Operate;
+    private operate;
     private task_if;
 }
 declare function LegacyOrdu(opts?: any): any;

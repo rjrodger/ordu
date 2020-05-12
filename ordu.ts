@@ -4,11 +4,14 @@
 import * as Hoek from '@hapi/hoek'
 import * as Topo from '@hapi/topo'
 
-export { Self as Ordu, LegacyOrdu }
+export { Ordu, LegacyOrdu }
 
-interface Ordu {
-  add(t: TaskDef): void
+interface OrduIF {
+  add(t: TaskDef | TaskExec, te?: TaskDef): void
   tasks(): Task[]
+  operator(name: string, opr: Operator): void
+  operators(): object
+  exec(ctx: any, data: any, opts: any): Promise<ExecResult>
 }
 
 interface TaskDef {
@@ -16,10 +19,12 @@ interface TaskDef {
   name?: string
   before?: string | string[]
   after?: string | string[]
-  exec?: (s: Spec) => any
+  exec?: TaskExec
   from?: object
   if?: { [k: string]: any }
 }
+
+type TaskExec = (s: Spec) => any
 
 interface Spec {
   ctx: object
@@ -47,7 +52,7 @@ class Task {
     this.name = taskdef.name || 'task' + Task.count
     this.before = strarr(taskdef.before)
     this.after = strarr(taskdef.after)
-    this.exec = taskdef.exec || ((_: Spec) => {})
+    this.exec = taskdef.exec || ((_: Spec) => { })
     this.if = taskdef.if || void 0
     this.meta = {
       order: Task.count++,
@@ -71,6 +76,7 @@ class TaskResult {
   out: object
   err?: Error
   log: TaskLogEntry
+  why: string
 
   constructor(log: TaskLogEntry, raw: any) {
     raw = null == raw ? {} : raw
@@ -81,6 +87,8 @@ class TaskResult {
 
     this.op =
       null != this.err ? 'stop' : 'string' === typeof raw.op ? raw.op : 'next'
+
+    this.why = raw.why || ''
   }
 }
 
@@ -102,12 +110,12 @@ type ExecResult = {
 
 type Operator = (r: TaskResult, ctx: any, data: object) => Operate
 
-class Self implements Ordu {
-  topo: {
+class Ordu implements OrduIF {
+  private topo: {
     add(t: Task, _: any): void
     nodes: Task[]
   }
-  operator_map: {
+  private operator_map: {
     //[op: string]: (r: TaskResult, ctx: any, data: object) => Operate
     [op: string]: Operator
   }
@@ -117,8 +125,14 @@ class Self implements Ordu {
 
     this.operator_map = {
       next: () => ({ stop: false }),
+
       skip: () => ({ stop: false }),
-      stop: (tr) => ({ stop: true, err: tr.err }),
+
+      stop: (tr, _, data) => {
+        Hoek.merge(data, tr.out)
+        return { stop: true, err: tr.err }
+      },
+
       merge: (tr, _, data) => {
         Hoek.merge(data, tr.out)
         return { stop: false }
@@ -134,8 +148,31 @@ class Self implements Ordu {
     return this.operator_map
   }
 
-  add(taskdef: TaskDef) {
-    let t = new Task(taskdef)
+  // TODO: use https://www.typescriptlang.org/docs/handbook/advanced-types.html#discriminated-unions ?
+  add(taskin: TaskDef | TaskExec, taskextra?: TaskDef) {
+    let t: Task
+
+    if (Array.isArray(taskin)) {
+      (taskin as any[]).forEach(t => this.add(t))
+      return
+    }
+    else if ('function' !== typeof (taskin)) {
+
+      if (taskextra) {
+        t = new Task(taskextra)
+        t.exec = taskin as TaskExec
+        t.name = taskin.name ? taskin.name : t.name
+      }
+      else {
+        t = new Task(taskin as TaskDef)
+      }
+    }
+    else {
+      t = new Task({
+        name: taskin.name,
+        exec: taskin as TaskExec
+      })
+    }
 
     this.topo.add(t, {
       group: t.name,
@@ -145,7 +182,8 @@ class Self implements Ordu {
   }
 
   // TODO: execSync version when promises not needed
-  async exec(ctx: any, data: any): Promise<ExecResult> {
+  async exec(ctx: any, data: any, opts: any): Promise<ExecResult> {
+    opts = null == opts ? {} : opts
     let start = Date.now()
     let tasks: Task[] = this.topo.nodes
 
@@ -202,7 +240,7 @@ class Self implements Ordu {
       }
     }
 
-    return {
+    let execres: ExecResult = {
       tasklog: tasklog,
       task: operate.err ? tasks[taskI] : void 0,
       task_count: task_count,
@@ -212,13 +250,26 @@ class Self implements Ordu {
       err: operate.err,
       data: spec.data,
     }
+
+    if (opts.done) {
+      opts.done(execres)
+    }
+
+    return execres
   }
 
   tasks() {
     return this.topo.nodes
   }
 
-  operate(r: TaskResult, ctx: any, data: object): Operate {
+  private operate(r: TaskResult, ctx: any, data: object): Operate {
+    if (r.err) {
+      return {
+        stop: true,
+        err: r.err
+      }
+    }
+
     let operator = this.operator_map[r.op]
 
     if (operator) {
@@ -330,13 +381,13 @@ function LegacyOrdu(opts?: any): any {
   }
 
   function api_tasknames() {
-    return tasks.map(function (v) {
+    return tasks.map(function(v) {
       return v.name
     })
   }
 
   function api_taskdetails() {
-    return tasks.map(function (v) {
+    return tasks.map(function(v) {
       return v.name + ':{tags:' + v.tags + '}'
     })
   }

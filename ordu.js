@@ -5,7 +5,8 @@ const Hoek = require("@hapi/hoek");
 const Topo = require("@hapi/topo");
 class Task {
     constructor(taskdef) {
-        this.id = null == taskdef.id ? ('' + Math.random()).substring(2) : taskdef.id;
+        this.id =
+            null == taskdef.id ? ('' + Math.random()).substring(2) : taskdef.id;
         this.name = taskdef.name || 'task' + Task.count;
         this.before = strarr(taskdef.before);
         this.after = strarr(taskdef.after);
@@ -28,43 +29,69 @@ class TaskResult {
         this.out = null == raw.out ? {} : raw.out;
         this.err = raw instanceof Error ? raw : void 0;
         this.op =
-            null != this.err ? 'stop' :
-                'string' === typeof raw.op ? raw.op :
-                    'next';
+            null != this.err ? 'stop' : 'string' === typeof raw.op ? raw.op : 'next';
+        this.why = raw.why || '';
     }
 }
-class Self {
+class Ordu {
     constructor() {
         this.topo = new Topo.Sorter();
         this.operator_map = {
             next: () => ({ stop: false }),
             skip: () => ({ stop: false }),
-            stop: (tr) => ({ stop: true, err: tr.err }),
+            stop: (tr, _, data) => {
+                Hoek.merge(data, tr.out);
+                return { stop: true, err: tr.err };
+            },
             merge: (tr, _, data) => {
                 Hoek.merge(data, tr.out);
                 return { stop: false };
-            }
+            },
         };
     }
     operator(name, opr) {
         this.operator_map[name] = opr;
     }
-    operators() { return this.operator_map; }
-    add(taskdef) {
-        let t = new Task(taskdef);
+    operators() {
+        return this.operator_map;
+    }
+    // TODO: use https://www.typescriptlang.org/docs/handbook/advanced-types.html#discriminated-unions ?
+    add(taskin, taskextra) {
+        let t;
+        if (Array.isArray(taskin)) {
+            taskin.forEach(t => this.add(t));
+            return;
+        }
+        else if ('function' !== typeof (taskin)) {
+            if (taskextra) {
+                t = new Task(taskextra);
+                t.exec = taskin;
+                t.name = taskin.name ? taskin.name : t.name;
+            }
+            else {
+                t = new Task(taskin);
+            }
+        }
+        else {
+            t = new Task({
+                name: taskin.name,
+                exec: taskin
+            });
+        }
         this.topo.add(t, {
             group: t.name,
             before: t.before,
-            after: t.after
+            after: t.after,
         });
     }
     // TODO: execSync version when promises not needed
-    async exec(ctx, data) {
+    async exec(ctx, data, opts) {
+        opts = null == opts ? {} : opts;
         let start = Date.now();
         let tasks = this.topo.nodes;
         let spec = {
             ctx: ctx || {},
-            data: data || {}
+            data: data || {},
         };
         let operate = { stop: false, err: void 0 };
         let tasklog = [];
@@ -76,7 +103,7 @@ class Self {
             let tasklogentry = {
                 task,
                 start: Date.now(),
-                end: Number.MAX_SAFE_INTEGER
+                end: Number.MAX_SAFE_INTEGER,
             };
             if (this.task_if(task, spec.data)) {
                 try {
@@ -95,12 +122,14 @@ class Self {
             let result = new TaskResult(tasklogentry, taskout);
             try {
                 operate = this.operate(result, spec.ctx, spec.data);
-                operate = (operate instanceof Promise ? await operate : operate);
+                operate = (operate instanceof Promise
+                    ? await operate
+                    : operate);
             }
             catch (operate_ex) {
                 operate = {
                     stop: true,
-                    err: operate_ex
+                    err: operate_ex,
                 };
             }
             tasklog.push({ name: task.name, op: result.op, task, result, operate });
@@ -108,7 +137,7 @@ class Self {
                 break;
             }
         }
-        return {
+        let execres = {
             tasklog: tasklog,
             task: operate.err ? tasks[taskI] : void 0,
             task_count: task_count,
@@ -116,13 +145,23 @@ class Self {
             start: start,
             end: Date.now(),
             err: operate.err,
-            data: spec.data
+            data: spec.data,
         };
+        if (opts.done) {
+            opts.done(execres);
+        }
+        return execres;
     }
     tasks() {
         return this.topo.nodes;
     }
     operate(r, ctx, data) {
+        if (r.err) {
+            return {
+                stop: true,
+                err: r.err
+            };
+        }
         let operator = this.operator_map[r.op];
         if (operator) {
             return operator(r, ctx, data);
@@ -130,19 +169,17 @@ class Self {
         else {
             return {
                 stop: true,
-                err: new Error('Unknown operation: ' + r.op)
+                err: new Error('Unknown operation: ' + r.op),
             };
         }
     }
     task_if(task, data) {
         if (task.if) {
             let task_if = task.if;
-            return Object
-                .keys(task_if)
-                .reduce((proceed, k) => {
+            return Object.keys(task_if).reduce((proceed, k) => {
                 let part = Hoek.reach(data, k);
-                return proceed &&
-                    Hoek.contain({ $: part }, { $: task_if[k] }, { deep: true });
+                return (proceed &&
+                    Hoek.contain({ $: part }, { $: task_if[k] }, { deep: true }));
             }, true);
         }
         else {
@@ -150,7 +187,7 @@ class Self {
         }
     }
 }
-exports.Ordu = Self;
+exports.Ordu = Ordu;
 function strarr(x) {
     return null == x ? [] : 'string' === typeof x ? [x] : x;
 }
@@ -170,7 +207,7 @@ function LegacyOrdu(opts) {
         task = task || spec;
         if (!task.name) {
             Object.defineProperty(task, 'name', {
-                value: opts.name + '_task' + tasks.length
+                value: opts.name + '_task' + tasks.length,
             });
         }
         task.tags = spec.tags || [];
