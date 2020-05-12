@@ -59,10 +59,11 @@ class Ordu {
     add(taskin, taskextra) {
         let t;
         if (Array.isArray(taskin)) {
-            taskin.forEach(t => this.add(t));
+            ;
+            taskin.forEach((t) => this.add(t));
             return;
         }
-        else if ('function' !== typeof (taskin)) {
+        else if ('function' !== typeof taskin) {
             if (taskextra) {
                 t = new Task(taskextra);
                 t.exec = taskin;
@@ -75,7 +76,7 @@ class Ordu {
         else {
             t = new Task({
                 name: taskin.name,
-                exec: taskin
+                exec: taskin,
             });
         }
         this.topo.add(t, {
@@ -159,7 +160,7 @@ class Ordu {
         if (r.err) {
             return {
                 stop: true,
-                err: r.err
+                err: r.err,
             };
         }
         let operator = this.operator_map[r.op];

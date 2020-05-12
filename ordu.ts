@@ -52,7 +52,7 @@ class Task {
     this.name = taskdef.name || 'task' + Task.count
     this.before = strarr(taskdef.before)
     this.after = strarr(taskdef.after)
-    this.exec = taskdef.exec || ((_: Spec) => { })
+    this.exec = taskdef.exec || ((_: Spec) => {})
     this.if = taskdef.if || void 0
     this.meta = {
       order: Task.count++,
@@ -153,24 +153,20 @@ class Ordu implements OrduIF {
     let t: Task
 
     if (Array.isArray(taskin)) {
-      (taskin as any[]).forEach(t => this.add(t))
+      ;(taskin as any[]).forEach((t) => this.add(t))
       return
-    }
-    else if ('function' !== typeof (taskin)) {
-
+    } else if ('function' !== typeof taskin) {
       if (taskextra) {
         t = new Task(taskextra)
         t.exec = taskin as TaskExec
         t.name = taskin.name ? taskin.name : t.name
-      }
-      else {
+      } else {
         t = new Task(taskin as TaskDef)
       }
-    }
-    else {
+    } else {
       t = new Task({
         name: taskin.name,
-        exec: taskin as TaskExec
+        exec: taskin as TaskExec,
       })
     }
 
@@ -266,7 +262,7 @@ class Ordu implements OrduIF {
     if (r.err) {
       return {
         stop: true,
-        err: r.err
+        err: r.err,
       }
     }
 
@@ -381,13 +377,13 @@ function LegacyOrdu(opts?: any): any {
   }
 
   function api_tasknames() {
-    return tasks.map(function(v) {
+    return tasks.map(function (v) {
       return v.name
     })
   }
 
   function api_taskdetails() {
-    return tasks.map(function(v) {
+    return tasks.map(function (v) {
       return v.name + ':{tags:' + v.tags + '}'
     })
   }
