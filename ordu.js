@@ -68,7 +68,7 @@ class Ordu extends events_1.EventEmitter {
         super();
         this._opts = {
             debug: false,
-            ...opts
+            ...opts,
         };
         this._topo = new Topo.Sorter();
         this._operator_map = {
@@ -133,7 +133,7 @@ class Ordu extends events_1.EventEmitter {
         let operate = {
             stop: false,
             err: void 0,
-            async: false
+            async: false,
         };
         let tasklog = [];
         let task_count = 0;
@@ -148,7 +148,7 @@ class Ordu extends events_1.EventEmitter {
                 end: Number.MAX_SAFE_INTEGER,
                 index: taskI,
                 total: tasks.length,
-                async: false
+                async: false,
             };
             if (this._task_if(task, spec.data)) {
                 try {
@@ -185,7 +185,7 @@ class Ordu extends events_1.EventEmitter {
                 operate = {
                     stop: true,
                     err: operate_ex,
-                    async: false
+                    async: false,
                 };
             }
             // TODO: fix debug double work
@@ -195,12 +195,12 @@ class Ordu extends events_1.EventEmitter {
                 task,
                 result,
                 operate,
-                data: this._opts.debug ? JSON.parse(JSON.stringify(spec.data)) : void 0
+                data: this._opts.debug ? JSON.parse(JSON.stringify(spec.data)) : void 0,
             });
             this.emit('task-end', {
                 result,
                 operate,
-                data: this._opts.debug ? JSON.parse(JSON.stringify(spec.data)) : void 0
+                data: this._opts.debug ? JSON.parse(JSON.stringify(spec.data)) : void 0,
             });
             if (operate.stop) {
                 break;
@@ -229,7 +229,7 @@ class Ordu extends events_1.EventEmitter {
             return {
                 stop: true,
                 err: r.err,
-                async: false
+                async: false,
             };
         }
         let operator = this._operator_map[r.op];
@@ -240,7 +240,7 @@ class Ordu extends events_1.EventEmitter {
             return {
                 stop: true,
                 err: new Error('Unknown operation: ' + r.op),
-                async: false
+                async: false,
             };
         }
     }

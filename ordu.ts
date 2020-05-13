@@ -11,19 +11,14 @@ import * as Topo from '@hapi/topo'
 import Nua from 'nua'
 import StrictEventEmitter from 'strict-event-emitter-types'
 
-
-
-
 export { Ordu, LegacyOrdu }
-
 
 interface Events {
   'task-result': TaskResult
-  'task-end': { result: TaskResult, operate: Operate, data: any }
+  'task-end': { result: TaskResult; operate: Operate; data: any }
 }
 
 type OrduEmitter = StrictEventEmitter<EventEmitter, Events>
-
 
 interface OrduIF {
   add(td: TaskDef): void
@@ -81,7 +76,7 @@ class Task {
     this.name = taskdef.name || 'task' + Task.count
     this.before = strarr(taskdef.before)
     this.after = strarr(taskdef.after)
-    this.exec = taskdef.exec || ((_: Spec) => { })
+    this.exec = taskdef.exec || ((_: Spec) => {})
     this.if = taskdef.if || void 0
     this.meta = {
       order: Task.count++,
@@ -127,7 +122,7 @@ class TaskResult {
 
 type Operate = {
   stop: boolean
-  err?: Error,
+  err?: Error
   async?: boolean
 }
 
@@ -144,8 +139,7 @@ type ExecResult = {
 
 type Operator = (r: TaskResult, ctx: any, data: object) => Operate
 
-
-class Ordu extends (EventEmitter as { new(): OrduEmitter }) implements OrduIF {
+class Ordu extends (EventEmitter as { new (): OrduEmitter }) implements OrduIF {
   private _opts: any
 
   private _topo: {
@@ -161,7 +155,7 @@ class Ordu extends (EventEmitter as { new(): OrduEmitter }) implements OrduIF {
 
     this._opts = {
       debug: false,
-      ...opts
+      ...opts,
     }
 
     this._topo = new Topo.Sorter()
@@ -236,7 +230,7 @@ class Ordu extends (EventEmitter as { new(): OrduEmitter }) implements OrduIF {
     let operate: Operate | Promise<Operate> = {
       stop: false,
       err: void 0,
-      async: false
+      async: false,
     }
     let tasklog: any[] = []
 
@@ -252,7 +246,7 @@ class Ordu extends (EventEmitter as { new(): OrduEmitter }) implements OrduIF {
         end: Number.MAX_SAFE_INTEGER,
         index: taskI,
         total: tasks.length,
-        async: false
+        async: false,
       }
 
       if (this._task_if(task, spec.data)) {
@@ -280,8 +274,7 @@ class Ordu extends (EventEmitter as { new(): OrduEmitter }) implements OrduIF {
         if (operate instanceof Promise) {
           operate = (await operate) as Operate
           operate.async = true
-        }
-        else {
+        } else {
           operate.async = false
         }
 
@@ -290,7 +283,7 @@ class Ordu extends (EventEmitter as { new(): OrduEmitter }) implements OrduIF {
         operate = {
           stop: true,
           err: operate_ex,
-          async: false
+          async: false,
         }
       }
 
@@ -301,12 +294,12 @@ class Ordu extends (EventEmitter as { new(): OrduEmitter }) implements OrduIF {
         task,
         result,
         operate,
-        data: this._opts.debug ? JSON.parse(JSON.stringify(spec.data)) : void 0
+        data: this._opts.debug ? JSON.parse(JSON.stringify(spec.data)) : void 0,
       })
       this.emit('task-end', {
         result,
         operate,
-        data: this._opts.debug ? JSON.parse(JSON.stringify(spec.data)) : void 0
+        data: this._opts.debug ? JSON.parse(JSON.stringify(spec.data)) : void 0,
       })
 
       if (operate.stop) {
@@ -341,7 +334,7 @@ class Ordu extends (EventEmitter as { new(): OrduEmitter }) implements OrduIF {
       return {
         stop: true,
         err: r.err,
-        async: false
+        async: false,
       }
     }
 
@@ -353,7 +346,7 @@ class Ordu extends (EventEmitter as { new(): OrduEmitter }) implements OrduIF {
       return {
         stop: true,
         err: new Error('Unknown operation: ' + r.op),
-        async: false
+        async: false,
       }
     }
   }
@@ -457,13 +450,13 @@ function LegacyOrdu(opts?: any): any {
   }
 
   function api_tasknames() {
-    return tasks.map(function(v) {
+    return tasks.map(function (v) {
       return v.name
     })
   }
 
   function api_taskdetails() {
-    return tasks.map(function(v) {
+    return tasks.map(function (v) {
       return v.name + ':{tags:' + v.tags + '}'
     })
   }
