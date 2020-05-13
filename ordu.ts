@@ -4,12 +4,23 @@
 import * as Hoek from '@hapi/hoek'
 import * as Topo from '@hapi/topo'
 
+import Nua from 'nua'
+
 export { Ordu, LegacyOrdu }
 
 interface OrduIF {
-  add(t: TaskDef | TaskExec, te?: TaskDef): void
+  add(td: TaskDef): void
+  add(td: TaskDef[]): void
+
+  add(te: TaskExec): void
+  add(te: TaskExec, td: TaskDef): void
+  add(te: TaskExec[]): void
+
   tasks(): Task[]
+
   operator(name: string, opr: Operator): void
+  operator(opr: Operator): void
+
   operators(): object
   exec(ctx: any, data: any, opts: any): Promise<ExecResult>
 }
@@ -116,7 +127,6 @@ class Ordu implements OrduIF {
     nodes: Task[]
   }
   private operator_map: {
-    //[op: string]: (r: TaskResult, ctx: any, data: object) => Operate
     [op: string]: Operator
   }
 
@@ -129,47 +139,48 @@ class Ordu implements OrduIF {
       skip: () => ({ stop: false }),
 
       stop: (tr, _, data) => {
-        Hoek.merge(data, tr.out)
+        Nua(data, tr.out, { preserve: true })
         return { stop: true, err: tr.err }
       },
 
       merge: (tr, _, data) => {
-        Hoek.merge(data, tr.out)
+        Nua(data, tr.out, { preserve: true })
         return { stop: false }
       },
     }
   }
 
-  operator(name: string, opr: Operator) {
-    this.operator_map[name] = opr
+  operator(first: string | Operator, opr?: Operator) {
+    let name: string = 'string' === typeof first ? first : first.name
+    this.operator_map[name] = opr || (first as Operator)
   }
 
   operators() {
     return this.operator_map
   }
 
-  // TODO: use https://www.typescriptlang.org/docs/handbook/advanced-types.html#discriminated-unions ?
-  add(taskin: TaskDef | TaskExec, taskextra?: TaskDef) {
-    let t: Task
-
-    if (Array.isArray(taskin)) {
-      ;(taskin as any[]).forEach((t) => this.add(t))
-      return
-    } else if ('function' !== typeof taskin) {
-      if (taskextra) {
-        t = new Task(taskextra)
-        t.exec = taskin as TaskExec
-        t.name = taskin.name ? taskin.name : t.name
-      } else {
-        t = new Task(taskin as TaskDef)
+  add(first: any, second?: any): void {
+    if ('function' == typeof first) {
+      second = second || {}
+      let t = new Task(second)
+      t.exec = first
+      t.name = first.name ? first.name : t.name
+      this.add_task(t)
+    } else if (Array.isArray(first)) {
+      for (var i = 0; i < first.length; i++) {
+        let entry: TaskDef = first[i]
+        if ('function' === typeof first[i]) {
+          entry = { name: (first[i] as TaskExec).name, exec: first[i] }
+        }
+        this.add_task(entry)
       }
     } else {
-      t = new Task({
-        name: taskin.name,
-        exec: taskin as TaskExec,
-      })
+      this.add_task(first)
     }
+  }
 
+  private add_task(td: TaskDef): void {
+    let t = new Task(td)
     this.topo.add(t, {
       group: t.name,
       before: t.before,
@@ -209,6 +220,7 @@ class Ordu implements OrduIF {
           taskout = taskout instanceof Promise ? await taskout : taskout
         } catch (task_ex) {
           taskout = task_ex
+          //console.log('RRR', taskout)
         }
       } else {
         taskout = { op: 'skip' }
@@ -223,6 +235,7 @@ class Ordu implements OrduIF {
           ? await operate
           : operate) as Operate
       } catch (operate_ex) {
+        //console.log('TTT', taskout)
         operate = {
           stop: true,
           err: operate_ex,

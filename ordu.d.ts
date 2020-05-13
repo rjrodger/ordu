@@ -1,8 +1,13 @@
 export { Ordu, LegacyOrdu };
 interface OrduIF {
-    add(t: TaskDef | TaskExec, te?: TaskDef): void;
+    add(td: TaskDef): void;
+    add(td: TaskDef[]): void;
+    add(te: TaskExec): void;
+    add(te: TaskExec, td: TaskDef): void;
+    add(te: TaskExec[]): void;
     tasks(): Task[];
     operator(name: string, opr: Operator): void;
+    operator(opr: Operator): void;
     operators(): object;
     exec(ctx: any, data: any, opts: any): Promise<ExecResult>;
 }
@@ -71,11 +76,12 @@ declare class Ordu implements OrduIF {
     private topo;
     private operator_map;
     constructor();
-    operator(name: string, opr: Operator): void;
+    operator(first: string | Operator, opr?: Operator): void;
     operators(): {
         [op: string]: Operator;
     };
-    add(taskin: TaskDef | TaskExec, taskextra?: TaskDef): void;
+    add(first: any, second?: any): void;
+    private add_task;
     exec(ctx: any, data: any, opts: any): Promise<ExecResult>;
     tasks(): Task[];
     private operate;

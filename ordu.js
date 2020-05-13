@@ -1,26 +1,53 @@
 /* Copyright (c) 2016-2020 Richard Rodger and other contributors, MIT License */
 'use strict';
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-const Hoek = require("@hapi/hoek");
-const Topo = require("@hapi/topo");
-class Task {
-    constructor(taskdef) {
-        this.id =
-            null == taskdef.id ? ('' + Math.random()).substring(2) : taskdef.id;
-        this.name = taskdef.name || 'task' + Task.count;
-        this.before = strarr(taskdef.before);
-        this.after = strarr(taskdef.after);
-        this.exec = taskdef.exec || ((_) => { });
-        this.if = taskdef.if || void 0;
-        this.meta = {
-            order: Task.count++,
-            when: Date.now(),
-            // TODO: auto generate call point stacktrace?
-            from: taskdef.from || {},
-        };
+exports.LegacyOrdu = exports.Ordu = void 0;
+const Hoek = __importStar(require("@hapi/hoek"));
+const Topo = __importStar(require("@hapi/topo"));
+const nua_1 = __importDefault(require("nua"));
+let Task = /** @class */ (() => {
+    class Task {
+        constructor(taskdef) {
+            this.id =
+                null == taskdef.id ? ('' + Math.random()).substring(2) : taskdef.id;
+            this.name = taskdef.name || 'task' + Task.count;
+            this.before = strarr(taskdef.before);
+            this.after = strarr(taskdef.after);
+            this.exec = taskdef.exec || ((_) => { });
+            this.if = taskdef.if || void 0;
+            this.meta = {
+                order: Task.count++,
+                when: Date.now(),
+                // TODO: auto generate call point stacktrace?
+                from: taskdef.from || {},
+            };
+        }
     }
-}
-Task.count = 0;
+    Task.count = 0;
+    return Task;
+})();
 // Use the constructor to normalize task result
 class TaskResult {
     constructor(log, raw) {
@@ -40,45 +67,45 @@ class Ordu {
             next: () => ({ stop: false }),
             skip: () => ({ stop: false }),
             stop: (tr, _, data) => {
-                Hoek.merge(data, tr.out);
+                nua_1.default(data, tr.out, { preserve: true });
                 return { stop: true, err: tr.err };
             },
             merge: (tr, _, data) => {
-                Hoek.merge(data, tr.out);
+                nua_1.default(data, tr.out, { preserve: true });
                 return { stop: false };
             },
         };
     }
-    operator(name, opr) {
-        this.operator_map[name] = opr;
+    operator(first, opr) {
+        let name = 'string' === typeof first ? first : first.name;
+        this.operator_map[name] = opr || first;
     }
     operators() {
         return this.operator_map;
     }
-    // TODO: use https://www.typescriptlang.org/docs/handbook/advanced-types.html#discriminated-unions ?
-    add(taskin, taskextra) {
-        let t;
-        if (Array.isArray(taskin)) {
-            ;
-            taskin.forEach((t) => this.add(t));
-            return;
+    add(first, second) {
+        if ('function' == typeof first) {
+            second = second || {};
+            let t = new Task(second);
+            t.exec = first;
+            t.name = first.name ? first.name : t.name;
+            this.add_task(t);
         }
-        else if ('function' !== typeof taskin) {
-            if (taskextra) {
-                t = new Task(taskextra);
-                t.exec = taskin;
-                t.name = taskin.name ? taskin.name : t.name;
-            }
-            else {
-                t = new Task(taskin);
+        else if (Array.isArray(first)) {
+            for (var i = 0; i < first.length; i++) {
+                let entry = first[i];
+                if ('function' === typeof first[i]) {
+                    entry = { name: first[i].name, exec: first[i] };
+                }
+                this.add_task(entry);
             }
         }
         else {
-            t = new Task({
-                name: taskin.name,
-                exec: taskin,
-            });
+            this.add_task(first);
         }
+    }
+    add_task(td) {
+        let t = new Task(td);
         this.topo.add(t, {
             group: t.name,
             before: t.before,
@@ -114,6 +141,7 @@ class Ordu {
                 }
                 catch (task_ex) {
                     taskout = task_ex;
+                    //console.log('RRR', taskout)
                 }
             }
             else {
@@ -128,6 +156,7 @@ class Ordu {
                     : operate);
             }
             catch (operate_ex) {
+                //console.log('TTT', taskout)
                 operate = {
                     stop: true,
                     err: operate_ex,
