@@ -1,4 +1,5 @@
 /* Copyright (c) 2016-2020 Richard Rodger and other contributors, MIT License */
+/* $lab:coverage:off$ */
 'use strict';
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -24,13 +25,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.LegacyOrdu = exports.Ordu = void 0;
+/* $lab:coverage:on$ */
+const events_1 = require("events");
 const Hoek = __importStar(require("@hapi/hoek"));
 const Topo = __importStar(require("@hapi/topo"));
 const nua_1 = __importDefault(require("nua"));
 let Task = /** @class */ (() => {
     class Task {
         constructor(taskdef) {
-            this.id =
+            this.runid =
                 null == taskdef.id ? ('' + Math.random()).substring(2) : taskdef.id;
             this.name = taskdef.name || 'task' + Task.count;
             this.before = strarr(taskdef.before);
@@ -60,10 +63,15 @@ class TaskResult {
         this.why = raw.why || '';
     }
 }
-class Ordu {
-    constructor() {
-        this.topo = new Topo.Sorter();
-        this.operator_map = {
+class Ordu extends events_1.EventEmitter {
+    constructor(opts) {
+        super();
+        this._opts = {
+            debug: false,
+            ...opts
+        };
+        this._topo = new Topo.Sorter();
+        this._operator_map = {
             next: () => ({ stop: false }),
             skip: () => ({ stop: false }),
             stop: (tr, _, data) => {
@@ -78,10 +86,10 @@ class Ordu {
     }
     operator(first, opr) {
         let name = 'string' === typeof first ? first : first.name;
-        this.operator_map[name] = opr || first;
+        this._operator_map[name] = opr || first;
     }
     operators() {
-        return this.operator_map;
+        return this._operator_map;
     }
     add(first, second) {
         if ('function' == typeof first) {
@@ -89,7 +97,7 @@ class Ordu {
             let t = new Task(second);
             t.exec = first;
             t.name = first.name ? first.name : t.name;
-            this.add_task(t);
+            this._add_task(t);
         }
         else if (Array.isArray(first)) {
             for (var i = 0; i < first.length; i++) {
@@ -97,16 +105,16 @@ class Ordu {
                 if ('function' === typeof first[i]) {
                     entry = { name: first[i].name, exec: first[i] };
                 }
-                this.add_task(entry);
+                this._add_task(entry);
             }
         }
         else {
-            this.add_task(first);
+            this._add_task(first);
         }
     }
-    add_task(td) {
+    _add_task(td) {
         let t = new Task(td);
-        this.topo.add(t, {
+        this._topo.add(t, {
             group: t.name,
             before: t.before,
             after: t.after,
@@ -115,13 +123,18 @@ class Ordu {
     // TODO: execSync version when promises not needed
     async exec(ctx, data, opts) {
         opts = null == opts ? {} : opts;
+        let runid = opts.runid || (Math.random() + '').substring(2);
         let start = Date.now();
-        let tasks = this.topo.nodes;
+        let tasks = this._topo.nodes;
         let spec = {
             ctx: ctx || {},
             data: data || {},
         };
-        let operate = { stop: false, err: void 0 };
+        let operate = {
+            stop: false,
+            err: void 0,
+            async: false
+        };
         let tasklog = [];
         let task_count = 0;
         let taskI = 0;
@@ -130,18 +143,25 @@ class Ordu {
             let taskout = null;
             let tasklogentry = {
                 task,
+                runid,
                 start: Date.now(),
                 end: Number.MAX_SAFE_INTEGER,
+                index: taskI,
+                total: tasks.length,
+                async: false
             };
-            if (this.task_if(task, spec.data)) {
+            if (this._task_if(task, spec.data)) {
                 try {
                     task_count++;
-                    taskout = task.exec(spec);
-                    taskout = taskout instanceof Promise ? await taskout : taskout;
+                    let taskspec = Object.assign({ task: task }, spec);
+                    taskout = task.exec(taskspec);
+                    if (taskout instanceof Promise) {
+                        tasklogentry.async = true;
+                        taskout = await taskout;
+                    }
                 }
                 catch (task_ex) {
                     taskout = task_ex;
-                    //console.log('RRR', taskout)
                 }
             }
             else {
@@ -149,20 +169,39 @@ class Ordu {
             }
             tasklogentry.end = Date.now();
             let result = new TaskResult(tasklogentry, taskout);
+            this.emit('task-result', result);
             try {
-                operate = this.operate(result, spec.ctx, spec.data);
-                operate = (operate instanceof Promise
-                    ? await operate
-                    : operate);
+                operate = this._operate(result, spec.ctx, spec.data);
+                if (operate instanceof Promise) {
+                    operate = (await operate);
+                    operate.async = true;
+                }
+                else {
+                    operate.async = false;
+                }
+                operate.err = operate.err || void 0;
             }
             catch (operate_ex) {
-                //console.log('TTT', taskout)
                 operate = {
                     stop: true,
                     err: operate_ex,
+                    async: false
                 };
             }
-            tasklog.push({ name: task.name, op: result.op, task, result, operate });
+            // TODO: fix debug double work
+            tasklog.push({
+                name: task.name,
+                op: result.op,
+                task,
+                result,
+                operate,
+                data: this._opts.debug ? JSON.parse(JSON.stringify(spec.data)) : void 0
+            });
+            this.emit('task-end', {
+                result,
+                operate,
+                data: this._opts.debug ? JSON.parse(JSON.stringify(spec.data)) : void 0
+            });
             if (operate.stop) {
                 break;
             }
@@ -183,16 +222,17 @@ class Ordu {
         return execres;
     }
     tasks() {
-        return this.topo.nodes;
+        return this._topo.nodes;
     }
-    operate(r, ctx, data) {
+    _operate(r, ctx, data) {
         if (r.err) {
             return {
                 stop: true,
                 err: r.err,
+                async: false
             };
         }
-        let operator = this.operator_map[r.op];
+        let operator = this._operator_map[r.op];
         if (operator) {
             return operator(r, ctx, data);
         }
@@ -200,10 +240,11 @@ class Ordu {
             return {
                 stop: true,
                 err: new Error('Unknown operation: ' + r.op),
+                async: false
             };
         }
     }
-    task_if(task, data) {
+    _task_if(task, data) {
         if (task.if) {
             let task_if = task.if;
             return Object.keys(task_if).reduce((proceed, k) => {

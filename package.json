@@ -37,7 +37,8 @@
   "dependencies": {
     "@hapi/hoek": "^9.0.4",
     "@hapi/topo": "^5.0.0",
-    "nua": "^1.0.2"
+    "nua": "^1.0.2",
+    "strict-event-emitter-types": "^2.0.0"
   },
   "devDependencies": {
     "@hapi/code": "^8.0.1",

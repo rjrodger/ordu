@@ -1,4 +1,16 @@
+/// <reference types="node" />
+import { EventEmitter } from 'events';
+import StrictEventEmitter from 'strict-event-emitter-types';
 export { Ordu, LegacyOrdu };
+interface Events {
+    'task-result': TaskResult;
+    'task-end': {
+        result: TaskResult;
+        operate: Operate;
+        data: any;
+    };
+}
+declare type OrduEmitter = StrictEventEmitter<EventEmitter, Events>;
 interface OrduIF {
     add(td: TaskDef): void;
     add(td: TaskDef[]): void;
@@ -26,10 +38,11 @@ declare type TaskExec = (s: Spec) => any;
 interface Spec {
     ctx: object;
     data: object;
+    task: Task;
 }
 declare class Task {
     static count: number;
-    id: string;
+    runid: string;
     name: string;
     before: string[];
     after: string[];
@@ -48,6 +61,10 @@ declare type TaskLogEntry = {
     task: Task;
     start: number;
     end: number;
+    runid: string;
+    index: number;
+    total: number;
+    async: boolean;
 };
 declare class TaskResult {
     op: string;
@@ -60,6 +77,7 @@ declare class TaskResult {
 declare type Operate = {
     stop: boolean;
     err?: Error;
+    async?: boolean;
 };
 declare type ExecResult = {
     tasklog: any[];
@@ -72,19 +90,21 @@ declare type ExecResult = {
     data: object;
 };
 declare type Operator = (r: TaskResult, ctx: any, data: object) => Operate;
-declare class Ordu implements OrduIF {
-    private topo;
-    private operator_map;
-    constructor();
+declare const Ordu_base: new () => OrduEmitter;
+declare class Ordu extends Ordu_base implements OrduIF {
+    private _opts;
+    private _topo;
+    private _operator_map;
+    constructor(opts?: any);
     operator(first: string | Operator, opr?: Operator): void;
     operators(): {
         [op: string]: Operator;
     };
     add(first: any, second?: any): void;
-    private add_task;
+    private _add_task;
     exec(ctx: any, data: any, opts: any): Promise<ExecResult>;
     tasks(): Task[];
-    private operate;
-    private task_if;
+    private _operate;
+    private _task_if;
 }
 declare function LegacyOrdu(opts?: any): any;

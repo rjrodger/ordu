@@ -1,12 +1,29 @@
 /* Copyright (c) 2016-2020 Richard Rodger and other contributors, MIT License */
+/* $lab:coverage:off$ */
 'use strict'
+/* $lab:coverage:on$ */
+
+import { EventEmitter } from 'events'
 
 import * as Hoek from '@hapi/hoek'
 import * as Topo from '@hapi/topo'
 
 import Nua from 'nua'
+import StrictEventEmitter from 'strict-event-emitter-types'
+
+
+
 
 export { Ordu, LegacyOrdu }
+
+
+interface Events {
+  'task-result': TaskResult
+  'task-end': { result: TaskResult, operate: Operate, data: any }
+}
+
+type OrduEmitter = StrictEventEmitter<EventEmitter, Events>
+
 
 interface OrduIF {
   add(td: TaskDef): void
@@ -40,12 +57,13 @@ type TaskExec = (s: Spec) => any
 interface Spec {
   ctx: object
   data: object
+  task: Task
 }
 
 class Task {
   static count: number = 0
 
-  id: string
+  runid: string
   name: string
   before: string[]
   after: string[]
@@ -58,12 +76,12 @@ class Task {
   }
 
   constructor(taskdef: TaskDef) {
-    this.id =
+    this.runid =
       null == taskdef.id ? ('' + Math.random()).substring(2) : taskdef.id
     this.name = taskdef.name || 'task' + Task.count
     this.before = strarr(taskdef.before)
     this.after = strarr(taskdef.after)
-    this.exec = taskdef.exec || ((_: Spec) => {})
+    this.exec = taskdef.exec || ((_: Spec) => { })
     this.if = taskdef.if || void 0
     this.meta = {
       order: Task.count++,
@@ -79,6 +97,10 @@ type TaskLogEntry = {
   task: Task
   start: number
   end: number
+  runid: string
+  index: number
+  total: number
+  async: boolean
 }
 
 // Use the constructor to normalize task result
@@ -105,7 +127,8 @@ class TaskResult {
 
 type Operate = {
   stop: boolean
-  err?: Error
+  err?: Error,
+  async?: boolean
 }
 
 type ExecResult = {
@@ -121,19 +144,29 @@ type ExecResult = {
 
 type Operator = (r: TaskResult, ctx: any, data: object) => Operate
 
-class Ordu implements OrduIF {
-  private topo: {
+
+class Ordu extends (EventEmitter as { new(): OrduEmitter }) implements OrduIF {
+  private _opts: any
+
+  private _topo: {
     add(t: Task, _: any): void
     nodes: Task[]
   }
-  private operator_map: {
+  private _operator_map: {
     [op: string]: Operator
   }
 
-  constructor() {
-    this.topo = new Topo.Sorter()
+  constructor(opts?: any) {
+    super()
 
-    this.operator_map = {
+    this._opts = {
+      debug: false,
+      ...opts
+    }
+
+    this._topo = new Topo.Sorter()
+
+    this._operator_map = {
       next: () => ({ stop: false }),
 
       skip: () => ({ stop: false }),
@@ -152,11 +185,11 @@ class Ordu implements OrduIF {
 
   operator(first: string | Operator, opr?: Operator) {
     let name: string = 'string' === typeof first ? first : first.name
-    this.operator_map[name] = opr || (first as Operator)
+    this._operator_map[name] = opr || (first as Operator)
   }
 
   operators() {
-    return this.operator_map
+    return this._operator_map
   }
 
   add(first: any, second?: any): void {
@@ -165,23 +198,23 @@ class Ordu implements OrduIF {
       let t = new Task(second)
       t.exec = first
       t.name = first.name ? first.name : t.name
-      this.add_task(t)
+      this._add_task(t)
     } else if (Array.isArray(first)) {
       for (var i = 0; i < first.length; i++) {
         let entry: TaskDef = first[i]
         if ('function' === typeof first[i]) {
           entry = { name: (first[i] as TaskExec).name, exec: first[i] }
         }
-        this.add_task(entry)
+        this._add_task(entry)
       }
     } else {
-      this.add_task(first)
+      this._add_task(first)
     }
   }
 
-  private add_task(td: TaskDef): void {
+  private _add_task(td: TaskDef): void {
     let t = new Task(td)
-    this.topo.add(t, {
+    this._topo.add(t, {
       group: t.name,
       before: t.before,
       after: t.after,
@@ -191,15 +224,20 @@ class Ordu implements OrduIF {
   // TODO: execSync version when promises not needed
   async exec(ctx: any, data: any, opts: any): Promise<ExecResult> {
     opts = null == opts ? {} : opts
+    let runid = opts.runid || (Math.random() + '').substring(2)
     let start = Date.now()
-    let tasks: Task[] = this.topo.nodes
+    let tasks: Task[] = this._topo.nodes
 
     let spec = {
       ctx: ctx || {},
       data: data || {},
     }
 
-    let operate: Operate | Promise<Operate> = { stop: false, err: void 0 }
+    let operate: Operate | Promise<Operate> = {
+      stop: false,
+      err: void 0,
+      async: false
+    }
     let tasklog: any[] = []
 
     let task_count = 0
@@ -209,18 +247,25 @@ class Ordu implements OrduIF {
       let taskout = null
       let tasklogentry: TaskLogEntry = {
         task,
+        runid,
         start: Date.now(),
         end: Number.MAX_SAFE_INTEGER,
+        index: taskI,
+        total: tasks.length,
+        async: false
       }
 
-      if (this.task_if(task, spec.data)) {
+      if (this._task_if(task, spec.data)) {
         try {
           task_count++
-          taskout = task.exec(spec)
-          taskout = taskout instanceof Promise ? await taskout : taskout
+          let taskspec = Object.assign({ task: task }, spec)
+          taskout = task.exec(taskspec)
+          if (taskout instanceof Promise) {
+            tasklogentry.async = true
+            taskout = await taskout
+          }
         } catch (task_ex) {
           taskout = task_ex
-          //console.log('RRR', taskout)
         }
       } else {
         taskout = { op: 'skip' }
@@ -228,21 +273,41 @@ class Ordu implements OrduIF {
 
       tasklogentry.end = Date.now()
       let result = new TaskResult(tasklogentry, taskout)
+      this.emit('task-result', result)
 
       try {
-        operate = this.operate(result, spec.ctx, spec.data)
-        operate = (operate instanceof Promise
-          ? await operate
-          : operate) as Operate
+        operate = this._operate(result, spec.ctx, spec.data)
+        if (operate instanceof Promise) {
+          operate = (await operate) as Operate
+          operate.async = true
+        }
+        else {
+          operate.async = false
+        }
+
+        operate.err = operate.err || void 0
       } catch (operate_ex) {
-        //console.log('TTT', taskout)
         operate = {
           stop: true,
           err: operate_ex,
+          async: false
         }
       }
 
-      tasklog.push({ name: task.name, op: result.op, task, result, operate })
+      // TODO: fix debug double work
+      tasklog.push({
+        name: task.name,
+        op: result.op,
+        task,
+        result,
+        operate,
+        data: this._opts.debug ? JSON.parse(JSON.stringify(spec.data)) : void 0
+      })
+      this.emit('task-end', {
+        result,
+        operate,
+        data: this._opts.debug ? JSON.parse(JSON.stringify(spec.data)) : void 0
+      })
 
       if (operate.stop) {
         break
@@ -268,18 +333,19 @@ class Ordu implements OrduIF {
   }
 
   tasks() {
-    return this.topo.nodes
+    return this._topo.nodes
   }
 
-  private operate(r: TaskResult, ctx: any, data: object): Operate {
+  private _operate(r: TaskResult, ctx: any, data: object): Operate {
     if (r.err) {
       return {
         stop: true,
         err: r.err,
+        async: false
       }
     }
 
-    let operator = this.operator_map[r.op]
+    let operator = this._operator_map[r.op]
 
     if (operator) {
       return operator(r, ctx, data)
@@ -287,11 +353,12 @@ class Ordu implements OrduIF {
       return {
         stop: true,
         err: new Error('Unknown operation: ' + r.op),
+        async: false
       }
     }
   }
 
-  private task_if(task: Task, data: object): boolean {
+  private _task_if(task: Task, data: object): boolean {
     if (task.if) {
       let task_if: { [k: string]: any } = task.if
       return Object.keys(task_if).reduce((proceed, k) => {
@@ -390,13 +457,13 @@ function LegacyOrdu(opts?: any): any {
   }
 
   function api_tasknames() {
-    return tasks.map(function (v) {
+    return tasks.map(function(v) {
       return v.name
     })
   }
 
   function api_taskdetails() {
-    return tasks.map(function (v) {
+    return tasks.map(function(v) {
       return v.name + ':{tags:' + v.tags + '}'
     })
   }
