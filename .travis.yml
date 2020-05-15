@@ -11,5 +11,13 @@ script:
   - npm audit
 
 after_script:
-  - npm run coveralls
+  - >
+    if [[ "$TRAVIS_OS_NAME" != "windows" ]]; then
+      npm run coveralls
+    fi
+
+os:
+  - "linux"
+  - "osx"
+  - "windows"
   
