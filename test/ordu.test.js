@@ -143,7 +143,21 @@ describe('ordu', function() {
 
     h0.add(()=>{})
 
-
+    expect(Object.keys(h0.task)
+           .map(tn=>tn+'~'+('function'===typeof(h0.task[tn]))))
+      .equal([
+        'a~true',
+        'task1~true',
+        'task2~true',
+        'task3~true',
+        'b~true',
+        'c~true',
+        'task9~true',
+        'task10~true',
+        'task11~true',
+        'task12~true'
+      ])
+    
     
     h0.operator('lookup', async (tr, ctx, data) => {
       if(ctx.err1) throw new Error('err1')

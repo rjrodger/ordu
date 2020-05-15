@@ -30,6 +30,10 @@ interface OrduIF {
 
   tasks(): Task[]
 
+  task: {
+    [name: string]: TaskExec
+  }
+
   operator(name: string, opr: Operator): void
   operator(opr: Operator): void
 
@@ -76,7 +80,7 @@ class Task {
     this.name = taskdef.name || 'task' + Task.count
     this.before = strarr(taskdef.before)
     this.after = strarr(taskdef.after)
-    this.exec = taskdef.exec || ((_: Spec) => {})
+    this.exec = taskdef.exec || ((_: Spec) => { })
     this.if = taskdef.if || void 0
     this.meta = {
       order: Task.count++,
@@ -139,7 +143,7 @@ type ExecResult = {
 
 type Operator = (r: TaskResult, ctx: any, data: object) => Operate
 
-class Ordu extends (EventEmitter as { new (): OrduEmitter }) implements OrduIF {
+class Ordu extends (EventEmitter as { new(): OrduEmitter }) implements OrduIF {
   private _opts: any
 
   private _topo: {
@@ -150,8 +154,13 @@ class Ordu extends (EventEmitter as { new (): OrduEmitter }) implements OrduIF {
     [op: string]: Operator
   }
 
+  task: { [name: string]: TaskExec }
+
+
   constructor(opts?: any) {
     super()
+
+    this.task = {}
 
     this._opts = {
       debug: false,
@@ -213,6 +222,7 @@ class Ordu extends (EventEmitter as { new (): OrduEmitter }) implements OrduIF {
       before: t.before,
       after: t.after,
     })
+    this.task[t.name] = t.exec
   }
 
   // TODO: execSync version when promises not needed
@@ -450,13 +460,13 @@ function LegacyOrdu(opts?: any): any {
   }
 
   function api_tasknames() {
-    return tasks.map(function (v) {
+    return tasks.map(function(v) {
       return v.name
     })
   }
 
   function api_taskdetails() {
-    return tasks.map(function (v) {
+    return tasks.map(function(v) {
       return v.name + ':{tags:' + v.tags + '}'
     })
   }

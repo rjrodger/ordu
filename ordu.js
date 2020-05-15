@@ -66,6 +66,7 @@ class TaskResult {
 class Ordu extends events_1.EventEmitter {
     constructor(opts) {
         super();
+        this.task = {};
         this._opts = {
             debug: false,
             ...opts,
@@ -119,6 +120,7 @@ class Ordu extends events_1.EventEmitter {
             before: t.before,
             after: t.after,
         });
+        this.task[t.name] = t.exec;
     }
     // TODO: execSync version when promises not needed
     async exec(ctx, data, opts) {
