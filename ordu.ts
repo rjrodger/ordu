@@ -80,7 +80,7 @@ class Task {
     this.name = taskdef.name || 'task' + Task.count
     this.before = strarr(taskdef.before)
     this.after = strarr(taskdef.after)
-    this.exec = taskdef.exec || ((_: Spec) => { })
+    this.exec = taskdef.exec || ((_: Spec) => {})
     this.if = taskdef.if || void 0
     this.meta = {
       order: Task.count++,
@@ -143,7 +143,7 @@ type ExecResult = {
 
 type Operator = (r: TaskResult, ctx: any, data: object) => Operate
 
-class Ordu extends (EventEmitter as { new(): OrduEmitter }) implements OrduIF {
+class Ordu extends (EventEmitter as { new (): OrduEmitter }) implements OrduIF {
   private _opts: any
 
   private _topo: {
@@ -155,7 +155,6 @@ class Ordu extends (EventEmitter as { new(): OrduEmitter }) implements OrduIF {
   }
 
   task: { [name: string]: TaskExec }
-
 
   constructor(opts?: any) {
     super()
@@ -460,13 +459,13 @@ function LegacyOrdu(opts?: any): any {
   }
 
   function api_tasknames() {
-    return tasks.map(function(v) {
+    return tasks.map(function (v) {
       return v.name
     })
   }
 
   function api_taskdetails() {
-    return tasks.map(function(v) {
+    return tasks.map(function (v) {
       return v.name + ':{tags:' + v.tags + '}'
     })
   }

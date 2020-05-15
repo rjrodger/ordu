@@ -1,6 +1,6 @@
 {
   "name": "ordu",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "Execute functions in a configurable order, modifying a shared data structure.",
   "homepage": "https://github.com/rjrodger/ordu",
   "keywords": [
