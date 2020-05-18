@@ -81,7 +81,7 @@ class Task {
     this.name = taskdef.name || 'task' + Task.count++
     this.before = taskdef.before
     this.after = taskdef.after
-    this.exec = taskdef.exec || ((_: TaskSpec) => { })
+    this.exec = taskdef.exec || ((_: TaskSpec) => {})
     this.if = taskdef.if || void 0
     this.active = null == taskdef.active ? true : taskdef.active
     this.meta = Object.assign(taskdef.meta || {}, {
@@ -151,7 +151,7 @@ type ExecResult = {
 
 type Operator = (r: TaskResult, ctx: any, data: object) => Operate
 
-class Ordu extends (EventEmitter as { new(): OrduEmitter }) implements OrduIF {
+class Ordu extends (EventEmitter as { new (): OrduEmitter }) implements OrduIF {
   private _opts: any
 
   private _tasks: Task[]
@@ -389,9 +389,9 @@ function make_callpoint(err: Error) {
   return null == err
     ? []
     : (err.stack || '')
-      .split(/\n/)
-      .slice(4)
-      .map((line) => line.substring(4))
+        .split(/\n/)
+        .slice(4)
+        .map((line) => line.substring(4))
 }
 /* $lab:coverage:on$ */
 
@@ -473,13 +473,13 @@ function LegacyOrdu(opts?: any): any {
   }
 
   function api_tasknames() {
-    return tasks.map(function(v) {
+    return tasks.map(function (v) {
       return v.name
     })
   }
 
   function api_taskdetails() {
-    return tasks.map(function(v) {
+    return tasks.map(function (v) {
       return v.name + ':{tags:' + v.tags + '}'
     })
   }
