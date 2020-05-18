@@ -31,8 +31,16 @@ describe('ordu', function() {
 
     
     h0.add({
-      name: 'a',
-      from: 'my-ref-01'
+      name: 'A',
+      from: 'my-ref-01',
+      meta: {
+        from: {foo:1}
+      }
+    })
+
+    h0.add({
+      name: 'B',
+      active: false
     })
 
     h0.add({
@@ -75,7 +83,6 @@ describe('ordu', function() {
     
     h0.add({
       name: 'a',
-      before: 'b',
       exec: async() => {
         return new Promise((r)=>setTimeout(()=>{r({
           op: 'merge'
@@ -92,20 +99,19 @@ describe('ordu', function() {
             x:4
           }
         }
-      },
-      {
-        after:['c'],
       }
     )
 
-    h0.add(function c() {
-      return {
-        op: 'lookup',
-        out: {
-          id:'001'
+    h0.add(
+      function c() {
+        return {
+          op: 'lookup',
+          out: {
+            id:'001'
+          }
         }
       }
-    })
+    )
 
     
     h0.add({
@@ -146,16 +152,18 @@ describe('ordu', function() {
     expect(Object.keys(h0.task)
            .map(tn=>tn+'~'+('function'===typeof(h0.task[tn]))))
       .equal([
-        'a~true',
+        'A~true',
+        'B~true',
+        'task0~true',
         'task1~true',
         'task2~true',
-        'task3~true',
+        'a~true',
         'b~true',
         'c~true',
-        'task9~true',
-        'task10~true',
-        'task11~true',
-        'task12~true'
+        'task3~true',
+        'task4~true',
+        'task5~true',
+        'task6~true'
       ])
     
     
@@ -176,24 +184,48 @@ describe('ordu', function() {
     })
     
     //console.log(h0.tasks())
-    expect(h0.tasks().length).equal(11)
+    expect(h0.tasks().length).equal(12)
     
     var out = await h0.exec()
     expect(out.data).equal({ x: 4, y: { id: '001' }, qq: 2, last: 99 })
     expect(out.task_count).equal(8)
-    expect(out.task_total).equal(11)
+    expect(out.task_total).equal(12)
     //console.log(out.end-out.start)
 
     //console.dir(taskresult_log, {depth:null})
     //console.dir(taskend_log, {depth:null})
-    expect(taskresult_log.length).equal(9)
-    expect(taskend_log.length).equal(9)
+    expect(taskresult_log.map(te=>te.name+'~'+te.op)).equal([
+        'A~next',
+        'B~skip',
+        'task0~next',
+        'task1~merge',
+        'task2~skip',
+        'a~merge',
+        'b~merge',
+        'c~lookup',
+        'task3~merge',
+        'task4~stop'
+    ])
+    expect(taskend_log.map(te=>te.name+'~'+te.op+'~'+te.operate.stop)).equal([
+        'A~next~false',
+        'B~skip~false',
+        'task0~next~false',
+        'task1~merge~false',
+        'task2~skip~false',
+        'a~merge~false',
+        'b~merge~false',
+        'c~lookup~false',
+        'task3~merge~false',
+        'task4~stop~true'
+    ])
     
+
+
     
     out = await h0.exec({},{z:1, y: null})
     expect(out.data).equal({ z: 1, x: 4, y: { id: '001' }, qq: 2, last: 99 })
     expect(out.task_count).equal(8)
-    expect(out.task_total).equal(11)
+    expect(out.task_total).equal(12)
 
     
     out = await h0.exec({err0:true},{z:2})
@@ -207,17 +239,18 @@ describe('ordu', function() {
     ])
 
     expect(h0.tasks().map(t=>t.name)).equals([
-      'a',
+      'A',
+      'B',
+      'task0',
       'task1',
       'task2',
-      'task3',
       'a',
-      'c',
       'b',
-      'task9',
-      'task10',
-      'task11',
-      'task12'
+      'c',
+      'task3',
+      'task4',
+      'task5',
+      'task6'
     ])
     
 
@@ -321,4 +354,70 @@ describe('ordu', function() {
     //console.dir(taskend_log, {depth:null})
 
   })
+
+
+  it('insert-order', async () => {
+    var h0 = new Ordu()
+    var names = (h0)=>h0.tasks().map(t=>t.name).join(' ')
+    
+    h0.add(function a() {})
+    expect(names(h0)).equal('a')
+
+    h0.add(function b() {})
+    expect(names(h0)).equal('a b')
+
+    h0.add(function c() {})
+    expect(names(h0)).equal('a b c')
+
+
+    h0.add(function A() {}, {before:'a'})
+    expect(names(h0)).equal('A a b c')
+
+    h0.add(function B() {}, {before:'b'})
+    expect(names(h0)).equal('A a B b c')
+
+    h0.add(function C() {}, {before:'c'})
+    expect(names(h0)).equal('A a B b C c')
+
+
+    h0.add(function a0() {}, {after:'a'})
+    expect(names(h0)).equal('A a a0 B b C c')
+
+    h0.add(function b0() {}, {after:'b'})
+    expect(names(h0)).equal('A a a0 B b b0 C c')
+
+    h0.add(function c0() {}, {after:'c'})
+    expect(names(h0)).equal('A a a0 B b b0 C c c0')
+
+
+    h0.add(function A0() {}, {before:'a'})
+    expect(names(h0)).equal('A A0 a a0 B b b0 C c c0')
+
+    h0.add(function B0() {}, {before:'b'})
+    expect(names(h0)).equal('A A0 a a0 B B0 b b0 C c c0')
+
+    h0.add(function C0() {}, {before:'c'})
+    expect(names(h0)).equal('A A0 a a0 B B0 b b0 C C0 c c0')
+
+
+    h0.add(function a1() {}, {after:'a'})
+    expect(names(h0)).equal('A A0 a a1 a0 B B0 b b0 C C0 c c0')
+
+    h0.add(function b1() {}, {after:'b'})
+    expect(names(h0)).equal('A A0 a a1 a0 B B0 b b1 b0 C C0 c c0')
+
+    h0.add(function c1() {}, {after:'c'})
+    expect(names(h0)).equal('A A0 a a1 a0 B B0 b b1 b0 C C0 c c1 c0')
+
+
+    h0.add(function A1() {}, {after:'A'})
+    expect(names(h0)).equal('A A1 A0 a a1 a0 B B0 b b1 b0 C C0 c c1 c0')
+
+    h0.add(function AA0() {}, {before:'A'})
+    expect(names(h0)).equal('AA0 A A1 A0 a a1 a0 B B0 b b1 b0 C C0 c c1 c0')
+
+    
+    //console.log(names(h0))
+  })
+     
 })

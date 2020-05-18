@@ -6,7 +6,7 @@
 import { EventEmitter } from 'events'
 
 import * as Hoek from '@hapi/hoek'
-import * as Topo from '@hapi/topo'
+//import * as Topo from '@hapi/topo'
 
 import Nua from 'nua'
 import StrictEventEmitter from 'strict-event-emitter-types'
@@ -44,11 +44,13 @@ interface OrduIF {
 interface TaskDef {
   id?: string
   name?: string
-  before?: string | string[]
-  after?: string | string[]
+  before?: string
+  after?: string
   exec?: TaskExec
   from?: object
   if?: { [k: string]: any }
+  active?: boolean
+  meta?: any
 }
 
 type TaskExec = (s: Spec) => any
@@ -64,12 +66,12 @@ class Task {
 
   runid: string
   name: string
-  before: string[]
-  after: string[]
+  before?: string
+  after?: string
   exec: (s: Spec) => TaskResult
   if?: { [k: string]: any }
+  active?: boolean
   meta: {
-    order: number
     when: number
     from: object
   }
@@ -77,43 +79,55 @@ class Task {
   constructor(taskdef: TaskDef) {
     this.runid =
       null == taskdef.id ? ('' + Math.random()).substring(2) : taskdef.id
-    this.name = taskdef.name || 'task' + Task.count
-    this.before = strarr(taskdef.before)
-    this.after = strarr(taskdef.after)
-    this.exec = taskdef.exec || ((_: Spec) => {})
+    this.name = taskdef.name || 'task' + (Task.count++)
+    this.before = taskdef.before
+    this.after = taskdef.after
+    this.exec = taskdef.exec || ((_: Spec) => { })
     this.if = taskdef.if || void 0
-    this.meta = {
-      order: Task.count++,
-      when: Date.now(),
-
-      // TODO: auto generate call point stacktrace?
-      from: taskdef.from || {},
-    }
+    this.active = null == taskdef.active ? true : taskdef.active
+    this.meta = Object.assign(
+      taskdef.meta || {},
+      {
+        when: Date.now(),
+        from: taskdef.from || { callpoint: (new Error().stack) },
+      }
+    )
   }
 }
 
-type TaskLogEntry = {
+// Use the constructor to normalize task result
+class TaskResult {
+  op: string
+  out?: object
+  err?: Error
+  //log: TaskLogEntry
+  why?: string
   task: Task
+  name: string
   start: number
   end: number
   runid: string
   index: number
   total: number
   async: boolean
-}
 
-// Use the constructor to normalize task result
-class TaskResult {
-  op: string
-  out: object
-  err?: Error
-  log: TaskLogEntry
-  why: string
 
-  constructor(log: TaskLogEntry, raw: any) {
+  constructor(task: Task, taskI: number, total: number, runid: string) {
+    this.op = 'not-defined'
+    this.task = task
+    this.name = task.name
+    this.start = Date.now()
+    this.end = Number.MAX_SAFE_INTEGER
+    this.index = taskI
+    this.total = total
+    this.async = false
+    this.runid = runid
+  }
+
+  update(raw: any) {
     raw = null == raw ? {} : raw
 
-    this.log = log
+    //this.log = log
     this.out = null == raw.out ? {} : raw.out
     this.err = raw instanceof Error ? raw : void 0
 
@@ -143,13 +157,11 @@ type ExecResult = {
 
 type Operator = (r: TaskResult, ctx: any, data: object) => Operate
 
-class Ordu extends (EventEmitter as { new (): OrduEmitter }) implements OrduIF {
+class Ordu extends (EventEmitter as { new(): OrduEmitter }) implements OrduIF {
   private _opts: any
 
-  private _topo: {
-    add(t: Task, _: any): void
-    nodes: Task[]
-  }
+  private _tasks: Task[]
+
   private _operator_map: {
     [op: string]: Operator
   }
@@ -166,7 +178,7 @@ class Ordu extends (EventEmitter as { new (): OrduEmitter }) implements OrduIF {
       ...opts,
     }
 
-    this._topo = new Topo.Sorter()
+    this._tasks = []
 
     this._operator_map = {
       next: () => ({ stop: false }),
@@ -197,7 +209,7 @@ class Ordu extends (EventEmitter as { new (): OrduEmitter }) implements OrduIF {
   add(first: any, second?: any): void {
     if ('function' == typeof first) {
       second = second || {}
-      let t = new Task(second)
+      let t = second
       t.exec = first
       t.name = first.name ? first.name : t.name
       this._add_task(t)
@@ -216,11 +228,20 @@ class Ordu extends (EventEmitter as { new (): OrduEmitter }) implements OrduIF {
 
   private _add_task(td: TaskDef): void {
     let t = new Task(td)
-    this._topo.add(t, {
-      group: t.name,
-      before: t.before,
-      after: t.after,
-    })
+
+    let tI = 0
+    for (; tI < this._tasks.length; tI++) {
+      if (null != t.before && this._tasks[tI].name === t.before) {
+        break
+      }
+      else if (null != t.after && this._tasks[tI].name === t.after) {
+        tI++
+        break
+      }
+    }
+
+    this._tasks.splice(tI, 0, t)
+
     this.task[t.name] = t.exec
   }
 
@@ -229,7 +250,7 @@ class Ordu extends (EventEmitter as { new (): OrduEmitter }) implements OrduIF {
     opts = null == opts ? {} : opts
     let runid = opts.runid || (Math.random() + '').substring(2)
     let start = Date.now()
-    let tasks: Task[] = this._topo.nodes
+    let tasks: Task[] = this._tasks
 
     let spec = {
       ctx: ctx || {},
@@ -248,23 +269,15 @@ class Ordu extends (EventEmitter as { new (): OrduEmitter }) implements OrduIF {
     for (; taskI < tasks.length; taskI++) {
       let task = tasks[taskI]
       let taskout = null
-      let tasklogentry: TaskLogEntry = {
-        task,
-        runid,
-        start: Date.now(),
-        end: Number.MAX_SAFE_INTEGER,
-        index: taskI,
-        total: tasks.length,
-        async: false,
-      }
+      let result = new TaskResult(task, taskI, tasks.length, runid)
 
-      if (this._task_if(task, spec.data)) {
+      if (task.active && this._task_if(task, spec.data)) {
         try {
           task_count++
           let taskspec = Object.assign({ task: task }, spec)
           taskout = task.exec(taskspec)
           if (taskout instanceof Promise) {
-            tasklogentry.async = true
+            result.async = true
             taskout = await taskout
           }
         } catch (task_ex) {
@@ -274,8 +287,8 @@ class Ordu extends (EventEmitter as { new (): OrduEmitter }) implements OrduIF {
         taskout = { op: 'skip' }
       }
 
-      tasklogentry.end = Date.now()
-      let result = new TaskResult(tasklogentry, taskout)
+      result.end = Date.now()
+      result.update(taskout)
       this.emit('task-result', result)
 
       try {
@@ -297,19 +310,16 @@ class Ordu extends (EventEmitter as { new (): OrduEmitter }) implements OrduIF {
       }
 
       // TODO: fix debug double work
-      tasklog.push({
+      let entry = {
         name: task.name,
         op: result.op,
         task,
         result,
         operate,
         data: this._opts.debug ? JSON.parse(JSON.stringify(spec.data)) : void 0,
-      })
-      this.emit('task-end', {
-        result,
-        operate,
-        data: this._opts.debug ? JSON.parse(JSON.stringify(spec.data)) : void 0,
-      })
+      }
+      tasklog.push(entry)
+      this.emit('task-end', entry)
 
       if (operate.stop) {
         break
@@ -335,7 +345,7 @@ class Ordu extends (EventEmitter as { new (): OrduEmitter }) implements OrduIF {
   }
 
   tasks() {
-    return this._topo.nodes
+    return [...this._tasks]
   }
 
   private _operate(r: TaskResult, ctx: any, data: object): Operate {
@@ -377,9 +387,6 @@ class Ordu extends (EventEmitter as { new (): OrduEmitter }) implements OrduIF {
   }
 }
 
-function strarr(x?: string | string[]) {
-  return null == x ? [] : 'string' === typeof x ? [x] : x
-}
 
 function LegacyOrdu(opts?: any): any {
   var orduI = -1
@@ -459,13 +466,13 @@ function LegacyOrdu(opts?: any): any {
   }
 
   function api_tasknames() {
-    return tasks.map(function (v) {
+    return tasks.map(function(v) {
       return v.name
     })
   }
 
   function api_taskdetails() {
-    return tasks.map(function (v) {
+    return tasks.map(function(v) {
       return v.name + ':{tags:' + v.tags + '}'
     })
   }

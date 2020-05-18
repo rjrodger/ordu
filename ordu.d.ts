@@ -29,13 +29,15 @@ interface OrduIF {
 interface TaskDef {
     id?: string;
     name?: string;
-    before?: string | string[];
-    after?: string | string[];
+    before?: string;
+    after?: string;
     exec?: TaskExec;
     from?: object;
     if?: {
         [k: string]: any;
     };
+    active?: boolean;
+    meta?: any;
 }
 declare type TaskExec = (s: Spec) => any;
 interface Spec {
@@ -47,35 +49,34 @@ declare class Task {
     static count: number;
     runid: string;
     name: string;
-    before: string[];
-    after: string[];
+    before?: string;
+    after?: string;
     exec: (s: Spec) => TaskResult;
     if?: {
         [k: string]: any;
     };
+    active?: boolean;
     meta: {
-        order: number;
         when: number;
         from: object;
     };
     constructor(taskdef: TaskDef);
 }
-declare type TaskLogEntry = {
+declare class TaskResult {
+    op: string;
+    out?: object;
+    err?: Error;
+    why?: string;
     task: Task;
+    name: string;
     start: number;
     end: number;
     runid: string;
     index: number;
     total: number;
     async: boolean;
-};
-declare class TaskResult {
-    op: string;
-    out: object;
-    err?: Error;
-    log: TaskLogEntry;
-    why: string;
-    constructor(log: TaskLogEntry, raw: any);
+    constructor(task: Task, taskI: number, total: number, runid: string);
+    update(raw: any): void;
 }
 declare type Operate = {
     stop: boolean;
@@ -96,7 +97,7 @@ declare type Operator = (r: TaskResult, ctx: any, data: object) => Operate;
 declare const Ordu_base: new () => OrduEmitter;
 declare class Ordu extends Ordu_base implements OrduIF {
     private _opts;
-    private _topo;
+    private _tasks;
     private _operator_map;
     task: {
         [name: string]: TaskExec;
