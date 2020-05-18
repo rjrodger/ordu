@@ -267,8 +267,12 @@ class Ordu extends events_1.EventEmitter {
 exports.Ordu = Ordu;
 /* $lab:coverage:off$ */
 function make_callpoint(err) {
-    return null == err ? [] :
-        (err.stack || '').split(/\n/).slice(4).map(line => line.substring(4));
+    return null == err
+        ? []
+        : (err.stack || '')
+            .split(/\n/)
+            .slice(4)
+            .map((line) => line.substring(4));
 }
 /* $lab:coverage:on$ */
 function LegacyOrdu(opts) {
