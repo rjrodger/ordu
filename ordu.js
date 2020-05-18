@@ -35,7 +35,7 @@ let Task = /** @class */ (() => {
         constructor(taskdef) {
             this.runid =
                 null == taskdef.id ? ('' + Math.random()).substring(2) : taskdef.id;
-            this.name = taskdef.name || 'task' + (Task.count++);
+            this.name = taskdef.name || 'task' + Task.count++;
             this.before = taskdef.before;
             this.after = taskdef.after;
             this.exec = taskdef.exec || ((_) => { });
@@ -43,7 +43,7 @@ let Task = /** @class */ (() => {
             this.active = null == taskdef.active ? true : taskdef.active;
             this.meta = Object.assign(taskdef.meta || {}, {
                 when: Date.now(),
-                from: taskdef.from || { callpoint: (new Error().stack) },
+                from: taskdef.from || { callpoint: new Error().stack },
             });
         }
     }

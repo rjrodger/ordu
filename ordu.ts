@@ -79,19 +79,16 @@ class Task {
   constructor(taskdef: TaskDef) {
     this.runid =
       null == taskdef.id ? ('' + Math.random()).substring(2) : taskdef.id
-    this.name = taskdef.name || 'task' + (Task.count++)
+    this.name = taskdef.name || 'task' + Task.count++
     this.before = taskdef.before
     this.after = taskdef.after
-    this.exec = taskdef.exec || ((_: Spec) => { })
+    this.exec = taskdef.exec || ((_: Spec) => {})
     this.if = taskdef.if || void 0
     this.active = null == taskdef.active ? true : taskdef.active
-    this.meta = Object.assign(
-      taskdef.meta || {},
-      {
-        when: Date.now(),
-        from: taskdef.from || { callpoint: (new Error().stack) },
-      }
-    )
+    this.meta = Object.assign(taskdef.meta || {}, {
+      when: Date.now(),
+      from: taskdef.from || { callpoint: new Error().stack },
+    })
   }
 }
 
@@ -110,7 +107,6 @@ class TaskResult {
   index: number
   total: number
   async: boolean
-
 
   constructor(task: Task, taskI: number, total: number, runid: string) {
     this.op = 'not-defined'
@@ -157,7 +153,7 @@ type ExecResult = {
 
 type Operator = (r: TaskResult, ctx: any, data: object) => Operate
 
-class Ordu extends (EventEmitter as { new(): OrduEmitter }) implements OrduIF {
+class Ordu extends (EventEmitter as { new (): OrduEmitter }) implements OrduIF {
   private _opts: any
 
   private _tasks: Task[]
@@ -233,8 +229,7 @@ class Ordu extends (EventEmitter as { new(): OrduEmitter }) implements OrduIF {
     for (; tI < this._tasks.length; tI++) {
       if (null != t.before && this._tasks[tI].name === t.before) {
         break
-      }
-      else if (null != t.after && this._tasks[tI].name === t.after) {
+      } else if (null != t.after && this._tasks[tI].name === t.after) {
         tI++
         break
       }
@@ -387,7 +382,6 @@ class Ordu extends (EventEmitter as { new(): OrduEmitter }) implements OrduIF {
   }
 }
 
-
 function LegacyOrdu(opts?: any): any {
   var orduI = -1
 
@@ -466,13 +460,13 @@ function LegacyOrdu(opts?: any): any {
   }
 
   function api_tasknames() {
-    return tasks.map(function(v) {
+    return tasks.map(function (v) {
       return v.name
     })
   }
 
   function api_taskdetails() {
-    return tasks.map(function(v) {
+    return tasks.map(function (v) {
       return v.name + ':{tags:' + v.tags + '}'
     })
   }
