@@ -20,12 +20,12 @@ interface Events {
 type OrduEmitter = StrictEventEmitter<EventEmitter, Events>
 
 interface OrduIF {
-  add(td: TaskDef): void
-  add(td: TaskDef[]): void
+  add(td: TaskDef): OrduIF
+  add(td: TaskDef[]): OrduIF
 
-  add(te: TaskExec): void
-  add(te: TaskExec, td: TaskDef): void
-  add(te: TaskExec[]): void
+  add(te: TaskExec): OrduIF
+  add(te: TaskExec, td: TaskDef): OrduIF
+  add(te: TaskExec[]): OrduIF
 
   tasks(): Task[]
 
@@ -81,7 +81,7 @@ class Task {
     this.name = taskdef.name || 'task' + Task.count++
     this.before = taskdef.before
     this.after = taskdef.after
-    this.exec = taskdef.exec || ((_: TaskSpec) => {})
+    this.exec = taskdef.exec || ((_: TaskSpec) => { })
     this.if = taskdef.if || void 0
     this.active = null == taskdef.active ? true : taskdef.active
     this.meta = Object.assign(taskdef.meta || {}, {
@@ -151,7 +151,7 @@ type ExecResult = {
 
 type Operator = (r: TaskResult, ctx: any, data: object) => Operate
 
-class Ordu extends (EventEmitter as { new (): OrduEmitter }) implements OrduIF {
+class Ordu extends (EventEmitter as { new(): OrduEmitter }) implements OrduIF {
   private _opts: any
 
   private _tasks: Task[]
@@ -200,7 +200,7 @@ class Ordu extends (EventEmitter as { new (): OrduEmitter }) implements OrduIF {
     return this._operator_map
   }
 
-  add(first: any, second?: any): void {
+  add(first: any, second?: any): Ordu {
     if ('function' == typeof first) {
       second = second || {}
       let t = second
@@ -218,6 +218,8 @@ class Ordu extends (EventEmitter as { new (): OrduEmitter }) implements OrduIF {
     } else {
       this._add_task(first)
     }
+
+    return this
   }
 
   private _add_task(td: TaskDef): void {
@@ -387,9 +389,9 @@ function make_callpoint(err: Error) {
   return null == err
     ? []
     : (err.stack || '')
-        .split(/\n/)
-        .slice(4)
-        .map((line) => line.substring(4))
+      .split(/\n/)
+      .slice(4)
+      .map((line) => line.substring(4))
 }
 /* $lab:coverage:on$ */
 
@@ -471,13 +473,13 @@ function LegacyOrdu(opts?: any): any {
   }
 
   function api_tasknames() {
-    return tasks.map(function (v) {
+    return tasks.map(function(v) {
       return v.name
     })
   }
 
   function api_taskdetails() {
-    return tasks.map(function (v) {
+    return tasks.map(function(v) {
       return v.name + ':{tags:' + v.tags + '}'
     })
   }

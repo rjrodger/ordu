@@ -114,27 +114,26 @@ describe('ordu', function() {
     )
 
     
-    h0.add({
-      if: {
-        'x': 4
-      },
-      exec: () => ({
-        op: 'merge',
-        out: {
-          qq: 2
-        }
+    h0
+      .add({
+        if: {
+          'x': 4
+        },
+        exec: () => ({
+          op: 'merge',
+          out: {
+            qq: 2
+          }
+        })
       })
-    })
-
-
-    h0.add({
-      exec: () => ({
-        op: 'stop',
-        out: {
-          last: 99
-        }
+      .add({
+        exec: () => ({
+          op: 'stop',
+          out: {
+            last: 99
+          }
+        })
       })
-    })
 
 
     h0.add({

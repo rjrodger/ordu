@@ -12,11 +12,11 @@ interface Events {
 }
 declare type OrduEmitter = StrictEventEmitter<EventEmitter, Events>;
 interface OrduIF {
-    add(td: TaskDef): void;
-    add(td: TaskDef[]): void;
-    add(te: TaskExec): void;
-    add(te: TaskExec, td: TaskDef): void;
-    add(te: TaskExec[]): void;
+    add(td: TaskDef): OrduIF;
+    add(td: TaskDef[]): OrduIF;
+    add(te: TaskExec): OrduIF;
+    add(te: TaskExec, td: TaskDef): OrduIF;
+    add(te: TaskExec[]): OrduIF;
     tasks(): Task[];
     task: {
         [name: string]: Task;
@@ -107,7 +107,7 @@ declare class Ordu extends Ordu_base implements OrduIF {
     operators(): {
         [op: string]: Operator;
     };
-    add(first: any, second?: any): void;
+    add(first: any, second?: any): Ordu;
     private _add_task;
     exec(ctx: any, data: any, opts: any): Promise<ExecResult>;
     tasks(): Task[];

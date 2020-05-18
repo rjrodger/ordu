@@ -120,6 +120,7 @@ class Ordu extends events_1.EventEmitter {
         else {
             this._add_task(first);
         }
+        return this;
     }
     _add_task(td) {
         let t = new Task(td);
