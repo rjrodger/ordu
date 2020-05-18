@@ -28,7 +28,6 @@ exports.LegacyOrdu = exports.Ordu = void 0;
 /* $lab:coverage:on$ */
 const events_1 = require("events");
 const Hoek = __importStar(require("@hapi/hoek"));
-//import * as Topo from '@hapi/topo'
 const nua_1 = __importDefault(require("nua"));
 let Task = /** @class */ (() => {
     class Task {
@@ -65,9 +64,8 @@ class TaskResult {
     }
     update(raw) {
         raw = null == raw ? {} : raw;
-        //this.log = log
         this.out = null == raw.out ? {} : raw.out;
-        this.err = raw instanceof Error ? raw : void 0;
+        this.err = raw instanceof Error ? raw : raw.err;
         this.op =
             null != this.err ? 'stop' : 'string' === typeof raw.op ? raw.op : 'next';
         this.why = raw.why || '';
@@ -143,7 +141,7 @@ class Ordu extends events_1.EventEmitter {
         opts = null == opts ? {} : opts;
         let runid = opts.runid || (Math.random() + '').substring(2);
         let start = Date.now();
-        let tasks = this._tasks;
+        let tasks = [...this._tasks];
         let spec = {
             ctx: ctx || {},
             data: data || {},
@@ -157,6 +155,7 @@ class Ordu extends events_1.EventEmitter {
         let task_count = 0;
         let taskI = 0;
         for (; taskI < tasks.length; taskI++) {
+            //console.log('TASK', taskI, tasks.length)
             let task = tasks[taskI];
             let taskout = null;
             let result = new TaskResult(task, taskI, tasks.length, runid);

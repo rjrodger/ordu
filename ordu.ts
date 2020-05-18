@@ -6,12 +6,11 @@
 import { EventEmitter } from 'events'
 
 import * as Hoek from '@hapi/hoek'
-//import * as Topo from '@hapi/topo'
 
 import Nua from 'nua'
 import StrictEventEmitter from 'strict-event-emitter-types'
 
-export { Ordu, LegacyOrdu }
+export { Ordu, TaskDef, TaskSpec, LegacyOrdu }
 
 interface Events {
   'task-result': TaskResult
@@ -53,11 +52,11 @@ interface TaskDef {
   meta?: any
 }
 
-type TaskExec = (s: Spec) => any
+type TaskExec = (s: TaskSpec) => any
 
-interface Spec {
-  ctx: object
-  data: object
+interface TaskSpec {
+  ctx: any
+  data: any
   task: Task
 }
 
@@ -68,7 +67,7 @@ class Task {
   name: string
   before?: string
   after?: string
-  exec: (s: Spec) => TaskResult
+  exec: (s: TaskSpec) => TaskResult
   if?: { [k: string]: any }
   active?: boolean
   meta: {
@@ -82,7 +81,7 @@ class Task {
     this.name = taskdef.name || 'task' + Task.count++
     this.before = taskdef.before
     this.after = taskdef.after
-    this.exec = taskdef.exec || ((_: Spec) => {})
+    this.exec = taskdef.exec || ((_: TaskSpec) => { })
     this.if = taskdef.if || void 0
     this.active = null == taskdef.active ? true : taskdef.active
     this.meta = Object.assign(taskdef.meta || {}, {
@@ -123,9 +122,8 @@ class TaskResult {
   update(raw: any) {
     raw = null == raw ? {} : raw
 
-    //this.log = log
     this.out = null == raw.out ? {} : raw.out
-    this.err = raw instanceof Error ? raw : void 0
+    this.err = raw instanceof Error ? raw : raw.err
 
     this.op =
       null != this.err ? 'stop' : 'string' === typeof raw.op ? raw.op : 'next'
@@ -153,7 +151,7 @@ type ExecResult = {
 
 type Operator = (r: TaskResult, ctx: any, data: object) => Operate
 
-class Ordu extends (EventEmitter as { new (): OrduEmitter }) implements OrduIF {
+class Ordu extends (EventEmitter as { new(): OrduEmitter }) implements OrduIF {
   private _opts: any
 
   private _tasks: Task[]
@@ -245,7 +243,7 @@ class Ordu extends (EventEmitter as { new (): OrduEmitter }) implements OrduIF {
     opts = null == opts ? {} : opts
     let runid = opts.runid || (Math.random() + '').substring(2)
     let start = Date.now()
-    let tasks: Task[] = this._tasks
+    let tasks: Task[] = [...this._tasks]
 
     let spec = {
       ctx: ctx || {},
@@ -262,6 +260,8 @@ class Ordu extends (EventEmitter as { new (): OrduEmitter }) implements OrduIF {
     let task_count = 0
     let taskI = 0
     for (; taskI < tasks.length; taskI++) {
+      //console.log('TASK', taskI, tasks.length)
+
       let task = tasks[taskI]
       let taskout = null
       let result = new TaskResult(task, taskI, tasks.length, runid)
@@ -460,13 +460,13 @@ function LegacyOrdu(opts?: any): any {
   }
 
   function api_tasknames() {
-    return tasks.map(function (v) {
+    return tasks.map(function(v) {
       return v.name
     })
   }
 
   function api_taskdetails() {
-    return tasks.map(function (v) {
+    return tasks.map(function(v) {
       return v.name + ':{tags:' + v.tags + '}'
     })
   }

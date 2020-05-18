@@ -1,7 +1,7 @@
 /// <reference types="node" />
 import { EventEmitter } from 'events';
 import StrictEventEmitter from 'strict-event-emitter-types';
-export { Ordu, LegacyOrdu };
+export { Ordu, TaskDef, TaskSpec, LegacyOrdu };
 interface Events {
     'task-result': TaskResult;
     'task-end': {
@@ -39,10 +39,10 @@ interface TaskDef {
     active?: boolean;
     meta?: any;
 }
-declare type TaskExec = (s: Spec) => any;
-interface Spec {
-    ctx: object;
-    data: object;
+declare type TaskExec = (s: TaskSpec) => any;
+interface TaskSpec {
+    ctx: any;
+    data: any;
     task: Task;
 }
 declare class Task {
@@ -51,7 +51,7 @@ declare class Task {
     name: string;
     before?: string;
     after?: string;
-    exec: (s: Spec) => TaskResult;
+    exec: (s: TaskSpec) => TaskResult;
     if?: {
         [k: string]: any;
     };

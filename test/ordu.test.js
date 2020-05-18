@@ -419,5 +419,55 @@ describe('ordu', function() {
     
     //console.log(names(h0))
   })
-     
+
+
+  it('errors', async () => {
+    var h0 = new Ordu()
+
+    h0.add(function a() {
+      return {
+        err: new Error('a-err')
+      }
+    })
+
+    var out = await h0.exec()
+    expect(out.err.message).equals('a-err')
+
+
+    
+    var cbout
+    await h0.exec({},{},{done:function(rout) {
+      cbout = rout
+    }})
+
+    await new Promise(r=>setImmediate(()=>{
+      expect(cbout.err.message).equals('a-err')
+      r()
+    }))
+
+
+
+    var h1 = new Ordu()
+
+    h1.add(function a() {
+      throw new Error('a-terr')
+    })
+
+    var h1out = await h1.exec()
+    expect(h1out.err.message).equals('a-terr')
+
+
+    var h1cbout
+    await h1.exec({},{},{done:function(rout) {
+      h1cbout = rout
+    }})
+
+    await new Promise(r=>setImmediate(()=>{
+      expect(h1cbout.err.message).equals('a-terr')
+      r()
+    }))
+
+    
+  })
+      
 })
