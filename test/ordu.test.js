@@ -150,7 +150,7 @@ describe('ordu', function() {
     h0.add(()=>{})
 
     expect(Object.keys(h0.task)
-           .map(tn=>tn+'~'+('function'===typeof(h0.task[tn]))))
+           .map(tn=>tn+'~'+('function'===typeof(h0.task[tn].exec))))
       .equal([
         'A~true',
         'B~true',

@@ -19,7 +19,7 @@ interface OrduIF {
     add(te: TaskExec[]): void;
     tasks(): Task[];
     task: {
-        [name: string]: TaskExec;
+        [name: string]: Task;
     };
     operator(name: string, opr: Operator): void;
     operator(opr: Operator): void;
@@ -100,7 +100,7 @@ declare class Ordu extends Ordu_base implements OrduIF {
     private _tasks;
     private _operator_map;
     task: {
-        [name: string]: TaskExec;
+        [name: string]: Task;
     };
     constructor(opts?: any);
     operator(first: string | Operator, opr?: Operator): void;

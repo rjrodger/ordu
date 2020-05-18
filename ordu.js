@@ -42,7 +42,7 @@ let Task = /** @class */ (() => {
             this.active = null == taskdef.active ? true : taskdef.active;
             this.meta = Object.assign(taskdef.meta || {}, {
                 when: Date.now(),
-                from: taskdef.from || { callpoint: new Error().stack },
+                from: taskdef.from || { callpoint: make_callpoint(new Error()) },
             });
         }
     }
@@ -134,7 +134,7 @@ class Ordu extends events_1.EventEmitter {
             }
         }
         this._tasks.splice(tI, 0, t);
-        this.task[t.name] = t.exec;
+        this.task[t.name] = t;
     }
     // TODO: execSync version when promises not needed
     async exec(ctx, data, opts) {
@@ -265,6 +265,12 @@ class Ordu extends events_1.EventEmitter {
     }
 }
 exports.Ordu = Ordu;
+/* $lab:coverage:off$ */
+function make_callpoint(err) {
+    return null == err ? [] :
+        (err.stack || '').split(/\n/).slice(4).map(line => line.substring(4));
+}
+/* $lab:coverage:on$ */
 function LegacyOrdu(opts) {
     var orduI = -1;
     var self = {};
