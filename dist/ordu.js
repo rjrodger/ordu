@@ -16,9 +16,18 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
     __setModuleDefault(result, mod);
     return result;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
 };
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -29,26 +38,23 @@ exports.LegacyOrdu = exports.Ordu = void 0;
 const events_1 = require("events");
 const Hoek = __importStar(require("@hapi/hoek"));
 const nua_1 = __importDefault(require("nua"));
-let Task = /** @class */ (() => {
-    class Task {
-        constructor(taskdef) {
-            this.runid =
-                null == taskdef.id ? ('' + Math.random()).substring(2) : taskdef.id;
-            this.name = taskdef.name || 'task' + Task.count++;
-            this.before = taskdef.before;
-            this.after = taskdef.after;
-            this.exec = taskdef.exec || ((_) => { });
-            this.if = taskdef.if || void 0;
-            this.active = null == taskdef.active ? true : taskdef.active;
-            this.meta = Object.assign(taskdef.meta || {}, {
-                when: Date.now(),
-                from: taskdef.from || { callpoint: make_callpoint(new Error()) },
-            });
-        }
+class Task {
+    constructor(taskdef) {
+        this.runid =
+            null == taskdef.id ? ('' + Math.random()).substring(2) : taskdef.id;
+        this.name = taskdef.name || 'task' + Task.count++;
+        this.before = taskdef.before;
+        this.after = taskdef.after;
+        this.exec = taskdef.exec || ((_) => { });
+        this.if = taskdef.if || void 0;
+        this.active = null == taskdef.active ? true : taskdef.active;
+        this.meta = Object.assign(taskdef.meta || {}, {
+            when: Date.now(),
+            from: taskdef.from || { callpoint: make_callpoint(new Error()) },
+        });
     }
-    Task.count = 0;
-    return Task;
-})();
+}
+Task.count = 0;
 // Use the constructor to normalize task result
 class TaskResult {
     constructor(task, taskI, total, runid) {
@@ -75,10 +81,7 @@ class Ordu extends events_1.EventEmitter {
     constructor(opts) {
         super();
         this.task = {};
-        this._opts = {
-            debug: false,
-            ...opts,
-        };
+        this._opts = Object.assign({ debug: false }, opts);
         this._tasks = [];
         this._operator_map = {
             next: () => ({ stop: false }),
@@ -138,95 +141,97 @@ class Ordu extends events_1.EventEmitter {
         this.task[t.name] = t;
     }
     // TODO: execSync version when promises not needed
-    async exec(ctx, data, opts) {
-        opts = null == opts ? {} : opts;
-        let runid = opts.runid || (Math.random() + '').substring(2);
-        let start = Date.now();
-        let tasks = [...this._tasks];
-        let spec = {
-            ctx: ctx || {},
-            data: data || {},
-        };
-        let operate = {
-            stop: false,
-            err: void 0,
-            async: false,
-        };
-        let tasklog = [];
-        let task_count = 0;
-        let taskI = 0;
-        for (; taskI < tasks.length; taskI++) {
-            //console.log('TASK', taskI, tasks.length)
-            let task = tasks[taskI];
-            let taskout = null;
-            let result = new TaskResult(task, taskI, tasks.length, runid);
-            if (task.active && this._task_if(task, spec.data)) {
-                try {
-                    task_count++;
-                    let taskspec = Object.assign({ task: task }, spec);
-                    taskout = task.exec(taskspec);
-                    if (taskout instanceof Promise) {
-                        result.async = true;
-                        taskout = await taskout;
+    exec(ctx, data, opts) {
+        return __awaiter(this, void 0, void 0, function* () {
+            opts = null == opts ? {} : opts;
+            let runid = opts.runid || (Math.random() + '').substring(2);
+            let start = Date.now();
+            let tasks = [...this._tasks];
+            let spec = {
+                ctx: ctx || {},
+                data: data || {},
+            };
+            let operate = {
+                stop: false,
+                err: void 0,
+                async: false,
+            };
+            let tasklog = [];
+            let task_count = 0;
+            let taskI = 0;
+            for (; taskI < tasks.length; taskI++) {
+                //console.log('TASK', taskI, tasks.length)
+                let task = tasks[taskI];
+                let taskout = null;
+                let result = new TaskResult(task, taskI, tasks.length, runid);
+                if (task.active && this._task_if(task, spec.data)) {
+                    try {
+                        task_count++;
+                        let taskspec = Object.assign({ task: task }, spec);
+                        taskout = task.exec(taskspec);
+                        if (taskout instanceof Promise) {
+                            result.async = true;
+                            taskout = yield taskout;
+                        }
+                    }
+                    catch (task_ex) {
+                        taskout = task_ex;
                     }
                 }
-                catch (task_ex) {
-                    taskout = task_ex;
-                }
-            }
-            else {
-                taskout = { op: 'skip' };
-            }
-            result.end = Date.now();
-            result.update(taskout);
-            this.emit('task-result', result);
-            try {
-                operate = this._operate(result, spec.ctx, spec.data);
-                if (operate instanceof Promise) {
-                    operate = (await operate);
-                    operate.async = true;
-                }
                 else {
-                    operate.async = false;
+                    taskout = { op: 'skip' };
                 }
-                operate.err = operate.err || void 0;
-            }
-            catch (operate_ex) {
-                operate = {
-                    stop: true,
-                    err: operate_ex,
-                    async: false,
+                result.end = Date.now();
+                result.update(taskout);
+                this.emit('task-result', result);
+                try {
+                    operate = this._operate(result, spec.ctx, spec.data);
+                    if (operate instanceof Promise) {
+                        operate = (yield operate);
+                        operate.async = true;
+                    }
+                    else {
+                        operate.async = false;
+                    }
+                    operate.err = operate.err || void 0;
+                }
+                catch (operate_ex) {
+                    operate = {
+                        stop: true,
+                        err: operate_ex,
+                        async: false,
+                    };
+                }
+                // TODO: fix debug double work
+                let entry = {
+                    name: task.name,
+                    op: result.op,
+                    task,
+                    result,
+                    operate,
+                    data: this._opts.debug ? JSON.parse(JSON.stringify(spec.data)) : void 0,
                 };
+                tasklog.push(entry);
+                this.emit('task-end', entry);
+                if (operate.stop) {
+                    break;
+                }
             }
-            // TODO: fix debug double work
-            let entry = {
-                name: task.name,
-                op: result.op,
-                task,
-                result,
-                operate,
-                data: this._opts.debug ? JSON.parse(JSON.stringify(spec.data)) : void 0,
+            let execres = {
+                tasklog: tasklog,
+                task: operate.err ? tasks[taskI] : void 0,
+                task_count: task_count,
+                task_total: tasks.length,
+                start: start,
+                end: Date.now(),
+                err: operate.err,
+                data: spec.data,
             };
-            tasklog.push(entry);
-            this.emit('task-end', entry);
-            if (operate.stop) {
-                break;
+            if (opts.done) {
+                opts.done(execres);
             }
-        }
-        let execres = {
-            tasklog: tasklog,
-            task: operate.err ? tasks[taskI] : void 0,
-            task_count: task_count,
-            task_total: tasks.length,
-            start: start,
-            end: Date.now(),
-            err: operate.err,
-            data: spec.data,
-        };
-        if (opts.done) {
-            opts.done(execres);
-        }
-        return execres;
+            return execres;
+        });
     }
     tasks() {
         return [...this._tasks];
