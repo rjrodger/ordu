@@ -6,14 +6,13 @@ var Ordu = require('..').LegacyOrdu
 var Lab = require('@hapi/lab')
 Lab = null != Lab.script ? Lab : require('hapi-lab-shim')
 
-
 var Code = require('@hapi/code')
 var lab = (exports.lab = Lab.script())
 var describe = lab.describe
 var it = lab.it
 var expect = Code.expect
 
-describe('ordu-legacy', function() {
+describe('ordu-legacy', function () {
   it('construct', async () => {
     var w = Ordu()
     expect(w).to.exist()
@@ -56,20 +55,20 @@ describe('ordu-legacy', function() {
       ctxt$: {
         index$: 0,
         taskname$: 'first',
-        len: 3
+        len: 3,
       },
       data$: [],
       index$: 0,
       taskname$: 'first',
       kind: 'error',
-      why: 'no foo'
+      why: 'no foo',
     })
   })
 
   it('happy', async () => {
     var w = Ordu()
 
-    w.add(function(ctxt, data) {
+    w.add(function (ctxt, data) {
       data.x = 1
     })
 
@@ -105,14 +104,14 @@ describe('ordu-legacy', function() {
     var w = Ordu({ name: 'foo' })
 
     w.add(function zero() {})
-      .add(function() {})
+      .add(function () {})
       .add(function two() {})
 
     expect(w.tasknames()).to.equal(['zero', 'foo_task1', 'two'])
     expect(w.taskdetails()).to.equal([
       'zero:{tags:}',
       'foo_task1:{tags:}',
-      'two:{tags:}'
+      'two:{tags:}',
     ])
     expect('' + w).to.equal('foo:[zero,foo_task1,two]')
   })
