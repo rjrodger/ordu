@@ -24,6 +24,13 @@ provide configurable extension hooks.
 
 ### Quick example
 
+NOTE: OUT-OF-DATE
+
+SEE TESTS FOR API CHANGES
+
+TODO: UPDATE README
+
+
 ```js
 var Ordu = require('ordu')
 

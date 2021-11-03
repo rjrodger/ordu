@@ -21,35 +21,33 @@ describe('ordu', function () {
   it('happy', async () => {
     const h0 = new Ordu()
 
-    h0.add((spec)=>({
+    h0.add((spec) => ({
       op: 'merge',
       out: {
-        y: spec.data.x*10,
+        y: spec.data.x * 10,
       },
     }))
 
-    let o0 = await h0.exec({},{x:11})
-    expect(o0.data).equals({x:11, y:110})
+    let o0 = await h0.exec({}, { x: 11 })
+    expect(o0.data).equals({ x: 11, y: 110 })
 
-    let o1 = await h0.exec({},{x:22})
-    expect(o1.data).equals({x:22, y:220})
+    let o1 = await h0.exec({}, { x: 22 })
+    expect(o1.data).equals({ x: 22, y: 220 })
 
-
-    h0.add((spec)=>({
+    h0.add((spec) => ({
       op: 'merge',
       out: {
-        z: spec.data.y/100,
+        z: spec.data.y / 100,
       },
     }))
 
-    let o2 = await h0.exec({},{x:33})
-    expect(o2.data).equals({x:33, y:330, z:3.3})
+    let o2 = await h0.exec({}, { x: 33 })
+    expect(o2.data).equals({ x: 33, y: 330, z: 3.3 })
 
     // let o3 = h0.execSync({},{x:33})
     // expect(o3.data).equals({x:33, y:330, z:3.3})
-
   })
-  
+
   it('basic', async () => {
     const h0 = new Ordu()
     const taskresult_log = []
@@ -176,7 +174,7 @@ describe('ordu', function () {
 
     let ts = 1
     let tI = ts
-    
+
     expect(
       Object.keys(h0.task).map(
         (tn) => tn + '~' + ('function' === typeof h0.task[tn].exec)
@@ -266,7 +264,7 @@ describe('ordu', function () {
       'lookup',
       'does_nothing',
     ])
-    
+
     tI = ts
     expect(h0.tasks().map((t) => t.name)).equals([
       'A',
@@ -448,7 +446,6 @@ describe('ordu', function () {
     //console.log(names(h0))
   })
 
-  
   it('errors', async () => {
     const h0 = new Ordu()
 
