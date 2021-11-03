@@ -1,4 +1,4 @@
-/* Copyright (c) 2016-2020 Richard Rodger, MIT License */
+/* Copyright (c) 2016-2021 Richard Rodger, MIT License */
 'use strict'
 
 var { Ordu } = require('..')
@@ -19,6 +19,35 @@ describe('ordu', function () {
   })
 
   it('happy', async () => {
+    var h0 = new Ordu()
+
+    h0.add((spec)=>({
+      op: 'merge',
+      out: {
+        y: spec.data.x*10,
+      },
+    }))
+
+    let o0 = await h0.exec({},{x:11})
+    expect(o0.data).equals({x:11, y:110})
+
+    let o1 = await h0.exec({},{x:22})
+    expect(o1.data).equals({x:22, y:220})
+
+
+    h0.add((spec)=>({
+      op: 'merge',
+      out: {
+        z: spec.data.y/100,
+      },
+    }))
+
+    let o2 = await h0.exec({},{x:33})
+    expect(o2.data).equals({x:33, y:330, z:3.3})
+    
+  })
+  
+  it('basic', async () => {
     var h0 = new Ordu()
     var taskresult_log = []
     var taskend_log = []
@@ -283,7 +312,8 @@ describe('ordu', function () {
       )
     }
 
-    async function zed() {
+    // async function zed() {
+    function zed() {
       return new Promise((r) =>
         setTimeout(() => r({ op: 'merge', out: { zed: 1 } }), 10)
       )
@@ -412,6 +442,7 @@ describe('ordu', function () {
     //console.log(names(h0))
   })
 
+  
   it('errors', async () => {
     var h0 = new Ordu()
 

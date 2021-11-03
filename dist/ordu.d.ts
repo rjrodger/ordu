@@ -1,7 +1,8 @@
 /// <reference types="node" />
 import { EventEmitter } from 'events';
 import StrictEventEmitter from 'strict-event-emitter-types';
-export { Ordu, TaskDef, TaskSpec, LegacyOrdu };
+export type { TaskDef, TaskSpec };
+export { Ordu, LegacyOrdu };
 interface Events {
     'task-result': TaskResult;
     'task-end': {

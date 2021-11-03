@@ -1,4 +1,4 @@
-/* Copyright (c) 2016-2020 Richard Rodger and other contributors, MIT License */
+/* Copyright (c) 2016-2021 Richard Rodger and other contributors, MIT License */
 /* $lab:coverage:off$ */
 'use strict'
 /* $lab:coverage:on$ */
@@ -10,7 +10,9 @@ import * as Hoek from '@hapi/hoek'
 import Nua from 'nua'
 import StrictEventEmitter from 'strict-event-emitter-types'
 
-export { Ordu, TaskDef, TaskSpec, LegacyOrdu }
+export type { TaskDef, TaskSpec }
+
+export { Ordu, LegacyOrdu }
 
 interface Events {
   'task-result': TaskResult
@@ -81,7 +83,7 @@ class Task {
     this.name = taskdef.name || 'task' + Task.count++
     this.before = taskdef.before
     this.after = taskdef.after
-    this.exec = taskdef.exec || ((_: TaskSpec) => {})
+    this.exec = taskdef.exec || ((_: TaskSpec) => { })
     this.if = taskdef.if || void 0
     this.active = null == taskdef.active ? true : taskdef.active
     this.meta = Object.assign(taskdef.meta || {}, {
@@ -151,7 +153,7 @@ type ExecResult = {
 
 type Operator = (r: TaskResult, ctx: any, data: object) => Operate
 
-class Ordu extends (EventEmitter as { new (): OrduEmitter }) implements OrduIF {
+class Ordu extends (EventEmitter as { new(): OrduEmitter }) implements OrduIF {
   private _opts: any
 
   private _tasks: Task[]
@@ -252,7 +254,7 @@ class Ordu extends (EventEmitter as { new (): OrduEmitter }) implements OrduIF {
       data: data || {},
     }
 
-    let operate: Operate | Promise<Operate> = {
+    let operate: Operate = {
       stop: false,
       err: void 0,
       async: false,
@@ -289,11 +291,12 @@ class Ordu extends (EventEmitter as { new (): OrduEmitter }) implements OrduIF {
       this.emit('task-result', result)
 
       try {
-        operate = this._operate(result, spec.ctx, spec.data)
-        if (operate instanceof Promise) {
-          operate = (await operate) as Operate
+        let opres = this._operate(result, spec.ctx, spec.data)
+        if (opres instanceof Promise) {
+          operate = (await opres) as Operate
           operate.async = true
         } else {
+          operate = opres as Operate
           operate.async = false
         }
 
@@ -301,7 +304,7 @@ class Ordu extends (EventEmitter as { new (): OrduEmitter }) implements OrduIF {
       } catch (operate_ex) {
         operate = {
           stop: true,
-          err: operate_ex,
+          err: (operate_ex as Error),
           async: false,
         }
       }
@@ -370,7 +373,7 @@ class Ordu extends (EventEmitter as { new (): OrduEmitter }) implements OrduIF {
   private _task_if(task: Task, data: object): boolean {
     if (task.if) {
       let task_if: { [k: string]: any } = task.if
-      return Object.keys(task_if).reduce((proceed, k) => {
+      return Object.keys(task_if).reduce((proceed: boolean, k: string) => {
         let part: any = Hoek.reach(data, k)
 
         return (
@@ -389,9 +392,9 @@ function make_callpoint(err: Error) {
   return null == err
     ? []
     : (err.stack || '')
-        .split(/\n/)
-        .slice(4)
-        .map((line) => line.substring(4))
+      .split(/\n/)
+      .slice(4)
+      .map((line) => line.substring(4))
 }
 /* $lab:coverage:on$ */
 
@@ -473,13 +476,13 @@ function LegacyOrdu(opts?: any): any {
   }
 
   function api_tasknames() {
-    return tasks.map(function (v) {
+    return tasks.map(function(v) {
       return v.name
     })
   }
 
   function api_taskdetails() {
-    return tasks.map(function (v) {
+    return tasks.map(function(v) {
       return v.name + ':{tags:' + v.tags + '}'
     })
   }
