@@ -134,6 +134,9 @@ class Ordu extends events_1.EventEmitter {
         this._tasks.splice(tI, 0, t);
         this.task[t.name] = t;
     }
+    execSync(ctx, data, opts) {
+        return this.exec(ctx, data, opts);
+    }
     // TODO: execSync version when promises not needed
     async exec(ctx, data, opts) {
         opts = null == opts ? {} : opts;

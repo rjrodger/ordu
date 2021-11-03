@@ -39,6 +39,8 @@ interface OrduIF {
   operator(opr: Operator): void
 
   operators(): object
+
+  execSync(this: Ordu, ctx: any, data: any, opts: any): ExecResult
   exec(ctx: any, data: any, opts: any): Promise<ExecResult>
 }
 
@@ -240,6 +242,10 @@ class Ordu extends (EventEmitter as { new(): OrduEmitter }) implements OrduIF {
     this._tasks.splice(tI, 0, t)
 
     this.task[t.name] = t
+  }
+
+  execSync(this: Ordu, ctx: any, data: any, opts: any): ExecResult {
+    return (this.exec(ctx, data, opts) as unknown as ExecResult)
   }
 
   // TODO: execSync version when promises not needed

@@ -25,6 +25,7 @@ interface OrduIF {
     operator(name: string, opr: Operator): void;
     operator(opr: Operator): void;
     operators(): object;
+    execSync(this: Ordu, ctx: any, data: any, opts: any): ExecResult;
     exec(ctx: any, data: any, opts: any): Promise<ExecResult>;
 }
 interface TaskDef {
@@ -110,6 +111,7 @@ declare class Ordu extends Ordu_base implements OrduIF {
     };
     add(first: any, second?: any): Ordu;
     private _add_task;
+    execSync(this: Ordu, ctx: any, data: any, opts: any): ExecResult;
     exec(ctx: any, data: any, opts: any): Promise<ExecResult>;
     tasks(): Task[];
     private _operate;

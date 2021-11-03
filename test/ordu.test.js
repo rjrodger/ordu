@@ -1,25 +1,25 @@
 /* Copyright (c) 2016-2021 Richard Rodger, MIT License */
 'use strict'
 
-var { Ordu } = require('..')
+const { Ordu } = require('..')
 
-var Lab = require('@hapi/lab')
+let Lab = require('@hapi/lab')
 Lab = null != Lab.script ? Lab : require('hapi-lab-shim')
 
-var Code = require('@hapi/code')
-var lab = (exports.lab = Lab.script())
-var describe = lab.describe
-var it = lab.it
-var expect = Code.expect
+const Code = require('@hapi/code')
+const lab = (exports.lab = Lab.script())
+const describe = lab.describe
+const it = lab.it
+const expect = Code.expect
 
 describe('ordu', function () {
   it('sanity', async () => {
-    var h0 = new Ordu()
+    const h0 = new Ordu()
     expect(h0).exists()
   })
 
   it('happy', async () => {
-    var h0 = new Ordu()
+    const h0 = new Ordu()
 
     h0.add((spec)=>({
       op: 'merge',
@@ -44,13 +44,16 @@ describe('ordu', function () {
 
     let o2 = await h0.exec({},{x:33})
     expect(o2.data).equals({x:33, y:330, z:3.3})
-    
+
+    // let o3 = h0.execSync({},{x:33})
+    // expect(o3.data).equals({x:33, y:330, z:3.3})
+
   })
   
   it('basic', async () => {
-    var h0 = new Ordu()
-    var taskresult_log = []
-    var taskend_log = []
+    const h0 = new Ordu()
+    const taskresult_log = []
+    const taskend_log = []
 
     h0.on('task-result', (tr) => {
       taskresult_log.push(tr)
@@ -171,6 +174,9 @@ describe('ordu', function () {
 
     h0.add(() => {})
 
+    let ts = 1
+    let tI = ts
+    
     expect(
       Object.keys(h0.task).map(
         (tn) => tn + '~' + ('function' === typeof h0.task[tn].exec)
@@ -178,16 +184,16 @@ describe('ordu', function () {
     ).equal([
       'A~true',
       'B~true',
-      'task0~true',
-      'task1~true',
-      'task2~true',
+      `task${++tI}~true`,
+      `task${++tI}~true`,
+      `task${++tI}~true`,
       'a~true',
       'b~true',
       'c~true',
-      'task3~true',
-      'task4~true',
-      'task5~true',
-      'task6~true',
+      `task${++tI}~true`,
+      `task${++tI}~true`,
+      `task${++tI}~true`,
+      `task${++tI}~true`,
     ])
 
     h0.operator('lookup', async (tr, ctx, data) => {
@@ -205,42 +211,41 @@ describe('ordu', function () {
       return { stop: false }
     })
 
-    //console.log(h0.tasks())
     expect(h0.tasks().length).equal(12)
 
-    var out = await h0.exec()
+    let out = await h0.exec()
     expect(out.data).equal({ x: 4, y: { id: '001' }, qq: 2, last: 99 })
     expect(out.task_count).equal(8)
     expect(out.task_total).equal(12)
-    //console.log(out.end-out.start)
 
-    //console.dir(taskresult_log, {depth:null})
-    //console.dir(taskend_log, {depth:null})
+    tI = ts
     expect(taskresult_log.map((te) => te.name + '~' + te.op)).equal([
       'A~next',
       'B~skip',
-      'task0~next',
-      'task1~merge',
-      'task2~skip',
+      `task${++tI}~next`,
+      `task${++tI}~merge`,
+      `task${++tI}~skip`,
       'a~merge',
       'b~merge',
       'c~lookup',
-      'task3~merge',
-      'task4~stop',
+      `task${++tI}~merge`,
+      `task${++tI}~stop`,
     ])
+
+    tI = ts
     expect(
       taskend_log.map((te) => te.name + '~' + te.op + '~' + te.operate.stop)
     ).equal([
       'A~next~false',
       'B~skip~false',
-      'task0~next~false',
-      'task1~merge~false',
-      'task2~skip~false',
+      `task${++tI}~next~false`,
+      `task${++tI}~merge~false`,
+      `task${++tI}~skip~false`,
       'a~merge~false',
       'b~merge~false',
       'c~lookup~false',
-      'task3~merge~false',
-      'task4~stop~true',
+      `task${++tI}~merge~false`,
+      `task${++tI}~stop~true`,
     ])
 
     out = await h0.exec({}, { z: 1, y: null })
@@ -252,7 +257,7 @@ describe('ordu', function () {
     //console.log(out)
     expect(out.err.message).equal('err0')
 
-    var operators = h0.operators()
+    let operators = h0.operators()
     expect(Object.keys(operators)).equal([
       'next',
       'skip',
@@ -261,20 +266,21 @@ describe('ordu', function () {
       'lookup',
       'does_nothing',
     ])
-
+    
+    tI = ts
     expect(h0.tasks().map((t) => t.name)).equals([
       'A',
       'B',
-      'task0',
-      'task1',
-      'task2',
+      `task${++tI}`,
+      `task${++tI}`,
+      `task${++tI}`,
       'a',
       'b',
       'c',
-      'task3',
-      'task4',
-      'task5',
-      'task6',
+      `task${++tI}`,
+      `task${++tI}`,
+      `task${++tI}`,
+      `task${++tI}`,
     ])
 
     out = await h0.exec({ err1: true }, null, { runid: 'foo' })
@@ -290,9 +296,9 @@ describe('ordu', function () {
   })
 
   it('async', async () => {
-    var h0 = new Ordu({ debug: true })
-    var taskresult_log = []
-    var taskend_log = []
+    const h0 = new Ordu({ debug: true })
+    const taskresult_log = []
+    const taskend_log = []
 
     h0.on('task-result', (tr) => {
       taskresult_log.push(tr)
@@ -334,12 +340,12 @@ describe('ordu', function () {
     }
 
     function a_ext0() {
-      var ext0p = ext0('a')
+      const ext0p = ext0('a')
       return { op: 'merge', out: { ext0p: ext0p } }
     }
 
     async function b_ext0(spec) {
-      var ext0r = await spec.data.ext0p
+      const ext0r = await spec.data.ext0p
       return { op: 'merge', out: { ext0r: ext0r } }
     }
 
@@ -361,7 +367,7 @@ describe('ordu', function () {
     h0.add(b_ext0)
     h0.add(a_ext1)
 
-    var out = await h0.exec()
+    let out = await h0.exec()
     //console.dir(out,{depth:null})
     expect(out.err).not.exists()
 
@@ -381,8 +387,8 @@ describe('ordu', function () {
   })
 
   it('insert-order', async () => {
-    var h0 = new Ordu()
-    var names = (h0) =>
+    const h0 = new Ordu()
+    const names = (h0) =>
       h0
         .tasks()
         .map((t) => t.name)
@@ -444,7 +450,7 @@ describe('ordu', function () {
 
   
   it('errors', async () => {
-    var h0 = new Ordu()
+    const h0 = new Ordu()
 
     h0.add(function a() {
       return {
@@ -452,10 +458,10 @@ describe('ordu', function () {
       }
     })
 
-    var out = await h0.exec()
+    let out = await h0.exec()
     expect(out.err.message).equals('a-err')
 
-    var cbout
+    let cbout
     await h0.exec(
       {},
       {},
@@ -473,16 +479,16 @@ describe('ordu', function () {
       })
     )
 
-    var h1 = new Ordu()
+    const h1 = new Ordu()
 
     h1.add(function a() {
       throw new Error('a-terr')
     })
 
-    var h1out = await h1.exec()
+    let h1out = await h1.exec()
     expect(h1out.err.message).equals('a-terr')
 
-    var h1cbout
+    let h1cbout
     await h1.exec(
       {},
       {},
