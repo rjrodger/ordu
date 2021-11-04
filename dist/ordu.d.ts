@@ -2,7 +2,7 @@
 import { EventEmitter } from 'events';
 import StrictEventEmitter from 'strict-event-emitter-types';
 export type { TaskDef, TaskSpec };
-export { Ordu, LegacyOrdu };
+export { Ordu, Task, LegacyOrdu };
 interface Events {
     'task-result': TaskResult;
     'task-end': {
@@ -113,6 +113,7 @@ declare class Ordu extends Ordu_base implements OrduIF {
     private _add_task;
     execSync(this: Ordu, ctx: any, data: any, opts: any): ExecResult;
     exec(ctx: any, data: any, opts: any): Promise<ExecResult>;
+    _execImpl(this: Ordu, ctx: any, data: any, opts: any, resolve?: (execres: ExecResult) => void): ExecResult | Promise<ExecResult>;
     tasks(): Task[];
     private _operate;
     private _task_if;

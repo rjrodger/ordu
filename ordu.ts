@@ -12,7 +12,8 @@ import StrictEventEmitter from 'strict-event-emitter-types'
 
 export type { TaskDef, TaskSpec }
 
-export { Ordu, LegacyOrdu }
+export { Ordu, Task, LegacyOrdu }
+
 
 interface Events {
   'task-result': TaskResult
@@ -85,12 +86,12 @@ class Task {
     this.name = taskdef.name || 'task' + Task.count++
     this.before = taskdef.before
     this.after = taskdef.after
-    this.exec = taskdef.exec || ((_: TaskSpec) => {})
+    this.exec = taskdef.exec || ((_: TaskSpec) => { })
     this.if = taskdef.if || void 0
     this.active = null == taskdef.active ? true : taskdef.active
     this.meta = Object.assign(taskdef.meta || {}, {
       when: Date.now(),
-      from: taskdef.from || { callpoint: make_callpoint(new Error()) },
+      from: taskdef.from // || {callpoint: make_callpoint(new Error())}
     })
   }
 }
@@ -155,7 +156,7 @@ type ExecResult = {
 
 type Operator = (r: TaskResult, ctx: any, data: object) => Operate
 
-class Ordu extends (EventEmitter as { new (): OrduEmitter }) implements OrduIF {
+class Ordu extends (EventEmitter as { new(): OrduEmitter }) implements OrduIF {
   private _opts: any
 
   private _tasks: Task[]
@@ -205,28 +206,40 @@ class Ordu extends (EventEmitter as { new (): OrduEmitter }) implements OrduIF {
   }
 
   add(first: any, second?: any): Ordu {
+    let callpoint: string[] | undefined
+    if (this._opts.debug) {
+      callpoint = make_callpoint(new Error())
+    }
+
     if ('function' == typeof first) {
       second = second || {}
       let t = second
       t.exec = first
       t.name = first.name ? first.name : t.name
-      this._add_task(t)
+      this._add_task(t, callpoint)
+
     } else if (Array.isArray(first)) {
       for (var i = 0; i < first.length; i++) {
         let entry: TaskDef = first[i]
         if ('function' === typeof first[i]) {
           entry = { name: (first[i] as TaskExec).name, exec: first[i] }
         }
-        this._add_task(entry)
+        this._add_task(entry, callpoint)
       }
+
     } else {
-      this._add_task(first)
+      this._add_task(first, callpoint)
     }
 
     return this
   }
 
-  private _add_task(td: TaskDef): void {
+
+  private _add_task(td: TaskDef, callpoint: string[] | undefined): void {
+    if (callpoint) {
+      td.from = Object.assign(td.from || {}, { callpoint$: callpoint })
+    }
+
     let t = new Task(td)
 
     let tI = 0
@@ -245,45 +258,72 @@ class Ordu extends (EventEmitter as { new (): OrduEmitter }) implements OrduIF {
   }
 
   execSync(this: Ordu, ctx: any, data: any, opts: any): ExecResult {
-    return this.exec(ctx, data, opts) as unknown as ExecResult
+    return this._execImpl(ctx, data, opts) as unknown as ExecResult
   }
 
-  // TODO: execSync version when promises not needed
   async exec(ctx: any, data: any, opts: any): Promise<ExecResult> {
+    return new Promise((resolve) => {
+      this._execImpl(ctx, data, opts, resolve)
+    })
+  }
+
+
+  _execImpl(
+    this: Ordu,
+    ctx: any,
+    data: any,
+    opts: any,
+    resolve?: (execres: ExecResult) => void
+  ): ExecResult | Promise<ExecResult> {
+    const self = this
+
     opts = null == opts ? {} : opts
     let runid = opts.runid || (Math.random() + '').substring(2)
     let start = Date.now()
-    let tasks: Task[] = [...this._tasks]
+    let tasks: Task[] = [...self._tasks]
 
     let spec = {
       ctx: ctx || {},
       data: data || {},
     }
 
-    let operate: Operate = {
-      stop: false,
-      err: void 0,
-      async: false,
-    }
     let tasklog: any[] = []
 
     let task_count = 0
-    let taskI = 0
-    for (; taskI < tasks.length; taskI++) {
-      //console.log('TASK', taskI, tasks.length)
+
+    let last_taskI = 0
+    let last_operate: any = undefined
+
+    return (next(0) as ExecResult)
+
+
+    function next(taskI: number): ExecResult | void {
+      if (taskI >= tasks.length) {
+        let execres = finish()
+        return resolve ? resolve(execres) : execres
+      }
+      last_taskI = taskI
 
       let task = tasks[taskI]
-      let taskout = null
+      let execres: any
+      let taskout: any
       let result = new TaskResult(task, taskI, tasks.length, runid)
 
-      if (task.active && this._task_if(task, spec.data)) {
+      if (task.active && self._task_if(task, spec.data)) {
         try {
           task_count++
           let taskspec = Object.assign({ task: task }, spec)
-          taskout = task.exec(taskspec)
-          if (taskout instanceof Promise) {
+          execres = task.exec(taskspec)
+
+          if (execres instanceof Promise) {
             result.async = true
-            taskout = await taskout
+            execres
+              .then(out => taskout = out)
+              .catch(err => taskout = err)
+              .finally(() => handle_result(taskI, task, taskout, result))
+          }
+          else {
+            taskout = execres
           }
         } catch (task_ex) {
           taskout = task_ex
@@ -292,28 +332,74 @@ class Ordu extends (EventEmitter as { new (): OrduEmitter }) implements OrduIF {
         taskout = { op: 'skip' }
       }
 
+      if (!result.async) {
+        return handle_result(taskI, task, taskout, result)
+      }
+    }
+
+
+    function handle_result(
+      taskI: number,
+      task: Task,
+      taskout: any,
+      result: TaskResult
+    ): ExecResult | void {
       result.end = Date.now()
       result.update(taskout)
-      this.emit('task-result', result)
+      self.emit('task-result', result)
+
+      let operate: Operate = {
+        stop: false,
+        err: undefined,
+        async: false,
+      }
 
       try {
-        let opres = this._operate(result, spec.ctx, spec.data)
+        let opres = self._operate(result, spec.ctx, spec.data)
         if (opres instanceof Promise) {
-          operate = (await opres) as Operate
+          // console.log('OR', opres)
           operate.async = true
+          opres
+            .then(out => {
+              // console.log('ORd', out)
+              Object.assign(operate, out)
+            })
+            .catch(err => {
+              // console.log('ORe', err)
+              operate.stop = true
+              operate.err = err
+            })
+            .finally(() => {
+              // console.log('ORf')
+              handle_operate(taskI, task, result, operate)
+            })
         } else {
           operate = opres as Operate
           operate.async = false
-        }
 
-        operate.err = operate.err || void 0
-      } catch (operate_ex) {
-        operate = {
-          stop: true,
-          err: operate_ex as Error,
-          async: false,
         }
+      } catch (operate_ex) {
+        operate.stop = true
+        operate.err = operate_ex as Error
       }
+
+      if (!operate.async) {
+        return handle_operate(taskI, task, result, operate)
+      }
+    }
+
+
+    function handle_operate(
+      taskI: number,
+      task: Task,
+      result: TaskResult,
+      operate: Operate
+    ): ExecResult | void {
+      // console.log('NEXT', taskI, ((new Error() as any).stack.split(/\n/) || [])[2])
+
+      // console.log('HA', taskI, task.name, operate, ((new Error() as any).stack.split(/\n/) || [])[2])
+
+      last_operate = operate
 
       // TODO: fix debug double work
       let entry = {
@@ -322,33 +408,147 @@ class Ordu extends (EventEmitter as { new (): OrduEmitter }) implements OrduIF {
         task,
         result,
         operate,
-        data: this._opts.debug ? JSON.parse(JSON.stringify(spec.data)) : void 0,
+        data: self._opts.debug ? JSON.parse(JSON.stringify(spec.data)) : void 0,
       }
       tasklog.push(entry)
-      this.emit('task-end', entry)
+      self.emit('task-end', entry)
 
-      if (operate.stop) {
-        break
+      if (!operate.stop) {
+        ++taskI
       }
+      else {
+        taskI = tasks.length
+      }
+
+      return next(taskI)
     }
 
-    let execres: ExecResult = {
-      tasklog: tasklog,
-      task: operate.err ? tasks[taskI] : void 0,
-      task_count: task_count,
-      task_total: tasks.length,
-      start: start,
-      end: Date.now(),
-      err: operate.err,
-      data: spec.data,
-    }
 
-    if (opts.done) {
-      opts.done(execres)
-    }
+    function finish(): ExecResult {
+      // console.log('FINISH', last_operate)
+      let err = last_operate ? last_operate.err : null
 
-    return execres
+      let execres: ExecResult = {
+        tasklog: tasklog,
+        task: err ? tasks[last_taskI] : void 0,
+        task_count: task_count,
+        task_total: tasks.length,
+        start: start,
+        end: Date.now(),
+        err: err,
+        data: spec.data,
+      }
+
+      if (opts.done) {
+        opts.done(execres)
+      }
+
+      return execres
+    }
   }
+
+
+  // // TODO: execSync version when promises not needed
+  // async exec(ctx: any, data: any, opts: any): Promise<ExecResult> {
+  //   opts = null == opts ? {} : opts
+  //   let runid = opts.runid || (Math.random() + '').substring(2)
+  //   let start = Date.now()
+  //   let tasks: Task[] = [...this._tasks]
+
+  //   let spec = {
+  //     ctx: ctx || {},
+  //     data: data || {},
+  //   }
+
+  //   let operate: Operate = {
+  //     stop: false,
+  //     err: void 0,
+  //     async: false,
+  //   }
+  //   let tasklog: any[] = []
+
+  //   let task_count = 0
+  //   let taskI = 0
+  //   for (; taskI < tasks.length; taskI++) {
+  //     //console.log('TASK', taskI, tasks.length)
+
+  //     let task = tasks[taskI]
+  //     let taskout = null
+  //     let result = new TaskResult(task, taskI, tasks.length, runid)
+
+  //     if (task.active && this._task_if(task, spec.data)) {
+  //       try {
+  //         task_count++
+  //         let taskspec = Object.assign({ task: task }, spec)
+  //         taskout = task.exec(taskspec)
+  //         if (taskout instanceof Promise) {
+  //           result.async = true
+  //           taskout = await taskout
+  //         }
+  //       } catch (task_ex) {
+  //         taskout = task_ex
+  //       }
+  //     } else {
+  //       taskout = { op: 'skip' }
+  //     }
+
+  //     result.end = Date.now()
+  //     result.update(taskout)
+  //     this.emit('task-result', result)
+
+  //     try {
+  //       let opres = this._operate(result, spec.ctx, spec.data)
+  //       if (opres instanceof Promise) {
+  //         operate = (await opres) as Operate
+  //         operate.async = true
+  //       } else {
+  //         operate = opres as Operate
+  //         operate.async = false
+  //       }
+
+  //       operate.err = operate.err || void 0
+  //     } catch (operate_ex) {
+  //       operate = {
+  //         stop: true,
+  //         err: operate_ex as Error,
+  //         async: false,
+  //       }
+  //     }
+
+  //     // TODO: fix debug double work
+  //     let entry = {
+  //       name: task.name,
+  //       op: result.op,
+  //       task,
+  //       result,
+  //       operate,
+  //       data: this._opts.debug ? JSON.parse(JSON.stringify(spec.data)) : void 0,
+  //     }
+  //     tasklog.push(entry)
+  //     this.emit('task-end', entry)
+
+  //     if (operate.stop) {
+  //       break
+  //     }
+  //   }
+
+  //   let execres: ExecResult = {
+  //     tasklog: tasklog,
+  //     task: operate.err ? tasks[taskI] : void 0,
+  //     task_count: task_count,
+  //     task_total: tasks.length,
+  //     start: start,
+  //     end: Date.now(),
+  //     err: operate.err,
+  //     data: spec.data,
+  //   }
+
+  //   if (opts.done) {
+  //     opts.done(execres)
+  //   }
+
+  //   return execres
+  // }
 
   tasks() {
     return [...this._tasks]
@@ -398,9 +598,9 @@ function make_callpoint(err: Error) {
   return null == err
     ? []
     : (err.stack || '')
-        .split(/\n/)
-        .slice(4)
-        .map((line) => line.substring(4))
+      .split(/\n/)
+      .slice(4)
+      .map((line) => line.substring(4))
 }
 /* $lab:coverage:on$ */
 
@@ -482,13 +682,13 @@ function LegacyOrdu(opts?: any): any {
   }
 
   function api_tasknames() {
-    return tasks.map(function (v) {
+    return tasks.map(function(v) {
       return v.name
     })
   }
 
   function api_taskdetails() {
-    return tasks.map(function (v) {
+    return tasks.map(function(v) {
       return v.name + ':{tags:' + v.tags + '}'
     })
   }

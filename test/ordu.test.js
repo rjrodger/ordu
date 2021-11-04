@@ -1,7 +1,7 @@
 /* Copyright (c) 2016-2021 Richard Rodger, MIT License */
 'use strict'
 
-const { Ordu } = require('..')
+const { Ordu, Task } = require('..')
 
 let Lab = require('@hapi/lab')
 Lab = null != Lab.script ? Lab : require('hapi-lab-shim')
@@ -17,6 +17,7 @@ describe('ordu', function () {
     const h0 = new Ordu()
     expect(h0).exists()
   })
+
 
   it('happy', async () => {
     const h0 = new Ordu()
@@ -48,7 +49,10 @@ describe('ordu', function () {
     // expect(o3.data).equals({x:33, y:330, z:3.3})
   })
 
+  
   it('basic', async () => {
+    let ts = Task.count-1
+    
     const h0 = new Ordu()
     const taskresult_log = []
     const taskend_log = []
@@ -172,7 +176,7 @@ describe('ordu', function () {
 
     h0.add(() => {})
 
-    let ts = 1
+
     let tI = ts
 
     expect(
@@ -199,6 +203,7 @@ describe('ordu', function () {
 
       return new Promise((r) => {
         setTimeout(() => {
+          // console.log('QQQ')
           data.y = tr.out
           r({ stop: false })
         }, 10)
@@ -212,10 +217,14 @@ describe('ordu', function () {
     expect(h0.tasks().length).equal(12)
 
     let out = await h0.exec()
+    // console.log('OUT', out)
+    // console.dir(out,{depth:null})
+    
     expect(out.data).equal({ x: 4, y: { id: '001' }, qq: 2, last: 99 })
     expect(out.task_count).equal(8)
     expect(out.task_total).equal(12)
 
+    
     tI = ts
     expect(taskresult_log.map((te) => te.name + '~' + te.op)).equal([
       'A~next',
@@ -252,7 +261,7 @@ describe('ordu', function () {
     expect(out.task_total).equal(12)
 
     out = await h0.exec({ err0: true }, { z: 2 })
-    //console.log(out)
+    // console.log(out)
     expect(out.err.message).equal('err0')
 
     let operators = h0.operators()
@@ -282,7 +291,7 @@ describe('ordu', function () {
     ])
 
     out = await h0.exec({ err1: true }, null, { runid: 'foo' })
-    //console.log(out)
+    // console.log(out)
     expect(out.err.message).equal('err1')
 
     out = await h0.exec({ err2: true }, void 0, {
@@ -503,4 +512,23 @@ describe('ordu', function () {
       })
     )
   })
+
+
+  it('direct', async () => {
+    const h0 = new Ordu()
+
+    h0.add((spec) => {
+      spec.data.foo.x = 1
+    })
+
+    h0.add((spec) => {
+      spec.data.foo.y = 2
+    })
+
+    let foo = {z:0}
+    let o0 = h0.execSync({}, { foo })
+    expect(foo).equals({ z:0,x:1,y:2 })
+    expect(o0.data.foo).equals({ z:0,x:1,y:2 })
+  })
+
 })
