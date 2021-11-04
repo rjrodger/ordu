@@ -18,7 +18,6 @@ describe('ordu', function () {
     expect(h0).exists()
   })
 
-
   it('happy', async () => {
     const h0 = new Ordu()
 
@@ -49,10 +48,9 @@ describe('ordu', function () {
     // expect(o3.data).equals({x:33, y:330, z:3.3})
   })
 
-  
   it('basic', async () => {
-    let ts = Task.count-1
-    
+    let ts = Task.count - 1
+
     const h0 = new Ordu()
     const taskresult_log = []
     const taskend_log = []
@@ -67,7 +65,7 @@ describe('ordu', function () {
 
     h0.add({
       name: 'A',
-      from: 'my-ref-01',
+      // from: 'my-ref-01',
       meta: {
         from: { foo: 1 },
       },
@@ -76,6 +74,7 @@ describe('ordu', function () {
     h0.add({
       name: 'B',
       active: false,
+      meta: null,
     })
 
     h0.add({
@@ -176,7 +175,6 @@ describe('ordu', function () {
 
     h0.add(() => {})
 
-
     let tI = ts
 
     expect(
@@ -203,7 +201,6 @@ describe('ordu', function () {
 
       return new Promise((r) => {
         setTimeout(() => {
-          // console.log('QQQ')
           data.y = tr.out
           r({ stop: false })
         }, 10)
@@ -217,14 +214,10 @@ describe('ordu', function () {
     expect(h0.tasks().length).equal(12)
 
     let out = await h0.exec()
-    // console.log('OUT', out)
-    // console.dir(out,{depth:null})
-    
     expect(out.data).equal({ x: 4, y: { id: '001' }, qq: 2, last: 99 })
-    expect(out.task_count).equal(8)
-    expect(out.task_total).equal(12)
+    expect(out.taskcount).equal(8)
+    expect(out.tasktotal).equal(12)
 
-    
     tI = ts
     expect(taskresult_log.map((te) => te.name + '~' + te.op)).equal([
       'A~next',
@@ -257,11 +250,10 @@ describe('ordu', function () {
 
     out = await h0.exec({}, { z: 1, y: null })
     expect(out.data).equal({ z: 1, x: 4, y: { id: '001' }, qq: 2, last: 99 })
-    expect(out.task_count).equal(8)
-    expect(out.task_total).equal(12)
+    expect(out.taskcount).equal(8)
+    expect(out.tasktotal).equal(12)
 
     out = await h0.exec({ err0: true }, { z: 2 })
-    // console.log(out)
     expect(out.err.message).equal('err0')
 
     let operators = h0.operators()
@@ -291,7 +283,6 @@ describe('ordu', function () {
     ])
 
     out = await h0.exec({ err1: true }, null, { runid: 'foo' })
-    // console.log(out)
     expect(out.err.message).equal('err1')
 
     out = await h0.exec({ err2: true }, void 0, {
@@ -368,14 +359,13 @@ describe('ordu', function () {
       })
     }
 
-    h0.add({ name: 'foo', exec: foo })
-    h0.add([bar, zed, { name: 'qaz', exec: qaz }])
+    h0.add({ name: 'foo', exec: foo, meta: {} })
+    h0.add([bar, zed, { name: 'qaz', exec: qaz, meta: { from: 'second' } }])
     h0.add(a_ext0)
     h0.add(b_ext0)
     h0.add(a_ext1)
 
     let out = await h0.exec()
-    //console.dir(out,{depth:null})
     expect(out.err).not.exists()
 
     expect(out.data).includes({
@@ -388,9 +378,6 @@ describe('ordu', function () {
     })
 
     expect(out.data.ext0p).exists()
-
-    //console.dir(taskresult_log, {depth:null})
-    //console.dir(taskend_log, {depth:null})
   })
 
   it('insert-order', async () => {
@@ -451,8 +438,6 @@ describe('ordu', function () {
 
     h0.add(function AA0() {}, { before: 'A' })
     expect(names(h0)).equal('AA0 A A1 A0 a a1 a0 B B0 b b1 b0 C C0 c c1 c0')
-
-    //console.log(names(h0))
   })
 
   it('errors', async () => {
@@ -513,7 +498,6 @@ describe('ordu', function () {
     )
   })
 
-
   it('direct', async () => {
     const h0 = new Ordu()
 
@@ -525,10 +509,69 @@ describe('ordu', function () {
       spec.data.foo.y = 2
     })
 
-    let foo = {z:0}
+    let foo = { z: 0 }
     let o0 = h0.execSync({}, { foo })
-    expect(foo).equals({ z:0,x:1,y:2 })
-    expect(o0.data.foo).equals({ z:0,x:1,y:2 })
+    expect(foo).equals({ z: 0, x: 1, y: 2 })
+    expect(o0.data.foo).equals({ z: 0, x: 1, y: 2 })
   })
 
+  it('edges', async () => {
+    const h0 = new Ordu()
+
+    let o0 = h0.execSync()
+    expect(o0.tasklog).equal([])
+    expect(o0.taskcount).equal(0)
+    expect(o0.tasktotal).equal(0)
+
+    let o1 = await h0.exec()
+    expect(o1.tasklog).equal([])
+    expect(o1.taskcount).equal(0)
+    expect(o1.tasktotal).equal(0)
+
+    h0.operator('foo', (tr, ctx, data) => {
+      throw new Error('foo')
+    })
+    h0.add(() => ({ op: 'foo' }))
+    let o2 = h0.execSync()
+    expect(o2.err.message).equals('foo')
+
+    const h1 = new Ordu()
+    h1.add(async () => {
+      throw new Error('bar')
+    })
+
+    let o3 = await h1.exec()
+    expect(o3.err.message).equals('bar')
+  })
+
+  it('readme', async () => {
+    let process = new Ordu()
+
+    process.add(function first(spec) {
+      if (null == spec.data.foo) {
+        return { op: 'stop', err: new Error('no foo') }
+      }
+
+      spec.data.foo = spec.data.foo.toUpperCase() + spec.ctx.suffix
+
+      // Default is to continue to next step.
+    })
+
+    const ctx = { suffix: '!!!' }
+    let data = { foo: 'green' }
+
+    process.execSync(ctx, data)
+    // DOC console.log(data.foo) // prints 'GREEN!!!' (first)
+    expect(data).equals({ foo: 'GREEN!!!' })
+
+    process.add(function second(spec) {
+      spec.data.foo = spec.ctx.prefix + spec.data.foo
+    })
+
+    ctx.prefix = '>>>'
+    data = { foo: 'blue' }
+    process.execSync(ctx, data)
+    // DOC console.log(data.foo) // prints '>>>BLUE!!!' (first, second)
+    expect(data).equals({ foo: '>>>BLUE!!!' })
+  })
 })

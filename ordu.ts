@@ -14,7 +14,6 @@ export type { TaskDef, TaskSpec }
 
 export { Ordu, Task, LegacyOrdu }
 
-
 interface Events {
   'task-result': TaskResult
   'task-end': { result: TaskResult; operate: Operate; data: any }
@@ -51,7 +50,7 @@ interface TaskDef {
   before?: string
   after?: string
   exec?: TaskExec
-  from?: object
+  // from?: object
   if?: { [k: string]: any }
   active?: boolean
   meta?: any
@@ -86,12 +85,12 @@ class Task {
     this.name = taskdef.name || 'task' + Task.count++
     this.before = taskdef.before
     this.after = taskdef.after
-    this.exec = taskdef.exec || ((_: TaskSpec) => { })
+    this.exec = taskdef.exec || ((_: TaskSpec) => {})
     this.if = taskdef.if || void 0
     this.active = null == taskdef.active ? true : taskdef.active
     this.meta = Object.assign(taskdef.meta || {}, {
       when: Date.now(),
-      from: taskdef.from // || {callpoint: make_callpoint(new Error())}
+      from: taskdef.meta?.from,
     })
   }
 }
@@ -101,7 +100,6 @@ class TaskResult {
   op: string
   out?: object
   err?: Error
-  //log: TaskLogEntry
   why?: string
   task: Task
   name: string
@@ -146,8 +144,8 @@ type Operate = {
 type ExecResult = {
   tasklog: any[]
   task?: Task
-  task_count: number
-  task_total: number
+  taskcount: number
+  tasktotal: number
   start: number
   end: number
   err?: Error
@@ -156,7 +154,7 @@ type ExecResult = {
 
 type Operator = (r: TaskResult, ctx: any, data: object) => Operate
 
-class Ordu extends (EventEmitter as { new(): OrduEmitter }) implements OrduIF {
+class Ordu extends (EventEmitter as { new (): OrduEmitter }) implements OrduIF {
   private _opts: any
 
   private _tasks: Task[]
@@ -217,7 +215,6 @@ class Ordu extends (EventEmitter as { new(): OrduEmitter }) implements OrduIF {
       t.exec = first
       t.name = first.name ? first.name : t.name
       this._add_task(t, callpoint)
-
     } else if (Array.isArray(first)) {
       for (var i = 0; i < first.length; i++) {
         let entry: TaskDef = first[i]
@@ -226,7 +223,6 @@ class Ordu extends (EventEmitter as { new(): OrduEmitter }) implements OrduIF {
         }
         this._add_task(entry, callpoint)
       }
-
     } else {
       this._add_task(first, callpoint)
     }
@@ -234,10 +230,12 @@ class Ordu extends (EventEmitter as { new(): OrduEmitter }) implements OrduIF {
     return this
   }
 
-
   private _add_task(td: TaskDef, callpoint: string[] | undefined): void {
     if (callpoint) {
-      td.from = Object.assign(td.from || {}, { callpoint$: callpoint })
+      td.meta = td.meta || {}
+      td.meta.from = Object.assign(td.meta.from || {}, {
+        callpoint$: callpoint,
+      })
     }
 
     let t = new Task(td)
@@ -267,7 +265,6 @@ class Ordu extends (EventEmitter as { new(): OrduEmitter }) implements OrduIF {
     })
   }
 
-
   _execImpl(
     this: Ordu,
     ctx: any,
@@ -289,13 +286,12 @@ class Ordu extends (EventEmitter as { new(): OrduEmitter }) implements OrduIF {
 
     let tasklog: any[] = []
 
-    let task_count = 0
+    let taskcount = 0
 
     let last_taskI = 0
     let last_operate: any = undefined
 
-    return (next(0) as ExecResult)
-
+    return next(0) as ExecResult
 
     function next(taskI: number): ExecResult | void {
       if (taskI >= tasks.length) {
@@ -311,18 +307,17 @@ class Ordu extends (EventEmitter as { new(): OrduEmitter }) implements OrduIF {
 
       if (task.active && self._task_if(task, spec.data)) {
         try {
-          task_count++
+          taskcount++
           let taskspec = Object.assign({ task: task }, spec)
           execres = task.exec(taskspec)
 
           if (execres instanceof Promise) {
             result.async = true
             execres
-              .then(out => taskout = out)
-              .catch(err => taskout = err)
+              .then((out) => (taskout = out))
+              .catch((err) => (taskout = err))
               .finally(() => handle_result(taskI, task, taskout, result))
-          }
-          else {
+          } else {
             taskout = execres
           }
         } catch (task_ex) {
@@ -336,7 +331,6 @@ class Ordu extends (EventEmitter as { new(): OrduEmitter }) implements OrduIF {
         return handle_result(taskI, task, taskout, result)
       }
     }
-
 
     function handle_result(
       taskI: number,
@@ -357,26 +351,21 @@ class Ordu extends (EventEmitter as { new(): OrduEmitter }) implements OrduIF {
       try {
         let opres = self._operate(result, spec.ctx, spec.data)
         if (opres instanceof Promise) {
-          // console.log('OR', opres)
           operate.async = true
           opres
-            .then(out => {
-              // console.log('ORd', out)
+            .then((out) => {
               Object.assign(operate, out)
             })
-            .catch(err => {
-              // console.log('ORe', err)
+            .catch((err) => {
               operate.stop = true
               operate.err = err
             })
             .finally(() => {
-              // console.log('ORf')
               handle_operate(taskI, task, result, operate)
             })
         } else {
           operate = opres as Operate
           operate.async = false
-
         }
       } catch (operate_ex) {
         operate.stop = true
@@ -388,20 +377,14 @@ class Ordu extends (EventEmitter as { new(): OrduEmitter }) implements OrduIF {
       }
     }
 
-
     function handle_operate(
       taskI: number,
       task: Task,
       result: TaskResult,
       operate: Operate
     ): ExecResult | void {
-      // console.log('NEXT', taskI, ((new Error() as any).stack.split(/\n/) || [])[2])
-
-      // console.log('HA', taskI, task.name, operate, ((new Error() as any).stack.split(/\n/) || [])[2])
-
       last_operate = operate
 
-      // TODO: fix debug double work
       let entry = {
         name: task.name,
         op: result.op,
@@ -415,24 +398,21 @@ class Ordu extends (EventEmitter as { new(): OrduEmitter }) implements OrduIF {
 
       if (!operate.stop) {
         ++taskI
-      }
-      else {
+      } else {
         taskI = tasks.length
       }
 
       return next(taskI)
     }
 
-
     function finish(): ExecResult {
-      // console.log('FINISH', last_operate)
       let err = last_operate ? last_operate.err : null
 
       let execres: ExecResult = {
         tasklog: tasklog,
         task: err ? tasks[last_taskI] : void 0,
-        task_count: task_count,
-        task_total: tasks.length,
+        taskcount: taskcount,
+        tasktotal: tasks.length,
         start: start,
         end: Date.now(),
         err: err,
@@ -446,109 +426,6 @@ class Ordu extends (EventEmitter as { new(): OrduEmitter }) implements OrduIF {
       return execres
     }
   }
-
-
-  // // TODO: execSync version when promises not needed
-  // async exec(ctx: any, data: any, opts: any): Promise<ExecResult> {
-  //   opts = null == opts ? {} : opts
-  //   let runid = opts.runid || (Math.random() + '').substring(2)
-  //   let start = Date.now()
-  //   let tasks: Task[] = [...this._tasks]
-
-  //   let spec = {
-  //     ctx: ctx || {},
-  //     data: data || {},
-  //   }
-
-  //   let operate: Operate = {
-  //     stop: false,
-  //     err: void 0,
-  //     async: false,
-  //   }
-  //   let tasklog: any[] = []
-
-  //   let task_count = 0
-  //   let taskI = 0
-  //   for (; taskI < tasks.length; taskI++) {
-  //     //console.log('TASK', taskI, tasks.length)
-
-  //     let task = tasks[taskI]
-  //     let taskout = null
-  //     let result = new TaskResult(task, taskI, tasks.length, runid)
-
-  //     if (task.active && this._task_if(task, spec.data)) {
-  //       try {
-  //         task_count++
-  //         let taskspec = Object.assign({ task: task }, spec)
-  //         taskout = task.exec(taskspec)
-  //         if (taskout instanceof Promise) {
-  //           result.async = true
-  //           taskout = await taskout
-  //         }
-  //       } catch (task_ex) {
-  //         taskout = task_ex
-  //       }
-  //     } else {
-  //       taskout = { op: 'skip' }
-  //     }
-
-  //     result.end = Date.now()
-  //     result.update(taskout)
-  //     this.emit('task-result', result)
-
-  //     try {
-  //       let opres = this._operate(result, spec.ctx, spec.data)
-  //       if (opres instanceof Promise) {
-  //         operate = (await opres) as Operate
-  //         operate.async = true
-  //       } else {
-  //         operate = opres as Operate
-  //         operate.async = false
-  //       }
-
-  //       operate.err = operate.err || void 0
-  //     } catch (operate_ex) {
-  //       operate = {
-  //         stop: true,
-  //         err: operate_ex as Error,
-  //         async: false,
-  //       }
-  //     }
-
-  //     // TODO: fix debug double work
-  //     let entry = {
-  //       name: task.name,
-  //       op: result.op,
-  //       task,
-  //       result,
-  //       operate,
-  //       data: this._opts.debug ? JSON.parse(JSON.stringify(spec.data)) : void 0,
-  //     }
-  //     tasklog.push(entry)
-  //     this.emit('task-end', entry)
-
-  //     if (operate.stop) {
-  //       break
-  //     }
-  //   }
-
-  //   let execres: ExecResult = {
-  //     tasklog: tasklog,
-  //     task: operate.err ? tasks[taskI] : void 0,
-  //     task_count: task_count,
-  //     task_total: tasks.length,
-  //     start: start,
-  //     end: Date.now(),
-  //     err: operate.err,
-  //     data: spec.data,
-  //   }
-
-  //   if (opts.done) {
-  //     opts.done(execres)
-  //   }
-
-  //   return execres
-  // }
 
   tasks() {
     return [...this._tasks]
@@ -598,9 +475,9 @@ function make_callpoint(err: Error) {
   return null == err
     ? []
     : (err.stack || '')
-      .split(/\n/)
-      .slice(4)
-      .map((line) => line.substring(4))
+        .split(/\n/)
+        .slice(4)
+        .map((line) => line.substring(4))
 }
 /* $lab:coverage:on$ */
 
@@ -682,13 +559,13 @@ function LegacyOrdu(opts?: any): any {
   }
 
   function api_tasknames() {
-    return tasks.map(function(v) {
+    return tasks.map(function (v) {
       return v.name
     })
   }
 
   function api_taskdetails() {
-    return tasks.map(function(v) {
+    return tasks.map(function (v) {
       return v.name + ':{tags:' + v.tags + '}'
     })
   }

@@ -31,6 +31,7 @@ const Hoek = __importStar(require("@hapi/hoek"));
 const nua_1 = __importDefault(require("nua"));
 class Task {
     constructor(taskdef) {
+        var _a;
         this.runid =
             null == taskdef.id ? ('' + Math.random()).substring(2) : taskdef.id;
         this.name = taskdef.name || 'task' + Task.count++;
@@ -41,7 +42,7 @@ class Task {
         this.active = null == taskdef.active ? true : taskdef.active;
         this.meta = Object.assign(taskdef.meta || {}, {
             when: Date.now(),
-            from: taskdef.from // || {callpoint: make_callpoint(new Error())}
+            from: (_a = taskdef.meta) === null || _a === void 0 ? void 0 : _a.from,
         });
     }
 }
@@ -126,7 +127,10 @@ class Ordu extends events_1.EventEmitter {
     }
     _add_task(td, callpoint) {
         if (callpoint) {
-            td.from = Object.assign(td.from || {}, { callpoint$: callpoint });
+            td.meta = td.meta || {};
+            td.meta.from = Object.assign(td.meta.from || {}, {
+                callpoint$: callpoint,
+            });
         }
         let t = new Task(td);
         let tI = 0;
@@ -161,7 +165,7 @@ class Ordu extends events_1.EventEmitter {
             data: data || {},
         };
         let tasklog = [];
-        let task_count = 0;
+        let taskcount = 0;
         let last_taskI = 0;
         let last_operate = undefined;
         return next(0);
@@ -177,14 +181,14 @@ class Ordu extends events_1.EventEmitter {
             let result = new TaskResult(task, taskI, tasks.length, runid);
             if (task.active && self._task_if(task, spec.data)) {
                 try {
-                    task_count++;
+                    taskcount++;
                     let taskspec = Object.assign({ task: task }, spec);
                     execres = task.exec(taskspec);
                     if (execres instanceof Promise) {
                         result.async = true;
                         execres
-                            .then(out => taskout = out)
-                            .catch(err => taskout = err)
+                            .then((out) => (taskout = out))
+                            .catch((err) => (taskout = err))
                             .finally(() => handle_result(taskI, task, taskout, result));
                     }
                     else {
@@ -214,20 +218,16 @@ class Ordu extends events_1.EventEmitter {
             try {
                 let opres = self._operate(result, spec.ctx, spec.data);
                 if (opres instanceof Promise) {
-                    // console.log('OR', opres)
                     operate.async = true;
                     opres
-                        .then(out => {
-                        // console.log('ORd', out)
+                        .then((out) => {
                         Object.assign(operate, out);
                     })
-                        .catch(err => {
-                        // console.log('ORe', err)
+                        .catch((err) => {
                         operate.stop = true;
                         operate.err = err;
                     })
                         .finally(() => {
-                        // console.log('ORf')
                         handle_operate(taskI, task, result, operate);
                     });
                 }
@@ -245,10 +245,7 @@ class Ordu extends events_1.EventEmitter {
             }
         }
         function handle_operate(taskI, task, result, operate) {
-            // console.log('NEXT', taskI, ((new Error() as any).stack.split(/\n/) || [])[2])
-            // console.log('HA', taskI, task.name, operate, ((new Error() as any).stack.split(/\n/) || [])[2])
             last_operate = operate;
-            // TODO: fix debug double work
             let entry = {
                 name: task.name,
                 op: result.op,
@@ -268,13 +265,12 @@ class Ordu extends events_1.EventEmitter {
             return next(taskI);
         }
         function finish() {
-            // console.log('FINISH', last_operate)
             let err = last_operate ? last_operate.err : null;
             let execres = {
                 tasklog: tasklog,
                 task: err ? tasks[last_taskI] : void 0,
-                task_count: task_count,
-                task_total: tasks.length,
+                taskcount: taskcount,
+                tasktotal: tasks.length,
                 start: start,
                 end: Date.now(),
                 err: err,
@@ -286,94 +282,6 @@ class Ordu extends events_1.EventEmitter {
             return execres;
         }
     }
-    // // TODO: execSync version when promises not needed
-    // async exec(ctx: any, data: any, opts: any): Promise<ExecResult> {
-    //   opts = null == opts ? {} : opts
-    //   let runid = opts.runid || (Math.random() + '').substring(2)
-    //   let start = Date.now()
-    //   let tasks: Task[] = [...this._tasks]
-    //   let spec = {
-    //     ctx: ctx || {},
-    //     data: data || {},
-    //   }
-    //   let operate: Operate = {
-    //     stop: false,
-    //     err: void 0,
-    //     async: false,
-    //   }
-    //   let tasklog: any[] = []
-    //   let task_count = 0
-    //   let taskI = 0
-    //   for (; taskI < tasks.length; taskI++) {
-    //     //console.log('TASK', taskI, tasks.length)
-    //     let task = tasks[taskI]
-    //     let taskout = null
-    //     let result = new TaskResult(task, taskI, tasks.length, runid)
-    //     if (task.active && this._task_if(task, spec.data)) {
-    //       try {
-    //         task_count++
-    //         let taskspec = Object.assign({ task: task }, spec)
-    //         taskout = task.exec(taskspec)
-    //         if (taskout instanceof Promise) {
-    //           result.async = true
-    //           taskout = await taskout
-    //         }
-    //       } catch (task_ex) {
-    //         taskout = task_ex
-    //       }
-    //     } else {
-    //       taskout = { op: 'skip' }
-    //     }
-    //     result.end = Date.now()
-    //     result.update(taskout)
-    //     this.emit('task-result', result)
-    //     try {
-    //       let opres = this._operate(result, spec.ctx, spec.data)
-    //       if (opres instanceof Promise) {
-    //         operate = (await opres) as Operate
-    //         operate.async = true
-    //       } else {
-    //         operate = opres as Operate
-    //         operate.async = false
-    //       }
-    //       operate.err = operate.err || void 0
-    //     } catch (operate_ex) {
-    //       operate = {
-    //         stop: true,
-    //         err: operate_ex as Error,
-    //         async: false,
-    //       }
-    //     }
-    //     // TODO: fix debug double work
-    //     let entry = {
-    //       name: task.name,
-    //       op: result.op,
-    //       task,
-    //       result,
-    //       operate,
-    //       data: this._opts.debug ? JSON.parse(JSON.stringify(spec.data)) : void 0,
-    //     }
-    //     tasklog.push(entry)
-    //     this.emit('task-end', entry)
-    //     if (operate.stop) {
-    //       break
-    //     }
-    //   }
-    //   let execres: ExecResult = {
-    //     tasklog: tasklog,
-    //     task: operate.err ? tasks[taskI] : void 0,
-    //     task_count: task_count,
-    //     task_total: tasks.length,
-    //     start: start,
-    //     end: Date.now(),
-    //     err: operate.err,
-    //     data: spec.data,
-    //   }
-    //   if (opts.done) {
-    //     opts.done(execres)
-    //   }
-    //   return execres
-    // }
     tasks() {
         return [...this._tasks];
     }

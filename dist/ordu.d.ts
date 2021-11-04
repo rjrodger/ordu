@@ -34,7 +34,6 @@ interface TaskDef {
     before?: string;
     after?: string;
     exec?: TaskExec;
-    from?: object;
     if?: {
         [k: string]: any;
     };
@@ -88,8 +87,8 @@ declare type Operate = {
 declare type ExecResult = {
     tasklog: any[];
     task?: Task;
-    task_count: number;
-    task_total: number;
+    taskcount: number;
+    tasktotal: number;
     start: number;
     end: number;
     err?: Error;

@@ -1,7 +1,7 @@
 # ordu
 
 [![npm version][npm-badge]][npm-url]
-[![Build Status][travis-badge]][travis-url]
+[![Build](https://github.com/senecajs/seneca-mem-store/actions/workflows/build.yml/badge.svg)](https://github.com/senecajs/seneca-mem-store/actions/workflows/build.yml)
 [![Coverage Status][coveralls-badge]][coveralls-url]
 [![Dependency Status][david-badge]][david-url]
 [![DeepScan grade](https://deepscan.io/api/teams/5016/projects/11434/branches/170370/badge/grade.svg)](https://deepscan.io/dashboard#view=project&tid=5016&pid=11434&bid=170370)
@@ -11,15 +11,14 @@
 ### Execute functions in a configurable order, modifying a shared data structure.
 
 Task functions are executed in order of addition, and passed a shared
-context, and a modifiable data structure. Execution is
-synchronous. You can exit early by returning a non-null value from a
-task function.
+context, a modifiable data structure, and task meta data. Execution is
+synchronous or asynchronous. You can control execution by returning
+commands from a task function.
 
-You can tag task functions, and restrict execution to the subset of
-task functions with matching tags.
+You can add tasks before and after existing named tasks.
 
 This module is used by the [Seneca](http://senecajs.org) framework to
-provide configurable extension hooks.
+provide configurable extension hooks to various internal processes.
 
 
 ### Quick example
@@ -32,35 +31,37 @@ TODO: UPDATE README
 
 
 ```js
-var Ordu = require('ordu')
+const Ordu = require('ordu')
 
-var w = Ordu()
+let process = new Ordu()
 
-w.add(function first (ctxt, data) {
-  if (null == data.foo) {
-    return {kind: 'error', why: 'no foo'}
+process.add(function first(spec) {
+  if (null == spec.data.foo) {
+    return {op: 'stop', err: new Error('no foo')}
   }
 
-  data.foo = data.foo.substring(0, ctxt.len)
+  spec.data.foo = spec.data.foo.toUpperCase() + spec.ctx.suffix
+
+  // Default is to continue to next step.
 })
 
-w.add({tags: ['upper']}, function second (ctxt, data) {
-  data.foo = data.foo.toUpperCase()
+
+const ctx = { suffix: '!!!' }
+let data = { foo: 'green' }
+
+process.execSync(ctx, data)
+console.log(data.foo) // prints 'GREEN!!!' (first)
+
+
+process.add(function second(spec) {
+  spec.data.foo = spec.ctx.prefix + spec.data.foo
 })
 
-var ctxt = {len: 3}
-var data = {foo: 'green'}
+ctx.prefix = '>>>'
+data = { foo: 'blue' }
 
-w.process(ctxt, data)
-console.log(data.foo) // prints 'GRE' (first, second)
-
-data = {foo: 'blue'}
-w.process({tags: ['upper']}, ctxt, data)
-console.log(data.foo) // prints 'BLUE' (second)
-
-data = []
-var res = w.process(ctxt, data)
-console.log(res) // prints {kind: 'error', why: 'no foo', ... introspection ...}
+process.execSync(ctx, data)
+console.log(data.foo) // prints '>>>BLUE!!!' (first, second)
 ```
 
 
@@ -71,6 +72,7 @@ console.log(res) // prints {kind: 'error', why: 'no foo', ... introspection ...}
 npm install ordu
 ```
 
+
 # Notes
 
 From the Irish ord&uacute;: [instruction](http://www.focloir.ie/en/dictionary/ei/instruction). Pronounced _or-doo_.
@@ -78,12 +80,10 @@ From the Irish ord&uacute;: [instruction](http://www.focloir.ie/en/dictionary/ei
 
 ## License
 
-Copyright (c) 2014-2020, Richard Rodger and other contributors.
+Copyright (c) 2014-2021, Richard Rodger and other contributors.
 Licensed under [MIT][].
 
 [MIT]: ./LICENSE
-[travis-badge]: https://travis-ci.org/rjrodger/ordu.svg
-[travis-url]: https://travis-ci.org/rjrodger/ordu
 [npm-badge]: https://img.shields.io/npm/v/ordu.svg
 [npm-url]: https://npmjs.com/package/ordu
 [david-badge]: https://david-dm.org/rjrodger/ordu.svg

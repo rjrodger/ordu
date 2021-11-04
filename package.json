@@ -1,6 +1,6 @@
 {
   "name": "ordu",
-  "version": "2.1.1",
+  "version": "2.2.0",
   "main": "dist/ordu.js",
   "browser": "dist/ordu.min.js",
   "types": "dist/ordu.d.ts",
@@ -51,7 +51,7 @@
     "hapi-lab-shim": "0.0.2",
     "lab-transform-typescript": "^3.0.1",
     "prettier": "^2.4.1",
-    "serve": "^12.0.1",
+    "serve": "^13.0.2",
     "tinyify": "^3.0.0",
     "typescript": "^4.4.4"
   }
