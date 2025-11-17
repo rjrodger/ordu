@@ -17,13 +17,12 @@
     "url": "git://github.com/rjrodger/ordu.git"
   },
   "scripts": {
-    "watch": "tsc -w -d -p src",
-    "build": "tsc -d -p src",
-    "test": "node --test test/*.js",
-    "coveralls": "lab -s -P test -r lcov | coveralls",
-    "prettier": "prettier --write src/*.ts",
-    "clean": "rm -rf node_modules package-lock.json yarn.lock",
-    "reset": "npm run clean && npm i && npm test",
+    "watch": "tsc --build src test -w",
+    "build": "tsc --build src test",
+    "clean": "rm -rf dist dist-test node_modules yarn.lock package-lock.json",
+    "test": "node --enable-source-maps --test \"dist-test/**/*.test.js\"",
+    "test-some": "node --enable-source-maps --test-name-pattern=\"$npm_config_pattern\" --test \"dist-test/**/*.test.js\"",
+    "reset": "npm run clean && npm i && npm run build && npm test",
     "repo-tag": "REPO_VERSION=`node -e \"console.log(require('./package').version)\"` && echo TAG: v$REPO_VERSION && git commit -a -m v$REPO_VERSION && git push && git tag v$REPO_VERSION && git push --tags;",
     "repo-publish-quick": "npm run build && npm test && npm run repo-tag --registry http://registry.npmjs.org && npm publish --registry https://registry.npmjs.org --access public",
     "repo-publish": "npm run clean && npm i && npm run repo-publish-quick"

@@ -1,6 +1,7 @@
 import { EventEmitter } from 'events';
 import StrictEventEmitter from 'strict-event-emitter-types';
-export { Ordu, TaskDef, TaskSpec, LegacyOrdu };
+export type { TaskDef, TaskSpec };
+export { Ordu, Task, LegacyOrdu };
 interface Events {
     'task-result': TaskResult;
     'task-end': {
@@ -23,6 +24,7 @@ interface OrduIF {
     operator(name: string, opr: Operator): void;
     operator(opr: Operator): void;
     operators(): object;
+    execSync(this: Ordu, ctx: any, data: any, opts: any): ExecResult;
     exec(ctx: any, data: any, opts: any): Promise<ExecResult>;
 }
 interface TaskDef {
@@ -31,7 +33,6 @@ interface TaskDef {
     before?: string;
     after?: string;
     exec?: TaskExec;
-    from?: object;
     if?: {
         [k: string]: any;
     };
@@ -85,8 +86,8 @@ type Operate = {
 type ExecResult = {
     tasklog: any[];
     task?: Task;
-    task_count: number;
-    task_total: number;
+    taskcount: number;
+    tasktotal: number;
     start: number;
     end: number;
     err?: Error;
@@ -110,7 +111,9 @@ declare class Ordu extends Ordu_base implements OrduIF {
     };
     add(first: any, second?: any): Ordu;
     private _add_task;
-    exec(ctx: any, data: any, opts?: any): Promise<ExecResult>;
+    execSync(this: Ordu, ctx?: any, data?: any, opts?: any): ExecResult;
+    exec(ctx?: any, data?: any, opts?: any): Promise<ExecResult>;
+    _execImpl(this: Ordu, ctx: any, data: any, opts: any, resolve?: (execres: ExecResult) => void): ExecResult | Promise<ExecResult>;
     tasks(): Task[];
     private _operate;
     private _task_if;

@@ -1,24 +1,25 @@
 /* Copyright (c) 2016-2020 Richard Rodger, MIT License */
-'use strict'
 
-var Ordu = require('..').LegacyOrdu
-var { describe, it } = require('node:test')
-var Code = require('@hapi/code')
-var expect = Code.expect
+import { LegacyOrdu } from '../dist/ordu'
+import { describe, it } from 'node:test'
+import * as Code from '@hapi/code'
+
+const expect = Code.expect
+const Ordu = LegacyOrdu
 
 describe('ordu-legacy', function() {
   it('construct', async () => {
-    var w = Ordu()
+    const w = Ordu()
     expect(w).to.exist()
 
-    var wn = ('' + w).replace(/ordu\d+/g, 'ordu0')
+    const wn = ('' + w).replace(/ordu\d+/g, 'ordu0')
     expect(wn).to.equal('ordu0:[]')
   })
 
   it('readme-example', async () => {
-    var w = Ordu()
+    const w = Ordu()
 
-    w.add(function first(ctxt, data) {
+    w.add(function first(ctxt: any, data: any) {
       if (null == data.foo) {
         return { kind: 'error', why: 'no foo' }
       }
@@ -26,12 +27,12 @@ describe('ordu-legacy', function() {
       data.foo = data.foo.substring(0, ctxt.len)
     })
 
-    w.add({ tags: ['upper'] }, function second(ctxt, data) {
+    w.add({ tags: ['upper'] }, function second(_ctxt: any, data: any) {
       data.foo = data.foo.toUpperCase()
     })
 
-    var ctxt = { len: 3 }
-    var data = { foo: 'green' }
+    const ctxt = { len: 3 }
+    let data: any = { foo: 'green' }
 
     w.process(ctxt, data)
     expect(data.foo).equal('GRE')
@@ -42,41 +43,41 @@ describe('ordu-legacy', function() {
     // console.log(data.foo) // prints 'BLUE' (second)
     expect(data.foo).equals('BLUE')
 
-    data = []
-    var res = w.process(ctxt, data)
+    data = [] as any
+    const res = w.process(ctxt, data)
     // console.log(res) // prints {kind: 'error', why: 'no foo', ... introspection ...}
     expect(res).equals({
       ctxt$: {
         index$: 0,
         taskname$: 'first',
-        len: 3
+        len: 3,
       },
       data$: [],
       index$: 0,
       taskname$: 'first',
       kind: 'error',
-      why: 'no foo'
+      why: 'no foo',
     })
   })
 
   it('happy', async () => {
-    var w = Ordu()
+    const w = Ordu()
 
-    w.add(function(ctxt, data) {
+    w.add(function(ctxt: any, data: any) {
       data.x = 1
     })
 
-    var ctxt = {}
-    var data = {}
+    const ctxt = {}
+    let data: any = {}
 
     expect(data.x).to.not.exist()
 
-    var res = w.process(ctxt, data)
+    let res = w.process(ctxt, data)
 
     expect(res).to.not.exist()
     expect(data.x).to.equal(1)
 
-    w.add(function failer(ctxt, data) {
+    w.add(function failer(ctxt: any, data: any) {
       return { kind: 'error' }
     })
 
@@ -90,34 +91,34 @@ describe('ordu-legacy', function() {
     expect(res.ctxt$).to.equal(ctxt)
     expect(res.data$).to.equal(data)
 
-    var wn = ('' + w).replace(/ordu\d+/g, 'ordu1')
+    const wn = ('' + w).replace(/ordu\d+/g, 'ordu1')
     expect(wn).to.equal('ordu1:[ordu1_task0,failer]')
   })
 
   it('list', async () => {
-    var w = Ordu({ name: 'foo' })
+    const w = Ordu({ name: 'foo' })
 
-    w.add(function zero() {})
-      .add(function() {})
-      .add(function two() {})
+    w.add(function zero() { })
+      .add(function() { })
+      .add(function two() { })
 
     expect(w.tasknames()).to.equal(['zero', 'foo_task1', 'two'])
     expect(w.taskdetails()).to.equal([
       'zero:{tags:}',
       'foo_task1:{tags:}',
-      'two:{tags:}'
+      'two:{tags:}',
     ])
     expect('' + w).to.equal('foo:[zero,foo_task1,two]')
   })
 
   it('process', async () => {
-    var w = Ordu({ name: 'tags' })
+    const w = Ordu({ name: 'tags' })
 
-    w.add(function zero(c, d) {
+    w.add(function zero(c: any, d: any) {
       d.zero = true
     })
 
-    var data = {}
+    let data: any = {}
     expect(w.process()).to.equal(null)
     expect(data.zero).to.not.exist()
 
@@ -135,21 +136,21 @@ describe('ordu-legacy', function() {
   })
 
   it('tags', async () => {
-    var w = Ordu({ name: 'tags' })
+    const w = Ordu({ name: 'tags' })
 
-    w.add({ tags: ['red'] }, function zero(c, d) {
+    w.add({ tags: ['red'] }, function zero(c: any, d: any) {
       d.push('zero')
     })
 
-    w.add({ tags: [] }, function one(c, d) {
+    w.add({ tags: [] }, function one(c: any, d: any) {
       d.push('one')
     })
 
-    w.add(function two(c, d) {
+    w.add(function two(c: any, d: any) {
       d.push('two')
     })
 
-    var data = []
+    let data: any = []
     expect(w.process({}, data)).to.equal(null)
     expect(data).to.equal(['zero', 'one', 'two'])
 
@@ -157,7 +158,7 @@ describe('ordu-legacy', function() {
     expect(w.process({ tags: ['red'] }, {}, data)).to.equal(null)
     expect(data).to.equal(['zero'])
 
-    w.add({ tags: ['red', 'blue'] }, function three(c, d) {
+    w.add({ tags: ['red', 'blue'] }, function three(c: any, d: any) {
       d.push('three')
     })
 
