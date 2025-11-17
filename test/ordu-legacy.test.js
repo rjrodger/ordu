@@ -2,12 +2,8 @@
 'use strict'
 
 var Ordu = require('..').LegacyOrdu
-
-var Lab = require('@hapi/lab')
+var { describe, it } = require('node:test')
 var Code = require('@hapi/code')
-var lab = (exports.lab = Lab.script())
-var describe = lab.describe
-var it = lab.it
 var expect = Code.expect
 
 describe('ordu-legacy', function() {

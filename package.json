@@ -3,6 +3,8 @@
   "version": "1.7.1",
   "description": "Execute functions in a configurable order, modifying a shared data structure.",
   "homepage": "https://github.com/rjrodger/ordu",
+  "main": "dist/ordu.js",
+  "types": "dist/ordu.d.ts",
   "keywords": [
     "function",
     "task",
@@ -14,38 +16,33 @@
     "type": "git",
     "url": "git://github.com/rjrodger/ordu.git"
   },
-  "main": "ordu.js",
   "scripts": {
-    "watch": "tsc -w -d",
-    "build": "tsc -d",
-    "test": "lab -L -v -P test -t 100 --sourcemaps --transform node_modules/lab-transform-typescript  -r console -o stdout -r html -o test/coverage.html",
+    "watch": "tsc -w -d -p src",
+    "build": "tsc -d -p src",
+    "test": "node --test test/*.js",
     "coveralls": "lab -s -P test -r lcov | coveralls",
-    "prettier": "prettier --write *.ts",
+    "prettier": "prettier --write src/*.ts",
     "clean": "rm -rf node_modules package-lock.json yarn.lock",
     "reset": "npm run clean && npm i && npm test",
     "repo-tag": "REPO_VERSION=`node -e \"console.log(require('./package').version)\"` && echo TAG: v$REPO_VERSION && git commit -a -m v$REPO_VERSION && git push && git tag v$REPO_VERSION && git push --tags;",
-    "repo-publish-quick": "npm run prettier && npm run build && npm test && npm run repo-tag --registry http://registry.npmjs.org && npm publish --registry http://registry.npmjs.org",
+    "repo-publish-quick": "npm run build && npm test && npm run repo-tag --registry http://registry.npmjs.org && npm publish --registry https://registry.npmjs.org --access public",
     "repo-publish": "npm run clean && npm i && npm run repo-publish-quick"
   },
   "license": "MIT",
   "files": [
-    "ordu.*",
-    "*.json",
+    "dist",
+    "src",
     "LICENSE",
     "README.md"
   ],
   "dependencies": {
-    "@hapi/hoek": "^9.0.4",
-    "nua": "^1.0.2",
+    "@hapi/hoek": "^11.0.7",
+    "nua": "^2.1.4",
     "strict-event-emitter-types": "^2.0.0"
   },
   "devDependencies": {
-    "@hapi/code": "^8.0.1",
-    "@hapi/lab": "^22.0.4",
-    "@types/node": "^14.0.1",
-    "coveralls": "^3.1.0",
-    "lab-transform-typescript": "^3.0.1",
-    "prettier": "^2.0.5",
-    "typescript": "^3.9.2"
+    "@hapi/code": "^9.0.3",
+    "@types/node": "^24.10.1",
+    "typescript": "^5.9.3"
   }
 }

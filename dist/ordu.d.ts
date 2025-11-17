@@ -1,4 +1,3 @@
-/// <reference types="node" />
 import { EventEmitter } from 'events';
 import StrictEventEmitter from 'strict-event-emitter-types';
 export { Ordu, TaskDef, TaskSpec, LegacyOrdu };
@@ -10,7 +9,7 @@ interface Events {
         data: any;
     };
 }
-declare type OrduEmitter = StrictEventEmitter<EventEmitter, Events>;
+type OrduEmitter = StrictEventEmitter<EventEmitter, Events>;
 interface OrduIF {
     add(td: TaskDef): OrduIF;
     add(td: TaskDef[]): OrduIF;
@@ -39,7 +38,7 @@ interface TaskDef {
     active?: boolean;
     meta?: any;
 }
-declare type TaskExec = (s: TaskSpec) => any;
+type TaskExec = (s: TaskSpec) => any;
 interface TaskSpec {
     ctx: any;
     data: any;
@@ -78,12 +77,12 @@ declare class TaskResult {
     constructor(task: Task, taskI: number, total: number, runid: string);
     update(raw: any): void;
 }
-declare type Operate = {
+type Operate = {
     stop: boolean;
     err?: Error;
     async?: boolean;
 };
-declare type ExecResult = {
+type ExecResult = {
     tasklog: any[];
     task?: Task;
     task_count: number;
@@ -93,8 +92,10 @@ declare type ExecResult = {
     err?: Error;
     data: object;
 };
-declare type Operator = (r: TaskResult, ctx: any, data: object) => Operate;
-declare const Ordu_base: new () => OrduEmitter;
+type Operator = (r: TaskResult, ctx: any, data: object) => Operate;
+declare const Ordu_base: {
+    new (): OrduEmitter;
+};
 declare class Ordu extends Ordu_base implements OrduIF {
     private _opts;
     private _tasks;
@@ -109,7 +110,7 @@ declare class Ordu extends Ordu_base implements OrduIF {
     };
     add(first: any, second?: any): Ordu;
     private _add_task;
-    exec(ctx: any, data: any, opts: any): Promise<ExecResult>;
+    exec(ctx: any, data: any, opts?: any): Promise<ExecResult>;
     tasks(): Task[];
     private _operate;
     private _task_if;

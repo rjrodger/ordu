@@ -3,7 +3,11 @@
 'use strict';
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -13,42 +17,50 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.LegacyOrdu = exports.Ordu = void 0;
+exports.Ordu = void 0;
+exports.LegacyOrdu = LegacyOrdu;
 /* $lab:coverage:on$ */
 const events_1 = require("events");
 const Hoek = __importStar(require("@hapi/hoek"));
 const nua_1 = __importDefault(require("nua"));
-let Task = /** @class */ (() => {
-    class Task {
-        constructor(taskdef) {
-            this.runid =
-                null == taskdef.id ? ('' + Math.random()).substring(2) : taskdef.id;
-            this.name = taskdef.name || 'task' + Task.count++;
-            this.before = taskdef.before;
-            this.after = taskdef.after;
-            this.exec = taskdef.exec || ((_) => { });
-            this.if = taskdef.if || void 0;
-            this.active = null == taskdef.active ? true : taskdef.active;
-            this.meta = Object.assign(taskdef.meta || {}, {
-                when: Date.now(),
-                from: taskdef.from || { callpoint: make_callpoint(new Error()) },
-            });
-        }
+class Task {
+    constructor(taskdef) {
+        this.runid =
+            null == taskdef.id ? ('' + Math.random()).substring(2) : taskdef.id;
+        this.name = taskdef.name || 'task' + Task.count++;
+        this.before = taskdef.before;
+        this.after = taskdef.after;
+        this.exec = taskdef.exec || ((_) => { });
+        this.if = taskdef.if || void 0;
+        this.active = null == taskdef.active ? true : taskdef.active;
+        this.meta = Object.assign(taskdef.meta || {}, {
+            when: Date.now(),
+            from: taskdef.from || { callpoint: make_callpoint(new Error()) },
+        });
     }
-    Task.count = 0;
-    return Task;
-})();
+}
+Task.count = 0;
 // Use the constructor to normalize task result
 class TaskResult {
     constructor(task, taskI, total, runid) {
@@ -84,11 +96,11 @@ class Ordu extends events_1.EventEmitter {
             next: () => ({ stop: false }),
             skip: () => ({ stop: false }),
             stop: (tr, _, data) => {
-                nua_1.default(data, tr.out, { preserve: true });
+                (0, nua_1.default)(data, tr.out, { preserve: true });
                 return { stop: true, err: tr.err };
             },
             merge: (tr, _, data) => {
-                nua_1.default(data, tr.out, { preserve: true });
+                (0, nua_1.default)(data, tr.out, { preserve: true });
                 return { stop: false };
             },
         };
@@ -348,7 +360,6 @@ function LegacyOrdu(opts) {
     }
     return self;
 }
-exports.LegacyOrdu = LegacyOrdu;
 function contains(all, some) {
     for (var i = 0; i < some.length; ++i) {
         if (-1 === all.indexOf(some[i])) {

@@ -71,7 +71,7 @@ From the Irish ord&uacute;: [instruction](http://www.focloir.ie/en/dictionary/ei
 
 ## License
 
-Copyright (c) 2014-2016, Seamus D'Arcy and other contributors.
+Copyright (c) 2014-2020, Richard Rodger and other contributors.
 Licensed under [MIT][].
 
 [MIT]: ./LICENSE
