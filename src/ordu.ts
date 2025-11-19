@@ -50,10 +50,15 @@ interface TaskDef {
   before?: string
   after?: string
   exec?: TaskExec
-  // from?: object
   if?: { [k: string]: any }
   active?: boolean
   meta?: any
+
+  // Path to select children from, '' means root
+  select?: string | ((source?: any, spec?: TaskSpec) => any)
+
+  // apply task to children from select
+  apply?: TaskDef | TaskDef[]
 }
 
 type TaskExec = (s: TaskSpec) => any
@@ -62,7 +67,13 @@ interface TaskSpec {
   ctx: any
   data: any
   task: Task
+  async: boolean
+  opts?: any
+  node?: any
 }
+
+
+type TaskFunc = (s: TaskSpec) => any
 
 class Task {
   static count: number = 0
@@ -71,7 +82,7 @@ class Task {
   name: string
   before?: string
   after?: string
-  exec: (s: TaskSpec) => TaskResult
+  exec: TaskFunc
   if?: { [k: string]: any }
   active?: boolean
   meta: {
@@ -92,8 +103,79 @@ class Task {
       when: Date.now(),
       from: taskdef.meta?.from,
     })
+
+    const selectType = typeof taskdef.select
+
+    if ('string' === selectType
+      || 'function' === selectType) {
+      const cordu = new Ordu().add(taskdef.apply)
+      this.exec = (s: TaskSpec) => {
+        const select = taskdef.select
+        // console.log('SELECT', select)
+        let source = s.node?.val ?? s.data ?? {}
+        let target: any = '' === select ? source :
+          'function' === selectType ? (select as any)(source, s) :
+            'string' === selectType ? Hoek.reach(source, select as string) :
+              []
+        // console.log('TARGET', taskdef.select, target, source)
+
+        let children: any[] = []
+
+        if (Array.isArray(target)) {
+          children = target.map((n, i) => [i, n])
+        }
+        else if (null != target && 'object' === typeof target) {
+          children = Object.entries(target)
+        }
+
+        // console.log('CHILDREN', children)
+
+        if (s.async) {
+          return processChildrenAsync(cordu, children, s)
+        }
+        else {
+          return processChildrenSync(cordu, children, s)
+        }
+      }
+    }
+
   }
 }
+
+
+function processChildrenSync(cordu: Ordu, children: any[], s: TaskSpec) {
+  const results: any[] = []
+
+  for (let n of children) {
+    const node = { key: n[0], val: n[1] }
+    const cres = cordu.execSync(s.ctx, s.data, s.opts, node)
+    if (cres.err) {
+      throw cres.err
+    }
+    results.push(cres)
+  }
+
+  return { out: results }
+}
+
+
+async function processChildrenAsync(cordu: Ordu, children: any[], s: TaskSpec) {
+  const results: any[] = []
+
+  for (let n of children) {
+    const node = { key: n[0], val: n[1] }
+    const cres = await cordu.exec(s.ctx, s.data, s.opts, node)
+    if (cres.err) {
+      throw cres.err
+    }
+    results.push(cres)
+  }
+
+  return { out: results }
+}
+
+
+
 
 // Use the constructor to normalize task result
 class TaskResult {
@@ -149,7 +231,7 @@ type ExecResult = {
   start: number
   end: number
   err?: Error
-  data: object
+  data: any
 }
 
 type Operator = (r: TaskResult, ctx: any, data: object) => Operate
@@ -203,6 +285,7 @@ class Ordu extends (EventEmitter as { new(): OrduEmitter }) implements OrduIF {
     return this._operator_map
   }
 
+
   add(first: any, second?: any): Ordu {
     let callpoint: string[] | undefined
     if (this._opts.debug) {
@@ -215,7 +298,8 @@ class Ordu extends (EventEmitter as { new(): OrduEmitter }) implements OrduIF {
       t.exec = first
       t.name = first.name ? first.name : t.name
       this._add_task(t, callpoint)
-    } else if (Array.isArray(first)) {
+    }
+    else if (Array.isArray(first)) {
       for (var i = 0; i < first.length; i++) {
         let entry: TaskDef = first[i]
         if ('function' === typeof first[i]) {
@@ -223,12 +307,14 @@ class Ordu extends (EventEmitter as { new(): OrduEmitter }) implements OrduIF {
         }
         this._add_task(entry, callpoint)
       }
-    } else {
+    }
+    else {
       this._add_task(first, callpoint)
     }
 
     return this
   }
+
 
   private _add_task(td: TaskDef, callpoint: string[] | undefined): void {
     if (callpoint) {
@@ -255,13 +341,13 @@ class Ordu extends (EventEmitter as { new(): OrduEmitter }) implements OrduIF {
     this.task[t.name] = t
   }
 
-  execSync(this: Ordu, ctx?: any, data?: any, opts?: any): ExecResult {
-    return this._execImpl(ctx, data, opts) as unknown as ExecResult
+  execSync(this: Ordu, ctx?: any, data?: any, opts?: any, node?: any): ExecResult {
+    return this._execImpl(ctx, data, opts, undefined, node) as unknown as ExecResult
   }
 
-  async exec(ctx?: any, data?: any, opts?: any): Promise<ExecResult> {
+  async exec(ctx?: any, data?: any, opts?: any, node?: any): Promise<ExecResult> {
     return new Promise((resolve) => {
-      this._execImpl(ctx, data, opts, resolve)
+      this._execImpl(ctx, data, opts, resolve, node)
     })
   }
 
@@ -270,7 +356,8 @@ class Ordu extends (EventEmitter as { new(): OrduEmitter }) implements OrduIF {
     ctx: any,
     data: any,
     opts: any,
-    resolve?: (execres: ExecResult) => void
+    resolve?: (execres: ExecResult) => void,
+    node?: any
   ): ExecResult | Promise<ExecResult> {
     const self = this
 
@@ -282,6 +369,7 @@ class Ordu extends (EventEmitter as { new(): OrduEmitter }) implements OrduIF {
     let spec = {
       ctx: ctx || {},
       data: data || {},
+      async: !!resolve
     }
 
     let tasklog: any[] = []
@@ -308,7 +396,7 @@ class Ordu extends (EventEmitter as { new(): OrduEmitter }) implements OrduIF {
       if (task.active && self._task_if(task, spec.data)) {
         try {
           taskcount++
-          let taskspec = Object.assign({ task: task }, spec)
+          let taskspec = Object.assign({ task, node, opts }, spec)
           execres = task.exec(taskspec)
 
           if (execres instanceof Promise) {

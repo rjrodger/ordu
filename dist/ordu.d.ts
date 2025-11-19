@@ -38,20 +38,26 @@ interface TaskDef {
     };
     active?: boolean;
     meta?: any;
+    select?: string | ((source?: any, spec?: TaskSpec) => any);
+    apply?: TaskDef | TaskDef[];
 }
 type TaskExec = (s: TaskSpec) => any;
 interface TaskSpec {
     ctx: any;
     data: any;
     task: Task;
+    async: boolean;
+    opts?: any;
+    node?: any;
 }
+type TaskFunc = (s: TaskSpec) => any;
 declare class Task {
     static count: number;
     runid: string;
     name: string;
     before?: string;
     after?: string;
-    exec: (s: TaskSpec) => TaskResult;
+    exec: TaskFunc;
     if?: {
         [k: string]: any;
     };
@@ -91,7 +97,7 @@ type ExecResult = {
     start: number;
     end: number;
     err?: Error;
-    data: object;
+    data: any;
 };
 type Operator = (r: TaskResult, ctx: any, data: object) => Operate;
 declare const Ordu_base: {
@@ -111,9 +117,9 @@ declare class Ordu extends Ordu_base implements OrduIF {
     };
     add(first: any, second?: any): Ordu;
     private _add_task;
-    execSync(this: Ordu, ctx?: any, data?: any, opts?: any): ExecResult;
-    exec(ctx?: any, data?: any, opts?: any): Promise<ExecResult>;
-    _execImpl(this: Ordu, ctx: any, data: any, opts: any, resolve?: (execres: ExecResult) => void): ExecResult | Promise<ExecResult>;
+    execSync(this: Ordu, ctx?: any, data?: any, opts?: any, node?: any): ExecResult;
+    exec(ctx?: any, data?: any, opts?: any, node?: any): Promise<ExecResult>;
+    _execImpl(this: Ordu, ctx: any, data: any, opts: any, resolve?: (execres: ExecResult) => void, node?: any): ExecResult | Promise<ExecResult>;
     tasks(): Task[];
     private _operate;
     private _task_if;

@@ -58,10 +58,63 @@ class Task {
             when: Date.now(),
             from: taskdef.meta?.from,
         });
+        const selectType = typeof taskdef.select;
+        if ('string' === selectType
+            || 'function' === selectType) {
+            const cordu = new Ordu().add(taskdef.apply);
+            this.exec = (s) => {
+                const select = taskdef.select;
+                // console.log('SELECT', select)
+                let source = s.node?.val ?? s.data ?? {};
+                let target = '' === select ? source :
+                    'function' === selectType ? select(source, s) :
+                        'string' === selectType ? Hoek.reach(source, select) :
+                            [];
+                // console.log('TARGET', taskdef.select, target, source)
+                let children = [];
+                if (Array.isArray(target)) {
+                    children = target.map((n, i) => [i, n]);
+                }
+                else if (null != target && 'object' === typeof target) {
+                    children = Object.entries(target);
+                }
+                // console.log('CHILDREN', children)
+                if (s.async) {
+                    return processChildrenAsync(cordu, children, s);
+                }
+                else {
+                    return processChildrenSync(cordu, children, s);
+                }
+            };
+        }
     }
 }
 exports.Task = Task;
 Task.count = 0;
+function processChildrenSync(cordu, children, s) {
+    const results = [];
+    for (let n of children) {
+        const node = { key: n[0], val: n[1] };
+        const cres = cordu.execSync(s.ctx, s.data, s.opts, node);
+        if (cres.err) {
+            throw cres.err;
+        }
+        results.push(cres);
+    }
+    return { out: results };
+}
+async function processChildrenAsync(cordu, children, s) {
+    const results = [];
+    for (let n of children) {
+        const node = { key: n[0], val: n[1] };
+        const cres = await cordu.exec(s.ctx, s.data, s.opts, node);
+        if (cres.err) {
+            throw cres.err;
+        }
+        results.push(cres);
+    }
+    return { out: results };
+}
 // Use the constructor to normalize task result
 class TaskResult {
     constructor(task, taskI, total, runid) {
@@ -160,15 +213,15 @@ class Ordu extends events_1.EventEmitter {
         this._tasks.splice(tI, 0, t);
         this.task[t.name] = t;
     }
-    execSync(ctx, data, opts) {
-        return this._execImpl(ctx, data, opts);
+    execSync(ctx, data, opts, node) {
+        return this._execImpl(ctx, data, opts, undefined, node);
     }
-    async exec(ctx, data, opts) {
+    async exec(ctx, data, opts, node) {
         return new Promise((resolve) => {
-            this._execImpl(ctx, data, opts, resolve);
+            this._execImpl(ctx, data, opts, resolve, node);
         });
     }
-    _execImpl(ctx, data, opts, resolve) {
+    _execImpl(ctx, data, opts, resolve, node) {
         const self = this;
         opts = null == opts ? {} : opts;
         let runid = opts.runid || (Math.random() + '').substring(2);
@@ -177,6 +230,7 @@ class Ordu extends events_1.EventEmitter {
         let spec = {
             ctx: ctx || {},
             data: data || {},
+            async: !!resolve
         };
         let tasklog = [];
         let taskcount = 0;
@@ -196,7 +250,7 @@ class Ordu extends events_1.EventEmitter {
             if (task.active && self._task_if(task, spec.data)) {
                 try {
                     taskcount++;
-                    let taskspec = Object.assign({ task: task }, spec);
+                    let taskspec = Object.assign({ task, node, opts }, spec);
                     execres = task.exec(taskspec);
                     if (execres instanceof Promise) {
                         result.async = true;
