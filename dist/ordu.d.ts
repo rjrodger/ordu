@@ -2,6 +2,12 @@ import { EventEmitter } from 'events';
 import StrictEventEmitter from 'strict-event-emitter-types';
 export type { TaskDef, TaskSpec };
 export { Ordu, Task, LegacyOrdu };
+type OrduOptions = {
+    debug: boolean;
+    select: {
+        sort: boolean | number | null;
+    };
+};
 interface Events {
     'task-result': TaskResult;
     'task-end': {
@@ -47,7 +53,7 @@ interface TaskSpec {
     data: any;
     task: Task;
     async: boolean;
-    opts?: any;
+    opts?: OrduOptions;
     node?: any;
 }
 type TaskFunc = (s: TaskSpec) => any;
@@ -110,7 +116,7 @@ declare class Ordu extends Ordu_base implements OrduIF {
     task: {
         [name: string]: Task;
     };
-    constructor(opts?: any);
+    constructor(opts?: Partial<OrduOptions>);
     operator(first: string | Operator, opr?: Operator): void;
     operators(): {
         [op: string]: Operator;

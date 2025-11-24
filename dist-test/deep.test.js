@@ -170,5 +170,45 @@ const expect = Code.expect;
         const o0 = r0.execSync({}, d0);
         expect(o0.data.n).equal([2, 3]);
     });
+    (0, node_test_1.it)('sort-sync', async () => {
+        const r0 = new ordu_1.Ordu({
+            select: {
+                sort: true
+            }
+        });
+        function f0(t) {
+            t.data.f0 = 0;
+        }
+        function f1(t) {
+            t.data.f1 = 1;
+        }
+        function g0(t) {
+            t.data.g.push(t.node.val.x);
+        }
+        function g1(t) {
+            t.data.g.push(t.node.val.x * 2);
+        }
+        const d0 = {
+            map0: {
+                b: { x: 1 },
+                a: { x: 0 },
+            },
+            g: []
+        };
+        r0.add([
+            f0,
+            {
+                select: 'map0', apply: [
+                    g0,
+                    g1,
+                ]
+            },
+            f1
+        ]);
+        const o0 = r0.execSync({}, d0);
+        // console.dir(o0.data, { depth: null })
+        expect(o0.data)
+            .equal({ map0: { b: { x: 1 }, a: { x: 0 } }, g: [0, 0, 1, 2], f0: 0, f1: 1 });
+    });
 });
 //# sourceMappingURL=deep.test.js.map

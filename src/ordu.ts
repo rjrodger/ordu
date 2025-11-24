@@ -14,6 +14,15 @@ export type { TaskDef, TaskSpec }
 
 export { Ordu, Task, LegacyOrdu }
 
+
+type OrduOptions = {
+  debug: boolean
+  select: {
+    sort: boolean | number | null
+  }
+}
+
+
 interface Events {
   'task-result': TaskResult
   'task-end': { result: TaskResult; operate: Operate; data: any }
@@ -68,7 +77,7 @@ interface TaskSpec {
   data: any
   task: Task
   async: boolean
-  opts?: any
+  opts?: OrduOptions
   node?: any
 }
 
@@ -104,6 +113,8 @@ class Task {
       from: taskdef.meta?.from,
     })
 
+    // Selection
+
     const selectType = typeof taskdef.select
 
     if ('string' === selectType
@@ -128,7 +139,16 @@ class Task {
           children = Object.entries(target)
         }
 
-        // console.log('CHILDREN', children)
+        if (null != s.opts?.select?.sort) {
+          const sorting = s.opts?.select?.sort
+          const dir = true === sorting ? 1 : 0 < (sorting as number) ? 1 : -1
+
+          children = children.sort((a: any[], b: any[]) => {
+            return a[0] < b[0] ? (-1 * dir) : a[0] > b[0] ? dir : 0
+          })
+        }
+
+        // console.log('CHILDREN', s.opts?.select?.sort, children)
 
         if (s.async) {
           return processChildrenAsync(cordu, children, s)
@@ -237,7 +257,7 @@ type ExecResult = {
 type Operator = (r: TaskResult, ctx: any, data: object) => Operate
 
 class Ordu extends (EventEmitter as { new(): OrduEmitter }) implements OrduIF {
-  private _opts: any
+  private _opts: OrduOptions
 
   private _tasks: Task[]
 
@@ -247,13 +267,16 @@ class Ordu extends (EventEmitter as { new(): OrduEmitter }) implements OrduIF {
 
   task: { [name: string]: Task }
 
-  constructor(opts?: any) {
+  constructor(opts?: Partial<OrduOptions>) {
     super()
 
     this.task = {}
 
     this._opts = {
       debug: false,
+      select: {
+        sort: null,
+      },
       ...opts,
     }
 
@@ -361,7 +384,10 @@ class Ordu extends (EventEmitter as { new(): OrduEmitter }) implements OrduIF {
   ): ExecResult | Promise<ExecResult> {
     const self = this
 
-    opts = null == opts ? {} : opts
+    // opts = null == opts ? {} : opts
+
+    opts = { ...(this._opts ?? {}), ...(opts ?? {}) }
+
     let runid = opts.runid || (Math.random() + '').substring(2)
     let start = Date.now()
     let tasks: Task[] = [...self._tasks]
@@ -396,6 +422,7 @@ class Ordu extends (EventEmitter as { new(): OrduEmitter }) implements OrduIF {
       if (task.active && self._task_if(task, spec.data)) {
         try {
           taskcount++
+
           let taskspec = Object.assign({ task, node, opts }, spec)
           execres = task.exec(taskspec)
 

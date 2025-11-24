@@ -58,6 +58,7 @@ class Task {
             when: Date.now(),
             from: taskdef.meta?.from,
         });
+        // Selection
         const selectType = typeof taskdef.select;
         if ('string' === selectType
             || 'function' === selectType) {
@@ -78,7 +79,14 @@ class Task {
                 else if (null != target && 'object' === typeof target) {
                     children = Object.entries(target);
                 }
-                // console.log('CHILDREN', children)
+                if (null != s.opts?.select?.sort) {
+                    const sorting = s.opts?.select?.sort;
+                    const dir = true === sorting ? 1 : 0 < sorting ? 1 : -1;
+                    children = children.sort((a, b) => {
+                        return a[0] < b[0] ? (-1 * dir) : a[0] > b[0] ? dir : 0;
+                    });
+                }
+                // console.log('CHILDREN', s.opts?.select?.sort, children)
                 if (s.async) {
                     return processChildrenAsync(cordu, children, s);
                 }
@@ -143,6 +151,9 @@ class Ordu extends events_1.EventEmitter {
         this.task = {};
         this._opts = {
             debug: false,
+            select: {
+                sort: null,
+            },
             ...opts,
         };
         this._tasks = [];
@@ -223,7 +234,8 @@ class Ordu extends events_1.EventEmitter {
     }
     _execImpl(ctx, data, opts, resolve, node) {
         const self = this;
-        opts = null == opts ? {} : opts;
+        // opts = null == opts ? {} : opts
+        opts = { ...(this._opts ?? {}), ...(opts ?? {}) };
         let runid = opts.runid || (Math.random() + '').substring(2);
         let start = Date.now();
         let tasks = [...self._tasks];
