@@ -1,39 +1,6 @@
 /* Copyright (c) 2016-2021 Richard Rodger and other contributors, MIT License */
 /* $lab:coverage:off$ */
 'use strict';
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || (function () {
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
-        };
-        return ownKeys(o);
-    };
-    return function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-})();
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -42,7 +9,6 @@ exports.Task = exports.Ordu = void 0;
 exports.LegacyOrdu = LegacyOrdu;
 /* $lab:coverage:on$ */
 const events_1 = require("events");
-const Hoek = __importStar(require("@hapi/hoek"));
 const nua_1 = __importDefault(require("nua"));
 class Task {
     constructor(taskdef) {
@@ -69,7 +35,7 @@ class Task {
                 let source = s.node?.val ?? s.data ?? {};
                 let target = '' === select ? source :
                     'function' === selectType ? select(source, s) :
-                        'string' === selectType ? Hoek.reach(source, select) :
+                        'string' === selectType ? _reach(source, select) :
                             [];
                 // console.log('TARGET', taskdef.select, target, source)
                 let children = [];
@@ -389,9 +355,9 @@ class Ordu extends events_1.EventEmitter {
         if (task.if) {
             let task_if = task.if;
             return Object.keys(task_if).reduce((proceed, k) => {
-                let part = Hoek.reach(data, k);
+                let part = _reach(data, k);
                 return (proceed &&
-                    Hoek.contain({ $: part }, { $: task_if[k] }, { deep: true }));
+                    _deepContain(part, task_if[k]));
             }, true);
         }
         else {
@@ -481,6 +447,40 @@ function LegacyOrdu(opts) {
         return opts.name + ':[' + self.tasknames() + ']';
     }
     return self;
+}
+function _reach(obj, path) {
+    const parts = path.split('.');
+    let current = obj;
+    for (const part of parts) {
+        if (current == null)
+            return undefined;
+        current = current[part];
+    }
+    return current;
+}
+function _deepContain(actual, expected) {
+    if (actual === expected)
+        return true;
+    if (expected == null || actual == null)
+        return false;
+    if (typeof actual !== typeof expected)
+        return false;
+    if (typeof expected !== 'object')
+        return false;
+    if (Array.isArray(expected)) {
+        if (!Array.isArray(actual))
+            return false;
+        for (let i = 0; i < expected.length; i++) {
+            if (!_deepContain(actual[i], expected[i]))
+                return false;
+        }
+        return true;
+    }
+    for (const key of Object.keys(expected)) {
+        if (!_deepContain(actual[key], expected[key]))
+            return false;
+    }
+    return true;
 }
 function contains(all, some) {
     for (var i = 0; i < some.length; ++i) {

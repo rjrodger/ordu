@@ -1,47 +1,16 @@
 "use strict";
 /* Copyright (c) 2016-2021 Richard Rodger, MIT License */
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || (function () {
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
-        };
-        return ownKeys(o);
-    };
-    return function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-})();
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const ordu_1 = require("../dist/ordu");
 const node_test_1 = require("node:test");
-const Code = __importStar(require("@hapi/code"));
-const expect = Code.expect;
+const node_assert_1 = __importDefault(require("node:assert"));
 (0, node_test_1.describe)('ordu', function () {
     (0, node_test_1.it)('sanity', async () => {
         const h0 = new ordu_1.Ordu();
-        expect(h0).exists();
+        node_assert_1.default.ok(h0 != null);
     });
     (0, node_test_1.it)('happy', async () => {
         const h0 = new ordu_1.Ordu();
@@ -52,9 +21,9 @@ const expect = Code.expect;
             },
         }));
         let o0 = await h0.exec({}, { x: 11 }, {});
-        expect(o0.data).equals({ x: 11, y: 110 });
+        node_assert_1.default.deepStrictEqual(o0.data, { x: 11, y: 110 });
         let o1 = await h0.exec({}, { x: 22 }, {});
-        expect(o1.data).equals({ x: 22, y: 220 });
+        node_assert_1.default.deepStrictEqual(o1.data, { x: 22, y: 220 });
         h0.add((spec) => ({
             op: 'merge',
             out: {
@@ -62,9 +31,9 @@ const expect = Code.expect;
             },
         }));
         let o2 = await h0.exec({}, { x: 33 }, {});
-        expect(o2.data).equals({ x: 33, y: 330, z: 3.3 });
+        node_assert_1.default.deepStrictEqual(o2.data, { x: 33, y: 330, z: 3.3 });
         // let o3 = h0.execSync({},{x:33})
-        // expect(o3.data).equals({x:33, y:330, z:3.3})
+        // assert.deepStrictEqual(o3.data, {x:33, y:330, z:3.3})
     });
     (0, node_test_1.it)('basic', async () => {
         let ts = ordu_1.Task.count - 1;
@@ -177,7 +146,7 @@ const expect = Code.expect;
         });
         h0.add(() => { });
         let tI = ts;
-        expect(Object.keys(h0.task).map((tn) => tn + '~' + ('function' === typeof h0.task[tn].exec))).equal([
+        node_assert_1.default.deepStrictEqual(Object.keys(h0.task).map((tn) => tn + '~' + ('function' === typeof h0.task[tn].exec)), [
             'A~true',
             'B~true',
             `task${++tI}~true`,
@@ -204,13 +173,13 @@ const expect = Code.expect;
         h0.operator(function does_nothing(tr, ctx, data) {
             return { stop: false };
         });
-        expect(h0.tasks().length).equal(12);
+        node_assert_1.default.strictEqual(h0.tasks().length, 12);
         let out = await h0.exec();
-        expect(out.data).equal({ x: 4, y: { id: '001' }, qq: 2, last: 99 });
-        expect(out.taskcount).equal(8);
-        expect(out.tasktotal).equal(12);
+        node_assert_1.default.deepStrictEqual(out.data, { x: 4, y: { id: '001' }, qq: 2, last: 99 });
+        node_assert_1.default.strictEqual(out.taskcount, 8);
+        node_assert_1.default.strictEqual(out.tasktotal, 12);
         tI = ts;
-        expect(taskresult_log.map((te) => te.name + '~' + te.op)).equal([
+        node_assert_1.default.deepStrictEqual(taskresult_log.map((te) => te.name + '~' + te.op), [
             'A~next',
             'B~skip',
             `task${++tI}~next`,
@@ -223,7 +192,7 @@ const expect = Code.expect;
             `task${++tI}~stop`,
         ]);
         tI = ts;
-        expect(taskend_log.map((te) => te.name + '~' + te.op + '~' + te.operate.stop)).equal([
+        node_assert_1.default.deepStrictEqual(taskend_log.map((te) => te.name + '~' + te.op + '~' + te.operate.stop), [
             'A~next~false',
             'B~skip~false',
             `task${++tI}~next~false`,
@@ -236,13 +205,13 @@ const expect = Code.expect;
             `task${++tI}~stop~true`,
         ]);
         out = await h0.exec({}, { z: 1, y: null }, {});
-        expect(out.data).equal({ z: 1, x: 4, y: { id: '001' }, qq: 2, last: 99 });
-        expect(out.taskcount).equal(8);
-        expect(out.tasktotal).equal(12);
+        node_assert_1.default.deepStrictEqual(out.data, { z: 1, x: 4, y: { id: '001' }, qq: 2, last: 99 });
+        node_assert_1.default.strictEqual(out.taskcount, 8);
+        node_assert_1.default.strictEqual(out.tasktotal, 12);
         out = await h0.exec({ err0: true }, { z: 2 }, {});
-        expect(out.err.message).equal('err0');
+        node_assert_1.default.strictEqual(out.err.message, 'err0');
         let operators = h0.operators();
-        expect(Object.keys(operators)).equal([
+        node_assert_1.default.deepStrictEqual(Object.keys(operators), [
             'next',
             'skip',
             'stop',
@@ -251,7 +220,7 @@ const expect = Code.expect;
             'does_nothing',
         ]);
         tI = ts;
-        expect(h0.tasks().map((t) => t.name)).equals([
+        node_assert_1.default.deepStrictEqual(h0.tasks().map((t) => t.name), [
             'A',
             'B',
             `task${++tI}`,
@@ -266,13 +235,13 @@ const expect = Code.expect;
             `task${++tI}`,
         ]);
         out = await h0.exec({ err1: true }, {}, { runid: 'foo' });
-        expect(out.err.message).equal('err1');
+        node_assert_1.default.strictEqual(out.err.message, 'err1');
         out = await h0.exec({ err2: true }, {}, {
-            done: (res) => {
-                expect(res.err.message).equal('Unknown operation: not-an-op');
+            done: function (rout) {
+                node_assert_1.default.strictEqual(rout.err.message, 'Unknown operation: not-an-op');
             },
         });
-        expect(out.err.message).equal('Unknown operation: not-an-op');
+        node_assert_1.default.strictEqual(out.err.message, 'Unknown operation: not-an-op');
     });
     (0, node_test_1.it)('async', async () => {
         const h0 = new ordu_1.Ordu({ debug: true });
@@ -327,16 +296,15 @@ const expect = Code.expect;
         h0.add(b_ext0);
         h0.add(a_ext1);
         let out = await h0.exec();
-        expect(out.err).not.exists();
-        expect(out.data).includes({
-            foo: 1,
-            bar: 1,
-            zed: 1,
-            qaz: 1,
-            ext0r: 'ext0-a',
-            ext1r: 'ext1-a',
-        });
-        expect(out.data.ext0p).exists();
+        node_assert_1.default.ok(out.err == null);
+        const data = out.data;
+        node_assert_1.default.strictEqual(data.foo, 1);
+        node_assert_1.default.strictEqual(data.bar, 1);
+        node_assert_1.default.strictEqual(data.zed, 1);
+        node_assert_1.default.strictEqual(data.qaz, 1);
+        node_assert_1.default.strictEqual(data.ext0r, 'ext0-a');
+        node_assert_1.default.strictEqual(data.ext1r, 'ext1-a');
+        node_assert_1.default.ok(data.ext0p != null);
     });
     (0, node_test_1.it)('insert-order', async () => {
         const h0 = new ordu_1.Ordu();
@@ -345,39 +313,39 @@ const expect = Code.expect;
             .map((t) => t.name)
             .join(' ');
         h0.add(function a() { });
-        expect(names(h0)).equal('a');
+        node_assert_1.default.strictEqual(names(h0), 'a');
         h0.add(function b() { });
-        expect(names(h0)).equal('a b');
+        node_assert_1.default.strictEqual(names(h0), 'a b');
         h0.add(function c() { });
-        expect(names(h0)).equal('a b c');
+        node_assert_1.default.strictEqual(names(h0), 'a b c');
         h0.add(function A() { }, { before: 'a' });
-        expect(names(h0)).equal('A a b c');
+        node_assert_1.default.strictEqual(names(h0), 'A a b c');
         h0.add(function B() { }, { before: 'b' });
-        expect(names(h0)).equal('A a B b c');
+        node_assert_1.default.strictEqual(names(h0), 'A a B b c');
         h0.add(function C() { }, { before: 'c' });
-        expect(names(h0)).equal('A a B b C c');
+        node_assert_1.default.strictEqual(names(h0), 'A a B b C c');
         h0.add(function a0() { }, { after: 'a' });
-        expect(names(h0)).equal('A a a0 B b C c');
+        node_assert_1.default.strictEqual(names(h0), 'A a a0 B b C c');
         h0.add(function b0() { }, { after: 'b' });
-        expect(names(h0)).equal('A a a0 B b b0 C c');
+        node_assert_1.default.strictEqual(names(h0), 'A a a0 B b b0 C c');
         h0.add(function c0() { }, { after: 'c' });
-        expect(names(h0)).equal('A a a0 B b b0 C c c0');
+        node_assert_1.default.strictEqual(names(h0), 'A a a0 B b b0 C c c0');
         h0.add(function A0() { }, { before: 'a' });
-        expect(names(h0)).equal('A A0 a a0 B b b0 C c c0');
+        node_assert_1.default.strictEqual(names(h0), 'A A0 a a0 B b b0 C c c0');
         h0.add(function B0() { }, { before: 'b' });
-        expect(names(h0)).equal('A A0 a a0 B B0 b b0 C c c0');
+        node_assert_1.default.strictEqual(names(h0), 'A A0 a a0 B B0 b b0 C c c0');
         h0.add(function C0() { }, { before: 'c' });
-        expect(names(h0)).equal('A A0 a a0 B B0 b b0 C C0 c c0');
+        node_assert_1.default.strictEqual(names(h0), 'A A0 a a0 B B0 b b0 C C0 c c0');
         h0.add(function a1() { }, { after: 'a' });
-        expect(names(h0)).equal('A A0 a a1 a0 B B0 b b0 C C0 c c0');
+        node_assert_1.default.strictEqual(names(h0), 'A A0 a a1 a0 B B0 b b0 C C0 c c0');
         h0.add(function b1() { }, { after: 'b' });
-        expect(names(h0)).equal('A A0 a a1 a0 B B0 b b1 b0 C C0 c c0');
+        node_assert_1.default.strictEqual(names(h0), 'A A0 a a1 a0 B B0 b b1 b0 C C0 c c0');
         h0.add(function c1() { }, { after: 'c' });
-        expect(names(h0)).equal('A A0 a a1 a0 B B0 b b1 b0 C C0 c c1 c0');
+        node_assert_1.default.strictEqual(names(h0), 'A A0 a a1 a0 B B0 b b1 b0 C C0 c c1 c0');
         h0.add(function A1() { }, { after: 'A' });
-        expect(names(h0)).equal('A A1 A0 a a1 a0 B B0 b b1 b0 C C0 c c1 c0');
+        node_assert_1.default.strictEqual(names(h0), 'A A1 A0 a a1 a0 B B0 b b1 b0 C C0 c c1 c0');
         h0.add(function AA0() { }, { before: 'A' });
-        expect(names(h0)).equal('AA0 A A1 A0 a a1 a0 B B0 b b1 b0 C C0 c c1 c0');
+        node_assert_1.default.strictEqual(names(h0), 'AA0 A A1 A0 a a1 a0 B B0 b b1 b0 C C0 c c1 c0');
     });
     (0, node_test_1.it)('errors', async () => {
         const h0 = new ordu_1.Ordu();
@@ -387,7 +355,7 @@ const expect = Code.expect;
             };
         });
         let out = await h0.exec();
-        expect(out.err.message).equals('a-err');
+        node_assert_1.default.strictEqual(out.err.message, 'a-err');
         let cbout;
         await h0.exec({}, {}, {
             done: function (rout) {
@@ -395,7 +363,7 @@ const expect = Code.expect;
             },
         });
         await new Promise((r) => setImmediate(() => {
-            expect(cbout.err.message).equals('a-err');
+            node_assert_1.default.strictEqual(cbout.err.message, 'a-err');
             r();
         }));
         const h1 = new ordu_1.Ordu();
@@ -403,7 +371,7 @@ const expect = Code.expect;
             throw new Error('a-terr');
         });
         let h1out = await h1.exec();
-        expect(h1out.err.message).equals('a-terr');
+        node_assert_1.default.strictEqual(h1out.err.message, 'a-terr');
         let h1cbout;
         await h1.exec({}, {}, {
             done: function (rout) {
@@ -411,7 +379,7 @@ const expect = Code.expect;
             },
         });
         await new Promise((r) => setImmediate(() => {
-            expect(h1cbout.err.message).equals('a-terr');
+            node_assert_1.default.strictEqual(h1cbout.err.message, 'a-terr');
             r();
         }));
     });
@@ -425,31 +393,31 @@ const expect = Code.expect;
         });
         let foo = { z: 0 };
         let o0 = h0.execSync({}, { foo }, {});
-        expect(foo).equals({ z: 0, x: 1, y: 2 });
-        expect(o0.data.foo).equals({ z: 0, x: 1, y: 2 });
+        node_assert_1.default.deepStrictEqual(foo, { z: 0, x: 1, y: 2 });
+        node_assert_1.default.deepStrictEqual(o0.data.foo, { z: 0, x: 1, y: 2 });
     });
     (0, node_test_1.it)('edges', async () => {
         const h0 = new ordu_1.Ordu();
         let o0 = h0.execSync();
-        expect(o0.tasklog).equal([]);
-        expect(o0.taskcount).equal(0);
-        expect(o0.tasktotal).equal(0);
+        node_assert_1.default.deepStrictEqual(o0.tasklog, []);
+        node_assert_1.default.strictEqual(o0.taskcount, 0);
+        node_assert_1.default.strictEqual(o0.tasktotal, 0);
         let o1 = await h0.exec();
-        expect(o1.tasklog).equal([]);
-        expect(o1.taskcount).equal(0);
-        expect(o1.tasktotal).equal(0);
+        node_assert_1.default.deepStrictEqual(o1.tasklog, []);
+        node_assert_1.default.strictEqual(o1.taskcount, 0);
+        node_assert_1.default.strictEqual(o1.tasktotal, 0);
         h0.operator('foo', (tr, ctx, data) => {
             throw new Error('foo');
         });
         h0.add(() => ({ op: 'foo' }));
         let o2 = h0.execSync();
-        expect(o2.err.message).equals('foo');
+        node_assert_1.default.strictEqual(o2.err.message, 'foo');
         const h1 = new ordu_1.Ordu();
         h1.add(async () => {
             throw new Error('bar');
         });
         let o3 = await h1.exec();
-        expect(o3.err.message).equals('bar');
+        node_assert_1.default.strictEqual(o3.err.message, 'bar');
     });
     (0, node_test_1.it)('readme', async () => {
         let process = new ordu_1.Ordu();
@@ -464,7 +432,7 @@ const expect = Code.expect;
         let data = { foo: 'green' };
         process.execSync(ctx, data, {});
         // DOC console.log(data.foo) // prints 'GREEN!!!' (first)
-        expect(data).equals({ foo: 'GREEN!!!' });
+        node_assert_1.default.deepStrictEqual(data, { foo: 'GREEN!!!' });
         process.add(function second(spec) {
             spec.data.foo = spec.ctx.prefix + spec.data.foo;
         });
@@ -472,7 +440,7 @@ const expect = Code.expect;
         data = { foo: 'blue' };
         process.execSync(ctx, data, {});
         // DOC console.log(data.foo) // prints '>>>BLUE!!!' (first, second)
-        expect(data).equals({ foo: '>>>BLUE!!!' });
+        node_assert_1.default.deepStrictEqual(data, { foo: '>>>BLUE!!!' });
     });
 });
 //# sourceMappingURL=ordu.test.js.map
