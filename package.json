@@ -1,6 +1,6 @@
 {
   "name": "ordu",
-  "version": "4.1.1",
+  "version": "4.2.0",
   "description": "Execute functions in a configurable order, modifying a shared data structure.",
   "homepage": "https://github.com/rjrodger/ordu",
   "main": "dist/ordu.js",
@@ -35,11 +35,11 @@
     "README.md"
   ],
   "dependencies": {
-    "nua": "^2.1.4",
+    "nua": "^2.2.0",
     "strict-event-emitter-types": "^2.0.0"
   },
   "devDependencies": {
-    "@types/node": "^24.10.1",
+    "@types/node": "^25.5.0",
     "typescript": "^5.9.3"
   }
 }
