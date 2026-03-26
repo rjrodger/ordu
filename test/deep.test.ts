@@ -2,9 +2,7 @@
 
 import { Ordu, Task } from '../dist/ordu'
 import { describe, it } from 'node:test'
-import * as Code from '@hapi/code'
-
-const expect = Code.expect
+import assert from 'node:assert'
 
 describe('deep', function() {
 
@@ -51,8 +49,8 @@ describe('deep', function() {
 
     // console.dir(o0.data, { depth: null })
 
-    expect(o0.data)
-      .equal({ list0: [{ x: 0 }, { x: 1 }], g: [0, 0, 1, 2], f0: 0, f1: 1 })
+    assert.deepStrictEqual(o0.data,
+      { list0: [{ x: 0 }, { x: 1 }], g: [0, 0, 1, 2], f0: 0, f1: 1 })
   })
 
 
@@ -103,8 +101,8 @@ describe('deep', function() {
 
     // console.dir(o0.data, { depth: null })
 
-    expect(o0.data)
-      .equal({ list0: [{ x: 0 }, { x: 1 }], g: [0, 0, 1, 2], f0: 0, f1: 1 })
+    assert.deepStrictEqual(o0.data,
+      { list0: [{ x: 0 }, { x: 1 }], g: [0, 0, 1, 2], f0: 0, f1: 1 })
   })
 
 
@@ -140,7 +138,7 @@ describe('deep', function() {
 
     // console.dir(o0.data, { depth: null })
 
-    expect(o0.data.n).equal([0, 1, 2, 3])
+    assert.deepStrictEqual(o0.data.n, [0, 1, 2, 3])
   })
 
 
@@ -178,7 +176,7 @@ describe('deep', function() {
 
     const o0 = r0.execSync({}, d0)
 
-    expect(o0.data.n).equal([2, 3])
+    assert.deepStrictEqual(o0.data.n, [2, 3])
   })
 
 
@@ -230,8 +228,8 @@ describe('deep', function() {
 
     // console.dir(o0.data, { depth: null })
 
-    expect(o0.data)
-      .equal({ map0: { b: { x: 1 }, a: { x: 0 } }, g: [0, 0, 1, 2], f0: 0, f1: 1 })
+    assert.deepStrictEqual(o0.data,
+      { map0: { b: { x: 1 }, a: { x: 0 } }, g: [0, 0, 1, 2], f0: 0, f1: 1 })
   })
 
 

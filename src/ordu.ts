@@ -5,8 +5,6 @@
 
 import { EventEmitter } from 'events'
 
-import * as Hoek from '@hapi/hoek'
-
 import Nua from 'nua'
 import StrictEventEmitter from 'strict-event-emitter-types'
 
@@ -126,7 +124,7 @@ class Task {
         let source = s.node?.val ?? s.data ?? {}
         let target: any = '' === select ? source :
           'function' === selectType ? (select as any)(source, s) :
-            'string' === selectType ? Hoek.reach(source, select as string) :
+            'string' === selectType ? _reach(source, select as string) :
               []
         // console.log('TARGET', taskdef.select, target, source)
 
@@ -572,11 +570,11 @@ class Ordu extends (EventEmitter as { new(): OrduEmitter }) implements OrduIF {
     if (task.if) {
       let task_if: { [k: string]: any } = task.if
       return Object.keys(task_if).reduce((proceed: boolean, k: string) => {
-        let part: any = Hoek.reach(data, k)
+        let part: any = _reach(data, k)
 
         return (
           proceed &&
-          Hoek.contain({ $: part }, { $: task_if[k] }, { deep: true })
+          _deepContain(part, task_if[k])
         )
       }, true)
     } else {
@@ -690,6 +688,36 @@ function LegacyOrdu(opts?: any): any {
   }
 
   return self
+}
+
+function _reach(obj: any, path: string): any {
+  const parts = path.split('.')
+  let current = obj
+  for (const part of parts) {
+    if (current == null) return undefined
+    current = current[part]
+  }
+  return current
+}
+
+function _deepContain(actual: any, expected: any): boolean {
+  if (actual === expected) return true
+  if (expected == null || actual == null) return false
+  if (typeof actual !== typeof expected) return false
+  if (typeof expected !== 'object') return false
+
+  if (Array.isArray(expected)) {
+    if (!Array.isArray(actual)) return false
+    for (let i = 0; i < expected.length; i++) {
+      if (!_deepContain(actual[i], expected[i])) return false
+    }
+    return true
+  }
+
+  for (const key of Object.keys(expected)) {
+    if (!_deepContain(actual[key], expected[key])) return false
+  }
+  return true
 }
 
 function contains(all: any, some: any) {

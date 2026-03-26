@@ -35,12 +35,10 @@
     "README.md"
   ],
   "dependencies": {
-    "@hapi/hoek": "^11.0.7",
     "nua": "^2.1.4",
     "strict-event-emitter-types": "^2.0.0"
   },
   "devDependencies": {
-    "@hapi/code": "^9.0.3",
     "@types/node": "^24.10.1",
     "typescript": "^5.9.3"
   }
