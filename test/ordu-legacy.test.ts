@@ -2,18 +2,17 @@
 
 import { LegacyOrdu } from '../dist/ordu'
 import { describe, it } from 'node:test'
-import * as Code from '@hapi/code'
+import assert from 'node:assert'
 
-const expect = Code.expect
 const Ordu = LegacyOrdu
 
 describe('ordu-legacy', function() {
   it('construct', async () => {
     const w = Ordu()
-    expect(w).to.exist()
+    assert.ok(w != null)
 
     const wn = ('' + w).replace(/ordu\d+/g, 'ordu0')
-    expect(wn).to.equal('ordu0:[]')
+    assert.strictEqual(wn, 'ordu0:[]')
   })
 
   it('readme-example', async () => {
@@ -35,18 +34,18 @@ describe('ordu-legacy', function() {
     let data: any = { foo: 'green' }
 
     w.process(ctxt, data)
-    expect(data.foo).equal('GRE')
+    assert.strictEqual(data.foo, 'GRE')
     // console.log(data.foo) // prints 'GRE' (first, second)
 
     data = { foo: 'blue' }
     w.process({ tags: ['upper'] }, ctxt, data)
     // console.log(data.foo) // prints 'BLUE' (second)
-    expect(data.foo).equals('BLUE')
+    assert.strictEqual(data.foo, 'BLUE')
 
     data = [] as any
     const res = w.process(ctxt, data)
     // console.log(res) // prints {kind: 'error', why: 'no foo', ... introspection ...}
-    expect(res).equals({
+    assert.deepStrictEqual(res, {
       ctxt$: {
         index$: 0,
         taskname$: 'first',
@@ -70,12 +69,12 @@ describe('ordu-legacy', function() {
     const ctxt = {}
     let data: any = {}
 
-    expect(data.x).to.not.exist()
+    assert.ok(data.x == null)
 
     let res = w.process(ctxt, data)
 
-    expect(res).to.not.exist()
-    expect(data.x).to.equal(1)
+    assert.ok(res == null)
+    assert.strictEqual(data.x, 1)
 
     w.add(function failer(ctxt: any, data: any) {
       return { kind: 'error' }
@@ -84,15 +83,15 @@ describe('ordu-legacy', function() {
     data = {}
     res = w.process(ctxt, data)
 
-    expect(data.x).to.equal(1)
-    expect(res.kind).to.equal('error')
-    expect(res.index$).to.equal(1)
-    expect(res.taskname$).to.equal('failer')
-    expect(res.ctxt$).to.equal(ctxt)
-    expect(res.data$).to.equal(data)
+    assert.strictEqual(data.x, 1)
+    assert.strictEqual(res.kind, 'error')
+    assert.strictEqual(res.index$, 1)
+    assert.strictEqual(res.taskname$, 'failer')
+    assert.strictEqual(res.ctxt$, ctxt)
+    assert.strictEqual(res.data$, data)
 
     const wn = ('' + w).replace(/ordu\d+/g, 'ordu1')
-    expect(wn).to.equal('ordu1:[ordu1_task0,failer]')
+    assert.strictEqual(wn, 'ordu1:[ordu1_task0,failer]')
   })
 
   it('list', async () => {
@@ -102,13 +101,13 @@ describe('ordu-legacy', function() {
       .add(function() { })
       .add(function two() { })
 
-    expect(w.tasknames()).to.equal(['zero', 'foo_task1', 'two'])
-    expect(w.taskdetails()).to.equal([
+    assert.deepStrictEqual(w.tasknames(), ['zero', 'foo_task1', 'two'])
+    assert.deepStrictEqual(w.taskdetails(), [
       'zero:{tags:}',
       'foo_task1:{tags:}',
       'two:{tags:}',
     ])
-    expect('' + w).to.equal('foo:[zero,foo_task1,two]')
+    assert.strictEqual('' + w, 'foo:[zero,foo_task1,two]')
   })
 
   it('process', async () => {
@@ -119,20 +118,20 @@ describe('ordu-legacy', function() {
     })
 
     let data: any = {}
-    expect(w.process()).to.equal(null)
-    expect(data.zero).to.not.exist()
+    assert.strictEqual(w.process(), null)
+    assert.ok(data.zero == null)
 
     data = {}
-    expect(w.process(data)).to.equal(null)
-    expect(data.zero).to.be.true()
+    assert.strictEqual(w.process(data), null)
+    assert.strictEqual(data.zero, true)
 
     data = {}
-    expect(w.process({}, data)).to.equal(null)
-    expect(data.zero).to.be.true()
+    assert.strictEqual(w.process({}, data), null)
+    assert.strictEqual(data.zero, true)
 
     data = {}
-    expect(w.process({}, {}, data)).to.equal(null)
-    expect(data.zero).to.be.true()
+    assert.strictEqual(w.process({}, {}, data), null)
+    assert.strictEqual(data.zero, true)
   })
 
   it('tags', async () => {
@@ -151,31 +150,31 @@ describe('ordu-legacy', function() {
     })
 
     let data: any = []
-    expect(w.process({}, data)).to.equal(null)
-    expect(data).to.equal(['zero', 'one', 'two'])
+    assert.strictEqual(w.process({}, data), null)
+    assert.deepStrictEqual(data, ['zero', 'one', 'two'])
 
     data = []
-    expect(w.process({ tags: ['red'] }, {}, data)).to.equal(null)
-    expect(data).to.equal(['zero'])
+    assert.strictEqual(w.process({ tags: ['red'] }, {}, data), null)
+    assert.deepStrictEqual(data, ['zero'])
 
     w.add({ tags: ['red', 'blue'] }, function three(c: any, d: any) {
       d.push('three')
     })
 
     data = []
-    expect(w.process({ tags: ['blue', 'red'] }, {}, data)).to.equal(null)
-    expect(data).to.equal(['three'])
+    assert.strictEqual(w.process({ tags: ['blue', 'red'] }, {}, data), null)
+    assert.deepStrictEqual(data, ['three'])
 
     data = []
-    expect(w.process({ tags: ['red'] }, {}, data)).to.equal(null)
-    expect(data).to.equal(['zero', 'three'])
+    assert.strictEqual(w.process({ tags: ['red'] }, {}, data), null)
+    assert.deepStrictEqual(data, ['zero', 'three'])
 
     data = []
-    expect(w.process({ tags: ['blue'] }, {}, data)).to.equal(null)
-    expect(data).to.equal(['three'])
+    assert.strictEqual(w.process({ tags: ['blue'] }, {}, data), null)
+    assert.deepStrictEqual(data, ['three'])
 
     data = []
-    expect(w.process({ tags: [] }, {}, data)).to.equal(null)
-    expect(data).to.equal(['zero', 'one', 'two', 'three'])
+    assert.strictEqual(w.process({ tags: [] }, {}, data), null)
+    assert.deepStrictEqual(data, ['zero', 'one', 'two', 'three'])
   })
 })

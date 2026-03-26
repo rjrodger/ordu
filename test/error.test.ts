@@ -3,9 +3,7 @@
 import { Ordu } from '..'
 import type { TaskSpec } from '..'
 import { describe, it } from 'node:test'
-import * as Code from '@hapi/code'
-
-const expect = Code.expect
+import assert from 'node:assert'
 
 describe('error', function() {
 
@@ -35,6 +33,6 @@ describe('error', function() {
 
     const o0 = r0.execSync({}, d0)
 
-    expect(o0?.err?.message).equal('f1')
+    assert.strictEqual(o0?.err?.message, 'f1')
   })
 })

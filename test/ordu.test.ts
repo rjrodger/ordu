@@ -2,14 +2,12 @@
 
 import { Ordu, Task } from '../dist/ordu'
 import { describe, it } from 'node:test'
-import * as Code from '@hapi/code'
-
-const expect = Code.expect
+import assert from 'node:assert'
 
 describe('ordu', function() {
   it('sanity', async () => {
     const h0 = new Ordu()
-    expect(h0).exists()
+    assert.ok(h0 != null)
   })
 
   it('happy', async () => {
@@ -23,10 +21,10 @@ describe('ordu', function() {
     }))
 
     let o0 = await h0.exec({}, { x: 11 }, {})
-    expect(o0.data).equals({ x: 11, y: 110 })
+    assert.deepStrictEqual(o0.data, { x: 11, y: 110 })
 
     let o1 = await h0.exec({}, { x: 22 }, {})
-    expect(o1.data).equals({ x: 22, y: 220 })
+    assert.deepStrictEqual(o1.data, { x: 22, y: 220 })
 
     h0.add((spec: any) => ({
       op: 'merge',
@@ -36,10 +34,10 @@ describe('ordu', function() {
     }))
 
     let o2 = await h0.exec({}, { x: 33 }, {})
-    expect(o2.data).equals({ x: 33, y: 330, z: 3.3 })
+    assert.deepStrictEqual(o2.data, { x: 33, y: 330, z: 3.3 })
 
     // let o3 = h0.execSync({},{x:33})
-    // expect(o3.data).equals({x:33, y:330, z:3.3})
+    // assert.deepStrictEqual(o3.data, {x:33, y:330, z:3.3})
   })
 
   it('basic', async () => {
@@ -171,24 +169,25 @@ describe('ordu', function() {
 
     let tI = ts
 
-    expect(
+    assert.deepStrictEqual(
       Object.keys(h0.task).map(
         (tn) => tn + '~' + ('function' === typeof h0.task[tn].exec)
-      )
-    ).equal([
-      'A~true',
-      'B~true',
-      `task${++tI}~true`,
-      `task${++tI}~true`,
-      `task${++tI}~true`,
-      'a~true',
-      'b~true',
-      'c~true',
-      `task${++tI}~true`,
-      `task${++tI}~true`,
-      `task${++tI}~true`,
-      `task${++tI}~true`,
-    ])
+      ),
+      [
+        'A~true',
+        'B~true',
+        `task${++tI}~true`,
+        `task${++tI}~true`,
+        `task${++tI}~true`,
+        'a~true',
+        'b~true',
+        'c~true',
+        `task${++tI}~true`,
+        `task${++tI}~true`,
+        `task${++tI}~true`,
+        `task${++tI}~true`,
+      ]
+    )
 
     h0.operator('lookup', (async (tr: any, ctx: any, data: any) => {
       if (ctx.err1) throw new Error('err1')
@@ -205,15 +204,15 @@ describe('ordu', function() {
       return { stop: false }
     })
 
-    expect(h0.tasks().length).equal(12)
+    assert.strictEqual(h0.tasks().length, 12)
 
     let out = await h0.exec()
-    expect(out.data).equal({ x: 4, y: { id: '001' }, qq: 2, last: 99 })
-    expect(out.taskcount).equal(8)
-    expect(out.tasktotal).equal(12)
+    assert.deepStrictEqual(out.data, { x: 4, y: { id: '001' }, qq: 2, last: 99 })
+    assert.strictEqual(out.taskcount, 8)
+    assert.strictEqual(out.tasktotal, 12)
 
     tI = ts
-    expect(taskresult_log.map((te) => te.name + '~' + te.op)).equal([
+    assert.deepStrictEqual(taskresult_log.map((te) => te.name + '~' + te.op), [
       'A~next',
       'B~skip',
       `task${++tI}~next`,
@@ -227,31 +226,32 @@ describe('ordu', function() {
     ])
 
     tI = ts
-    expect(
-      taskend_log.map((te) => te.name + '~' + te.op + '~' + te.operate.stop)
-    ).equal([
-      'A~next~false',
-      'B~skip~false',
-      `task${++tI}~next~false`,
-      `task${++tI}~merge~false`,
-      `task${++tI}~skip~false`,
-      'a~merge~false',
-      'b~merge~false',
-      'c~lookup~false',
-      `task${++tI}~merge~false`,
-      `task${++tI}~stop~true`,
-    ])
+    assert.deepStrictEqual(
+      taskend_log.map((te) => te.name + '~' + te.op + '~' + te.operate.stop),
+      [
+        'A~next~false',
+        'B~skip~false',
+        `task${++tI}~next~false`,
+        `task${++tI}~merge~false`,
+        `task${++tI}~skip~false`,
+        'a~merge~false',
+        'b~merge~false',
+        'c~lookup~false',
+        `task${++tI}~merge~false`,
+        `task${++tI}~stop~true`,
+      ]
+    )
 
     out = await h0.exec({}, { z: 1, y: null }, {})
-    expect(out.data).equal({ z: 1, x: 4, y: { id: '001' }, qq: 2, last: 99 })
-    expect(out.taskcount).equal(8)
-    expect(out.tasktotal).equal(12)
+    assert.deepStrictEqual(out.data, { z: 1, x: 4, y: { id: '001' }, qq: 2, last: 99 })
+    assert.strictEqual(out.taskcount, 8)
+    assert.strictEqual(out.tasktotal, 12)
 
     out = await h0.exec({ err0: true }, { z: 2 }, {})
-    expect(out.err!.message).equal('err0')
+    assert.strictEqual(out.err!.message, 'err0')
 
     let operators = h0.operators()
-    expect(Object.keys(operators)).equal([
+    assert.deepStrictEqual(Object.keys(operators), [
       'next',
       'skip',
       'stop',
@@ -261,7 +261,7 @@ describe('ordu', function() {
     ])
 
     tI = ts
-    expect(h0.tasks().map((t) => t.name)).equals([
+    assert.deepStrictEqual(h0.tasks().map((t) => t.name), [
       'A',
       'B',
       `task${++tI}`,
@@ -277,14 +277,14 @@ describe('ordu', function() {
     ])
 
     out = await h0.exec({ err1: true }, {}, { runid: 'foo' })
-    expect(out.err!.message).equal('err1')
+    assert.strictEqual(out.err!.message, 'err1')
 
     out = await h0.exec({ err2: true }, {}, {
-      done: (res: any) => {
-        expect(res.err.message).equal('Unknown operation: not-an-op')
+      done: function(rout: any) {
+        assert.strictEqual(rout.err.message, 'Unknown operation: not-an-op')
       },
     })
-    expect(out.err!.message).equal('Unknown operation: not-an-op')
+    assert.strictEqual(out.err!.message, 'Unknown operation: not-an-op')
   })
 
   it('async', async () => {
@@ -360,18 +360,17 @@ describe('ordu', function() {
     h0.add(a_ext1)
 
     let out = await h0.exec()
-    expect(out.err).not.exists()
+    assert.ok(out.err == null)
 
-    expect(out.data).includes({
-      foo: 1,
-      bar: 1,
-      zed: 1,
-      qaz: 1,
-      ext0r: 'ext0-a',
-      ext1r: 'ext1-a',
-    })
+    const data: any = out.data
+    assert.strictEqual(data.foo, 1)
+    assert.strictEqual(data.bar, 1)
+    assert.strictEqual(data.zed, 1)
+    assert.strictEqual(data.qaz, 1)
+    assert.strictEqual(data.ext0r, 'ext0-a')
+    assert.strictEqual(data.ext1r, 'ext1-a')
 
-    expect((out.data as any).ext0p).exists()
+    assert.ok(data.ext0p != null)
   })
 
   it('insert-order', async () => {
@@ -383,55 +382,55 @@ describe('ordu', function() {
         .join(' ')
 
     h0.add(function a() { })
-    expect(names(h0)).equal('a')
+    assert.strictEqual(names(h0), 'a')
 
     h0.add(function b() { })
-    expect(names(h0)).equal('a b')
+    assert.strictEqual(names(h0), 'a b')
 
     h0.add(function c() { })
-    expect(names(h0)).equal('a b c')
+    assert.strictEqual(names(h0), 'a b c')
 
     h0.add(function A() { }, { before: 'a' })
-    expect(names(h0)).equal('A a b c')
+    assert.strictEqual(names(h0), 'A a b c')
 
     h0.add(function B() { }, { before: 'b' })
-    expect(names(h0)).equal('A a B b c')
+    assert.strictEqual(names(h0), 'A a B b c')
 
     h0.add(function C() { }, { before: 'c' })
-    expect(names(h0)).equal('A a B b C c')
+    assert.strictEqual(names(h0), 'A a B b C c')
 
     h0.add(function a0() { }, { after: 'a' })
-    expect(names(h0)).equal('A a a0 B b C c')
+    assert.strictEqual(names(h0), 'A a a0 B b C c')
 
     h0.add(function b0() { }, { after: 'b' })
-    expect(names(h0)).equal('A a a0 B b b0 C c')
+    assert.strictEqual(names(h0), 'A a a0 B b b0 C c')
 
     h0.add(function c0() { }, { after: 'c' })
-    expect(names(h0)).equal('A a a0 B b b0 C c c0')
+    assert.strictEqual(names(h0), 'A a a0 B b b0 C c c0')
 
     h0.add(function A0() { }, { before: 'a' })
-    expect(names(h0)).equal('A A0 a a0 B b b0 C c c0')
+    assert.strictEqual(names(h0), 'A A0 a a0 B b b0 C c c0')
 
     h0.add(function B0() { }, { before: 'b' })
-    expect(names(h0)).equal('A A0 a a0 B B0 b b0 C c c0')
+    assert.strictEqual(names(h0), 'A A0 a a0 B B0 b b0 C c c0')
 
     h0.add(function C0() { }, { before: 'c' })
-    expect(names(h0)).equal('A A0 a a0 B B0 b b0 C C0 c c0')
+    assert.strictEqual(names(h0), 'A A0 a a0 B B0 b b0 C C0 c c0')
 
     h0.add(function a1() { }, { after: 'a' })
-    expect(names(h0)).equal('A A0 a a1 a0 B B0 b b0 C C0 c c0')
+    assert.strictEqual(names(h0), 'A A0 a a1 a0 B B0 b b0 C C0 c c0')
 
     h0.add(function b1() { }, { after: 'b' })
-    expect(names(h0)).equal('A A0 a a1 a0 B B0 b b1 b0 C C0 c c0')
+    assert.strictEqual(names(h0), 'A A0 a a1 a0 B B0 b b1 b0 C C0 c c0')
 
     h0.add(function c1() { }, { after: 'c' })
-    expect(names(h0)).equal('A A0 a a1 a0 B B0 b b1 b0 C C0 c c1 c0')
+    assert.strictEqual(names(h0), 'A A0 a a1 a0 B B0 b b1 b0 C C0 c c1 c0')
 
     h0.add(function A1() { }, { after: 'A' })
-    expect(names(h0)).equal('A A1 A0 a a1 a0 B B0 b b1 b0 C C0 c c1 c0')
+    assert.strictEqual(names(h0), 'A A1 A0 a a1 a0 B B0 b b1 b0 C C0 c c1 c0')
 
     h0.add(function AA0() { }, { before: 'A' })
-    expect(names(h0)).equal('AA0 A A1 A0 a a1 a0 B B0 b b1 b0 C C0 c c1 c0')
+    assert.strictEqual(names(h0), 'AA0 A A1 A0 a a1 a0 B B0 b b1 b0 C C0 c c1 c0')
   })
 
   it('errors', async () => {
@@ -444,7 +443,7 @@ describe('ordu', function() {
     })
 
     let out = await h0.exec()
-    expect(out.err!.message).equals('a-err')
+    assert.strictEqual(out.err!.message, 'a-err')
 
     let cbout: any
     await h0.exec(
@@ -459,7 +458,7 @@ describe('ordu', function() {
 
     await new Promise<void>((r) =>
       setImmediate(() => {
-        expect(cbout.err!.message).equals('a-err')
+        assert.strictEqual(cbout.err!.message, 'a-err')
         r()
       })
     )
@@ -471,7 +470,7 @@ describe('ordu', function() {
     })
 
     let h1out = await h1.exec()
-    expect(h1out.err!.message).equals('a-terr')
+    assert.strictEqual(h1out.err!.message, 'a-terr')
 
     let h1cbout: any
     await h1.exec(
@@ -486,7 +485,7 @@ describe('ordu', function() {
 
     await new Promise<void>((r) =>
       setImmediate(() => {
-        expect(h1cbout.err!.message).equals('a-terr')
+        assert.strictEqual(h1cbout.err!.message, 'a-terr')
         r()
       })
     )
@@ -505,29 +504,29 @@ describe('ordu', function() {
 
     let foo: any = { z: 0 }
     let o0 = h0.execSync({}, { foo }, {})
-    expect(foo).equals({ z: 0, x: 1, y: 2 })
-    expect((o0.data as any).foo).equals({ z: 0, x: 1, y: 2 })
+    assert.deepStrictEqual(foo, { z: 0, x: 1, y: 2 })
+    assert.deepStrictEqual((o0.data as any).foo, { z: 0, x: 1, y: 2 })
   })
 
   it('edges', async () => {
     const h0 = new Ordu()
 
     let o0 = h0.execSync()
-    expect(o0.tasklog).equal([])
-    expect(o0.taskcount).equal(0)
-    expect(o0.tasktotal).equal(0)
+    assert.deepStrictEqual(o0.tasklog, [])
+    assert.strictEqual(o0.taskcount, 0)
+    assert.strictEqual(o0.tasktotal, 0)
 
     let o1 = await h0.exec()
-    expect(o1.tasklog).equal([])
-    expect(o1.taskcount).equal(0)
-    expect(o1.tasktotal).equal(0)
+    assert.deepStrictEqual(o1.tasklog, [])
+    assert.strictEqual(o1.taskcount, 0)
+    assert.strictEqual(o1.tasktotal, 0)
 
     h0.operator('foo', (tr: any, ctx: any, data: any) => {
       throw new Error('foo')
     })
     h0.add(() => ({ op: 'foo' }))
     let o2 = h0.execSync()
-    expect(o2.err!.message).equals('foo')
+    assert.strictEqual(o2.err!.message, 'foo')
 
     const h1 = new Ordu()
     h1.add(async () => {
@@ -535,7 +534,7 @@ describe('ordu', function() {
     })
 
     let o3 = await h1.exec()
-    expect(o3.err!.message).equals('bar')
+    assert.strictEqual(o3.err!.message, 'bar')
   })
 
   it('readme', async () => {
@@ -556,7 +555,7 @@ describe('ordu', function() {
 
     process.execSync(ctx, data, {})
     // DOC console.log(data.foo) // prints 'GREEN!!!' (first)
-    expect(data).equals({ foo: 'GREEN!!!' })
+    assert.deepStrictEqual(data, { foo: 'GREEN!!!' })
 
     process.add(function second(spec: any) {
       spec.data.foo = spec.ctx.prefix + spec.data.foo
@@ -566,6 +565,6 @@ describe('ordu', function() {
     data = { foo: 'blue' }
     process.execSync(ctx, data, {})
     // DOC console.log(data.foo) // prints '>>>BLUE!!!' (first, second)
-    expect(data).equals({ foo: '>>>BLUE!!!' })
+    assert.deepStrictEqual(data, { foo: '>>>BLUE!!!' })
   })
 })
