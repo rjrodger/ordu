@@ -4,7 +4,12 @@
       "Bash(mv:*)",
       "Bash(ls:*)",
       "Bash(npm run build:*)",
-      "Bash(npm test)"
+      "Bash(npm test)",
+      "Read(//Users/richard/Projects/rjrodger/nua/**)",
+      "Read(//Users/richard/Projects/**)",
+      "Bash(echo \"EXIT=$?\")",
+      "Bash(npm view *)",
+      "Bash(go vet *)"
     ],
     "deny": []
   }

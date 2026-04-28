@@ -13,6 +13,9 @@ import (
 	nua "github.com/rjrodger/nua/go"
 )
 
+// Version is the current version of the ordu Go module.
+const Version = "0.1.0"
+
 var taskCount int
 
 // TaskExec is the function signature for task execution.
@@ -197,12 +200,12 @@ func New(opts *Options) *Ordu {
 	}
 
 	o.operatorMap["stop"] = func(r *TaskResult, ctx, data map[string]any) (*Operate, error) {
-		nua.Merge(data, r.Out, &nua.Options{Preserve: true})
+		nua.Merge(data, r.Out, nua.WithPreserve(true))
 		return &Operate{Stop: true, Err: r.Err}, nil
 	}
 
 	o.operatorMap["merge"] = func(r *TaskResult, ctx, data map[string]any) (*Operate, error) {
-		nua.Merge(data, r.Out, &nua.Options{Preserve: true})
+		nua.Merge(data, r.Out, nua.WithPreserve(true))
 		return &Operate{Stop: false}, nil
 	}
 
