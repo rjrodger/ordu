@@ -14,7 +14,7 @@ import (
 )
 
 // Version is the current version of the ordu Go module.
-const Version = "0.1.0"
+const Version = "0.1.1"
 
 var taskCount int
 
